@@ -1,5 +1,10 @@
-import type { Metadata } from "next";
+import { Suspense } from "react";
+import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Titillium_Web } from "next/font/google";
+import { HistoryTracker } from "@/components/layout/BackButton";
+import { SiteFooter } from "@/components/layout/SiteFooter";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { TabBar } from "@/components/layout/TabBar";
 import "./globals.css";
 
 const titillium = Titillium_Web({
@@ -15,9 +20,15 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "F1HUB",
+  title: { default: "F1HUB", template: "%s | F1HUB" },
   description:
     "Formula 1 calendar, standings, race weekends, analysis and the full archive.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0b0b0d",
+  // Lets the tab bar pad itself with env(safe-area-inset-bottom)
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -26,7 +37,28 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${titillium.variable} ${jetbrains.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      {/* Below 768px the body reserves room for the fixed tab bar */}
+      <body className="flex min-h-full flex-col pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] max-md:pb-[calc(52px+max(12px,env(safe-area-inset-bottom)))]">
+        <a
+          href="#main"
+          className="fixed top-2 left-2 z-30 -translate-y-20 rounded-md bg-text px-4 py-2.5 font-bold text-background focus:translate-y-0"
+        >
+          Skip to content
+        </a>
+        <SiteHeader />
+        <main
+          id="main"
+          tabIndex={-1}
+          className="mx-auto flex w-full max-w-[1240px] flex-1 flex-col gap-3.5 px-4 pb-6 outline-none md:px-6 lg:gap-5 lg:pb-12"
+        >
+          {children}
+        </main>
+        <SiteFooter />
+        <TabBar />
+        <Suspense>
+          <HistoryTracker />
+        </Suspense>
+      </body>
     </html>
   );
 }

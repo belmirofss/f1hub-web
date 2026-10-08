@@ -1,0 +1,85 @@
+import type { ReactNode } from "react";
+import { cn } from "@/lib/cn";
+import { BackButton } from "./BackButton";
+
+type Props = {
+  title: ReactNode;
+  // Small mono line: "2026 · 16/23" next to a tab title, "R17 · SGP · 11 OCT"
+  // above a detail title
+  meta?: ReactNode;
+  // Makes it a detail page header with a Back button. This is where Back
+  // goes when the visitor didn't come from another F1HUB page.
+  back?: string;
+  // Buttons: share, circuit link, a Segmented switch
+  actions?: ReactNode;
+  // Under the title: weekend tabs, view switches
+  children?: ReactNode;
+  className?: string;
+};
+
+// From 1024px titles get the big slanted desktop treatment
+const desktopTitle =
+  "lg:-skew-x-6 lg:text-[40px] lg:leading-[44px] lg:font-black";
+
+// The app's screen header. Tab pages: big title with the meta on its
+// baseline. Detail pages: Back + meta on one row and the title under it.
+// Desktop has the browser's back button, so there the meta sits above the
+// title and the actions move to its right.
+export const PageHeader = ({
+  title,
+  meta,
+  back,
+  actions,
+  children,
+  className,
+}: Props) => {
+  if (!back) {
+    return (
+      <header
+        className={cn("flex flex-col gap-3 pt-[18px] lg:pt-6", className)}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-baseline justify-between gap-3 lg:flex-none lg:flex-col lg:items-start lg:gap-0.5">
+            <h1 className={cn("text-[28px] leading-9 font-bold", desktopTitle)}>
+              {title}
+            </h1>
+            {meta && (
+              <p className="shrink-0 font-mono text-xs text-muted">{meta}</p>
+            )}
+          </div>
+          {actions && <div className="flex items-center gap-2">{actions}</div>}
+        </div>
+        {children}
+      </header>
+    );
+  }
+
+  return (
+    <header className={cn("flex flex-col gap-3 pt-2 lg:pt-6", className)}>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 [grid-template-areas:'meta_actions'_'title_title'] lg:items-end lg:gap-y-1.5 lg:[grid-template-areas:'meta_meta'_'title_actions']">
+        <div className="-ml-2.5 flex min-h-11 min-w-0 items-center [grid-area:meta] lg:ml-0 lg:min-h-0">
+          <BackButton fallbackHref={back} className="lg:hidden" />
+          {meta && (
+            <p className="truncate font-mono text-xs tracking-[1px] text-muted">
+              {meta}
+            </p>
+          )}
+        </div>
+        {actions && (
+          <div className="flex items-center gap-2 [grid-area:actions]">
+            {actions}
+          </div>
+        )}
+        <h1
+          className={cn(
+            "text-[26px] leading-[30px] font-bold [grid-area:title]",
+            desktopTitle,
+          )}
+        >
+          {title}
+        </h1>
+      </div>
+      {children}
+    </header>
+  );
+};
