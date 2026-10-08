@@ -1,5 +1,5 @@
-import { TabPageSkeleton } from "@/components/layout/PageSkeletons";
+import { CalendarSkeleton } from "@/components/calendar/Calendar";
 
 export default function Loading() {
-  return <TabPageSkeleton />;
+  return <CalendarSkeleton />;
 }
