@@ -1,0 +1,93 @@
+// Final drivers' standings for finished seasons, generated from the Jolpica F1 API
+// (one request per season). Past titles never change, so they ship with the app
+// instead of costing ~75 requests. Add a line here when a season ends.
+export type Champion = {
+  season: string;
+  rounds: number;
+  driverId: string;
+  driver: string;
+  teamId: string;
+  team: string;
+  points: number;
+  wins: number;
+};
+
+// prettier-ignore
+export const CHAMPIONS: Champion[] = [
+  { season: "1950", rounds: 7, driverId: "farina", driver: "Nino Farina", teamId: "alfa", team: "Alfa Romeo", points: 30, wins: 3 },
+  { season: "1951", rounds: 8, driverId: "fangio", driver: "Juan Fangio", teamId: "alfa", team: "Alfa Romeo", points: 31, wins: 3 },
+  { season: "1952", rounds: 8, driverId: "ascari", driver: "Alberto Ascari", teamId: "ferrari", team: "Ferrari", points: 36, wins: 6 },
+  { season: "1953", rounds: 9, driverId: "ascari", driver: "Alberto Ascari", teamId: "ferrari", team: "Ferrari", points: 34.5, wins: 5 },
+  { season: "1954", rounds: 9, driverId: "fangio", driver: "Juan Fangio", teamId: "mercedes", team: "Mercedes", points: 42, wins: 6 },
+  { season: "1955", rounds: 7, driverId: "fangio", driver: "Juan Fangio", teamId: "mercedes", team: "Mercedes", points: 40, wins: 4 },
+  { season: "1956", rounds: 8, driverId: "fangio", driver: "Juan Fangio", teamId: "ferrari", team: "Ferrari", points: 30, wins: 3 },
+  { season: "1957", rounds: 8, driverId: "fangio", driver: "Juan Fangio", teamId: "maserati", team: "Maserati", points: 40, wins: 4 },
+  { season: "1958", rounds: 11, driverId: "hawthorn", driver: "Mike Hawthorn", teamId: "ferrari", team: "Ferrari", points: 42, wins: 1 },
+  { season: "1959", rounds: 9, driverId: "jack_brabham", driver: "Jack Brabham", teamId: "cooper-climax", team: "Cooper-Climax", points: 31, wins: 2 },
+  { season: "1960", rounds: 10, driverId: "jack_brabham", driver: "Jack Brabham", teamId: "cooper-climax", team: "Cooper-Climax", points: 43, wins: 5 },
+  { season: "1961", rounds: 8, driverId: "phil_hill", driver: "Phil Hill", teamId: "ferrari", team: "Ferrari", points: 34, wins: 2 },
+  { season: "1962", rounds: 9, driverId: "hill", driver: "Graham Hill", teamId: "brm", team: "BRM", points: 42, wins: 4 },
+  { season: "1963", rounds: 10, driverId: "clark", driver: "Jim Clark", teamId: "lotus-climax", team: "Lotus-Climax", points: 54, wins: 7 },
+  { season: "1964", rounds: 10, driverId: "surtees", driver: "John Surtees", teamId: "ferrari", team: "Ferrari", points: 40, wins: 2 },
+  { season: "1965", rounds: 10, driverId: "clark", driver: "Jim Clark", teamId: "lotus-climax", team: "Lotus-Climax", points: 54, wins: 6 },
+  { season: "1966", rounds: 9, driverId: "jack_brabham", driver: "Jack Brabham", teamId: "brabham-repco", team: "Brabham-Repco", points: 42, wins: 4 },
+  { season: "1967", rounds: 11, driverId: "hulme", driver: "Denny Hulme", teamId: "brabham-repco", team: "Brabham-Repco", points: 51, wins: 2 },
+  { season: "1968", rounds: 12, driverId: "hill", driver: "Graham Hill", teamId: "lotus-ford", team: "Lotus-Ford", points: 48, wins: 3 },
+  { season: "1969", rounds: 11, driverId: "stewart", driver: "Jackie Stewart", teamId: "matra-ford", team: "Matra-Ford", points: 63, wins: 6 },
+  { season: "1970", rounds: 13, driverId: "rindt", driver: "Jochen Rindt", teamId: "team_lotus", team: "Team Lotus", points: 45, wins: 5 },
+  { season: "1971", rounds: 11, driverId: "stewart", driver: "Jackie Stewart", teamId: "tyrrell", team: "Tyrrell", points: 62, wins: 6 },
+  { season: "1972", rounds: 12, driverId: "emerson_fittipaldi", driver: "Emerson Fittipaldi", teamId: "team_lotus", team: "Team Lotus", points: 61, wins: 5 },
+  { season: "1973", rounds: 15, driverId: "stewart", driver: "Jackie Stewart", teamId: "tyrrell", team: "Tyrrell", points: 71, wins: 5 },
+  { season: "1974", rounds: 15, driverId: "emerson_fittipaldi", driver: "Emerson Fittipaldi", teamId: "mclaren", team: "McLaren", points: 55, wins: 3 },
+  { season: "1975", rounds: 14, driverId: "lauda", driver: "Niki Lauda", teamId: "ferrari", team: "Ferrari", points: 64.5, wins: 5 },
+  { season: "1976", rounds: 16, driverId: "hunt", driver: "James Hunt", teamId: "mclaren", team: "McLaren", points: 69, wins: 6 },
+  { season: "1977", rounds: 17, driverId: "lauda", driver: "Niki Lauda", teamId: "ferrari", team: "Ferrari", points: 70, wins: 3 },
+  { season: "1978", rounds: 16, driverId: "mario_andretti", driver: "Mario Andretti", teamId: "team_lotus", team: "Team Lotus", points: 64, wins: 6 },
+  { season: "1979", rounds: 15, driverId: "scheckter", driver: "Jody Scheckter", teamId: "ferrari", team: "Ferrari", points: 51, wins: 3 },
+  { season: "1980", rounds: 14, driverId: "jones", driver: "Alan Jones", teamId: "williams", team: "Williams", points: 67, wins: 5 },
+  { season: "1981", rounds: 15, driverId: "piquet", driver: "Nelson Piquet", teamId: "brabham", team: "Brabham", points: 50, wins: 3 },
+  { season: "1982", rounds: 16, driverId: "keke_rosberg", driver: "Keke Rosberg", teamId: "williams", team: "Williams", points: 44, wins: 1 },
+  { season: "1983", rounds: 15, driverId: "piquet", driver: "Nelson Piquet", teamId: "brabham", team: "Brabham", points: 59, wins: 3 },
+  { season: "1984", rounds: 16, driverId: "lauda", driver: "Niki Lauda", teamId: "mclaren", team: "McLaren", points: 72, wins: 5 },
+  { season: "1985", rounds: 16, driverId: "prost", driver: "Alain Prost", teamId: "mclaren", team: "McLaren", points: 73, wins: 5 },
+  { season: "1986", rounds: 16, driverId: "prost", driver: "Alain Prost", teamId: "mclaren", team: "McLaren", points: 72, wins: 4 },
+  { season: "1987", rounds: 16, driverId: "piquet", driver: "Nelson Piquet", teamId: "williams", team: "Williams", points: 73, wins: 3 },
+  { season: "1988", rounds: 16, driverId: "senna", driver: "Ayrton Senna", teamId: "mclaren", team: "McLaren", points: 90, wins: 8 },
+  { season: "1989", rounds: 16, driverId: "prost", driver: "Alain Prost", teamId: "mclaren", team: "McLaren", points: 76, wins: 4 },
+  { season: "1990", rounds: 16, driverId: "senna", driver: "Ayrton Senna", teamId: "mclaren", team: "McLaren", points: 78, wins: 6 },
+  { season: "1991", rounds: 16, driverId: "senna", driver: "Ayrton Senna", teamId: "mclaren", team: "McLaren", points: 96, wins: 7 },
+  { season: "1992", rounds: 16, driverId: "mansell", driver: "Nigel Mansell", teamId: "williams", team: "Williams", points: 108, wins: 9 },
+  { season: "1993", rounds: 16, driverId: "prost", driver: "Alain Prost", teamId: "williams", team: "Williams", points: 99, wins: 7 },
+  { season: "1994", rounds: 16, driverId: "michael_schumacher", driver: "Michael Schumacher", teamId: "benetton", team: "Benetton", points: 92, wins: 8 },
+  { season: "1995", rounds: 17, driverId: "michael_schumacher", driver: "Michael Schumacher", teamId: "benetton", team: "Benetton", points: 102, wins: 9 },
+  { season: "1996", rounds: 16, driverId: "damon_hill", driver: "Damon Hill", teamId: "williams", team: "Williams", points: 97, wins: 8 },
+  { season: "1997", rounds: 17, driverId: "villeneuve", driver: "Jacques Villeneuve", teamId: "williams", team: "Williams", points: 81, wins: 7 },
+  { season: "1998", rounds: 16, driverId: "hakkinen", driver: "Mika Häkkinen", teamId: "mclaren", team: "McLaren", points: 100, wins: 8 },
+  { season: "1999", rounds: 16, driverId: "hakkinen", driver: "Mika Häkkinen", teamId: "mclaren", team: "McLaren", points: 76, wins: 5 },
+  { season: "2000", rounds: 17, driverId: "michael_schumacher", driver: "Michael Schumacher", teamId: "ferrari", team: "Ferrari", points: 108, wins: 9 },
+  { season: "2001", rounds: 17, driverId: "michael_schumacher", driver: "Michael Schumacher", teamId: "ferrari", team: "Ferrari", points: 123, wins: 9 },
+  { season: "2002", rounds: 17, driverId: "michael_schumacher", driver: "Michael Schumacher", teamId: "ferrari", team: "Ferrari", points: 144, wins: 11 },
+  { season: "2003", rounds: 16, driverId: "michael_schumacher", driver: "Michael Schumacher", teamId: "ferrari", team: "Ferrari", points: 93, wins: 6 },
+  { season: "2004", rounds: 18, driverId: "michael_schumacher", driver: "Michael Schumacher", teamId: "ferrari", team: "Ferrari", points: 148, wins: 13 },
+  { season: "2005", rounds: 19, driverId: "alonso", driver: "Fernando Alonso", teamId: "renault", team: "Renault", points: 133, wins: 7 },
+  { season: "2006", rounds: 18, driverId: "alonso", driver: "Fernando Alonso", teamId: "renault", team: "Renault", points: 134, wins: 7 },
+  { season: "2007", rounds: 17, driverId: "raikkonen", driver: "Kimi Räikkönen", teamId: "ferrari", team: "Ferrari", points: 110, wins: 6 },
+  { season: "2008", rounds: 18, driverId: "hamilton", driver: "Lewis Hamilton", teamId: "mclaren", team: "McLaren", points: 98, wins: 5 },
+  { season: "2009", rounds: 17, driverId: "button", driver: "Jenson Button", teamId: "brawn", team: "Brawn", points: 95, wins: 6 },
+  { season: "2010", rounds: 19, driverId: "vettel", driver: "Sebastian Vettel", teamId: "red_bull", team: "Red Bull", points: 256, wins: 5 },
+  { season: "2011", rounds: 19, driverId: "vettel", driver: "Sebastian Vettel", teamId: "red_bull", team: "Red Bull", points: 392, wins: 11 },
+  { season: "2012", rounds: 20, driverId: "vettel", driver: "Sebastian Vettel", teamId: "red_bull", team: "Red Bull", points: 281, wins: 5 },
+  { season: "2013", rounds: 19, driverId: "vettel", driver: "Sebastian Vettel", teamId: "red_bull", team: "Red Bull", points: 397, wins: 13 },
+  { season: "2014", rounds: 19, driverId: "hamilton", driver: "Lewis Hamilton", teamId: "mercedes", team: "Mercedes", points: 384, wins: 11 },
+  { season: "2015", rounds: 19, driverId: "hamilton", driver: "Lewis Hamilton", teamId: "mercedes", team: "Mercedes", points: 381, wins: 10 },
+  { season: "2016", rounds: 21, driverId: "rosberg", driver: "Nico Rosberg", teamId: "mercedes", team: "Mercedes", points: 385, wins: 9 },
+  { season: "2017", rounds: 20, driverId: "hamilton", driver: "Lewis Hamilton", teamId: "mercedes", team: "Mercedes", points: 363, wins: 9 },
+  { season: "2018", rounds: 21, driverId: "hamilton", driver: "Lewis Hamilton", teamId: "mercedes", team: "Mercedes", points: 408, wins: 11 },
+  { season: "2019", rounds: 21, driverId: "hamilton", driver: "Lewis Hamilton", teamId: "mercedes", team: "Mercedes", points: 413, wins: 11 },
+  { season: "2020", rounds: 17, driverId: "hamilton", driver: "Lewis Hamilton", teamId: "mercedes", team: "Mercedes", points: 347, wins: 11 },
+  { season: "2021", rounds: 22, driverId: "max_verstappen", driver: "Max Verstappen", teamId: "red_bull", team: "Red Bull", points: 395.5, wins: 10 },
+  { season: "2022", rounds: 22, driverId: "max_verstappen", driver: "Max Verstappen", teamId: "red_bull", team: "Red Bull", points: 454, wins: 15 },
+  { season: "2023", rounds: 22, driverId: "max_verstappen", driver: "Max Verstappen", teamId: "red_bull", team: "Red Bull", points: 575, wins: 19 },
+  { season: "2024", rounds: 24, driverId: "max_verstappen", driver: "Max Verstappen", teamId: "red_bull", team: "Red Bull", points: 437, wins: 9 },
+  { season: "2025", rounds: 24, driverId: "norris", driver: "Lando Norris", teamId: "mclaren", team: "McLaren", points: 423, wins: 7 },
+];

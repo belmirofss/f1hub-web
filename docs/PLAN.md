@@ -65,7 +65,7 @@ app/
   manifest.ts · sitemap.ts · robots.ts · opengraph-image.tsx (per route)
 lib/
   api/        jolpica.ts · openf1.ts · openMeteo.ts · wikipedia.ts · fetcher.ts (throttle, retry, revalidate)
-  domain/     sessions · championship · results · headToHead · teams · circuits · countries · weather · search · time
+  domain/     sessions · championship · results · headToHead · teams · circuits · countries · weather · search · time · routes
   data/       champions.ts · constructorChampions.ts   (copied from the app)
 components/   ui/ (Card, Label, TeamBar, Segmented, Tabs, StatGrid, StatRows, SplitBar, FormChips…) + feature components
 public/       sw.js · icons/
