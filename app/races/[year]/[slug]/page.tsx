@@ -1,10 +1,18 @@
-import type { Metadata } from "next";
 import { Columns } from "@/components/layout/Columns";
+import { Schedule } from "@/components/races/Schedule";
 import { Stub } from "@/components/Stub";
+import { getRaceWeekend, getWeekendTabs } from "@/lib/raceWeekend";
 
-export const metadata: Metadata = { title: "Race results" };
+// The race once there are results, the schedule until then
+export default async function RaceWeekendPage({
+  params,
+}: PageProps<"/races/[year]/[slug]">) {
+  const { year, slug } = await params;
+  const { race } = await getRaceWeekend(year, slug);
+  const { results } = await getWeekendTabs(race);
 
-export default function RaceResultsPage() {
+  if (!results) return <Schedule race={race} />;
+
   return (
     <Columns
       aside={

@@ -1,18 +1,22 @@
 import type { Metadata } from "next";
-import { Stub } from "@/components/Stub";
+import { Schedule } from "@/components/races/Schedule";
+import { getRaceWeekend } from "@/lib/raceWeekend";
 
-export const metadata: Metadata = { title: "Race weekend schedule" };
+export const generateMetadata = async ({
+  params,
+}: PageProps<"/races/[year]/[slug]/schedule">): Promise<Metadata> => {
+  const { year, slug } = await params;
+  const { race } = await getRaceWeekend(year, slug);
+  return {
+    title: `${race.raceName} ${year} schedule`,
+    description: `${race.raceName} ${year} session times in your time zone and at the track, the weekend forecast and circuit info.`,
+  };
+};
 
-export default function RaceSchedulePage() {
-  return (
-    <Stub
-      issue={12}
-      links={[
-        { href: "/circuits/marina_bay", label: "Marina Bay Street Circuit" },
-      ]}
-    >
-      Weekend timeline, forecast, sessions in your time and track time, and
-      circuit info.
-    </Stub>
-  );
+export default async function RaceSchedulePage({
+  params,
+}: PageProps<"/races/[year]/[slug]/schedule">) {
+  const { year, slug } = await params;
+  const { race } = await getRaceWeekend(year, slug);
+  return <Schedule race={race} />;
 }
