@@ -1,10 +1,56 @@
+import { Suspense, type ReactNode } from "react";
 import { SlidersHorizontal } from "lucide-react";
+import { HomeTitleFight } from "@/components/home/HomeTitleFight";
+import {
+  LastRaceCard,
+  LastRaceCardSkeleton,
+} from "@/components/home/LastRaceCard";
+import {
+  NextRaceCard,
+  NextRaceCardSkeleton,
+} from "@/components/home/NextRaceCard";
+import {
+  NextSessionTicker,
+  NextSessionTickerSkeleton,
+} from "@/components/home/NextSessionTicker";
+import { SearchBar } from "@/components/home/SearchBar";
+import {
+  SeasonStripCard,
+  SeasonStripCardSkeleton,
+} from "@/components/home/SeasonStripCard";
+import {
+  TeammateSpotlightCard,
+  TeammateSpotlightCardSkeleton,
+} from "@/components/home/TeammateSpotlightCard";
+import {
+  TopFiveCard,
+  TopFiveCardSkeleton,
+} from "@/components/home/TopFiveCard";
 import { Columns } from "@/components/layout/Columns";
 import { Wordmark } from "@/components/layout/Wordmark";
-import { Stub } from "@/components/Stub";
 import { IconButton } from "@/components/ui/Card";
+import { CardBoundary, SilentBoundary } from "@/components/ui/CardBoundary";
 
-// Placeholder until the Home page (#8)
+// Each card loads on its own, so one slow or failing API only holds up (or
+// breaks) its own card
+const Slot = ({
+  label,
+  fallback,
+  children,
+}: {
+  // Shown on the card if it fails; omit to drop the card silently
+  label?: string;
+  fallback: ReactNode;
+  children: ReactNode;
+}) => {
+  const content = <Suspense fallback={fallback}>{children}</Suspense>;
+  return label ? (
+    <CardBoundary label={label}>{content}</CardBoundary>
+  ) : (
+    <SilentBoundary>{content}</SilentBoundary>
+  );
+};
+
 export default function Home() {
   return (
     <>
@@ -15,35 +61,43 @@ export default function Home() {
           <SlidersHorizontal aria-hidden size={18} strokeWidth={2} />
         </IconButton>
       </header>
-      <h1 className="sr-only">F1HUB</h1>
-      <Columns
-        className="md:pt-5 lg:pt-6"
-        aside={
-          <Stub
-            issue={8}
-            links={[
-              { href: "/standings", label: "Standings" },
-              { href: "/drivers/antonelli", label: "Andrea Kimi Antonelli" },
-            ]}
-          >
-            Top 5 with recent form and the closest teammate battle.
-          </Stub>
-        }
-      >
-        <Stub
-          issue={8}
-          links={[
-            {
-              href: "/races/2026/singapore-grand-prix/schedule",
-              label: "Singapore Grand Prix",
-            },
-            { href: "/search", label: "Search" },
-          ]}
+      <h1 className="sr-only">
+        F1HUB: Formula 1 calendar, standings and results
+      </h1>
+      <div className="flex flex-col gap-3.5 md:pt-5 lg:gap-5">
+        <Slot fallback={<NextSessionTickerSkeleton />}>
+          <NextSessionTicker />
+        </Slot>
+        <SearchBar />
+        <Columns
+          asideLabel="Championship"
+          aside={
+            <>
+              <Slot label="Top 5" fallback={<TopFiveCardSkeleton />}>
+                <TopFiveCard />
+              </Slot>
+              <Slot fallback={null}>
+                <HomeTitleFight />
+              </Slot>
+              <Slot fallback={<TeammateSpotlightCardSkeleton />}>
+                <TeammateSpotlightCard />
+              </Slot>
+              <div className="contents max-lg:hidden">
+                <Slot fallback={<SeasonStripCardSkeleton />}>
+                  <SeasonStripCard />
+                </Slot>
+              </div>
+            </>
+          }
         >
-          The next race with its countdown and sessions, and the last
-          race&apos;s results.
-        </Stub>
-      </Columns>
+          <Slot label="Next race" fallback={<NextRaceCardSkeleton />}>
+            <NextRaceCard />
+          </Slot>
+          <Slot label="Last race" fallback={<LastRaceCardSkeleton />}>
+            <LastRaceCard />
+          </Slot>
+        </Columns>
+      </div>
     </>
   );
 }

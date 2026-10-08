@@ -84,6 +84,16 @@ export const formatShortDate = (date: Date | number, timeZone?: string) => {
   return `${day} ${month}`.toUpperCase();
 };
 
+// "FRI 09 OCT"
+export const formatDayDate = (date: Date | number, timeZone?: string) => {
+  const { weekday, day, month } = getParts(
+    date,
+    { weekday: "short", day: "2-digit", month: "short" },
+    timeZone,
+  );
+  return `${weekday} ${day} ${month}`.toUpperCase();
+};
+
 // "9 Oct 2026", for birthdays and other plain dates
 export const formatLongDate = (date: Date | number, timeZone?: string) => {
   const { day, month, year } = getParts(
