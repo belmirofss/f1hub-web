@@ -34,7 +34,7 @@ export const getPointsLeft = (races: Race[], round: number): PointsLeft => {
 export const isFinale = (left: PointsLeft) =>
   left.races === 1 && left.sprints === 0;
 
-// More than this and it's not a "fight" worth a card yet (early season)
+// How many contenders Home's compact title fight lists; the rest are counted
 export const MAX_CONTENDERS = 5;
 
 export type Contender = {

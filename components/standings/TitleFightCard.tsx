@@ -19,8 +19,7 @@ export type TitleFight = {
   left: PointsLeft;
 };
 
-// Who can still be champion, or nothing when it isn't a fight worth a card:
-// decided already, or more than five drivers still in it (early season)
+// Who can still be champion, or nothing once the title is decided
 export const getTitleFight = (
   standings: DriverStanding[],
   round: number,
@@ -28,7 +27,7 @@ export const getTitleFight = (
 ): TitleFight | undefined => {
   const left = getPointsLeft(races, round);
   const contenders = getContenders(standings, left);
-  if (contenders.length < 2 || contenders.length > MAX_CONTENDERS) return;
+  if (contenders.length < 2) return;
   return { contenders, left };
 };
 
@@ -67,9 +66,12 @@ export const ReachBar = ({
   </span>
 );
 
-// Home's version: one line per contender with their reach bar
+// Home's version: one line per contender with their reach bar, the top five
+// only, with a count of the others still in it
 export const TitleFightCompact = ({ fight }: { fight: TitleFight }) => {
-  const { contenders, left } = fight;
+  const { left } = fight;
+  const contenders = fight.contenders.slice(0, MAX_CONTENDERS);
+  const others = fight.contenders.length - contenders.length;
   const leaderPoints = contenders[0].points;
   const scaleMax = leaderPoints + left.points;
 
@@ -121,6 +123,11 @@ export const TitleFightCompact = ({ fight }: { fight: TitleFight }) => {
           </li>
         ))}
       </ul>
+      {others > 0 && (
+        <p className="text-[11px] text-muted">
+          +{others} more {others === 1 ? "driver" : "drivers"} can still win
+        </p>
+      )}
     </Card>
   );
 };
