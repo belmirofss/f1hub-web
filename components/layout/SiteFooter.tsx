@@ -1,12 +1,11 @@
+import { ANDROID_APP_URL, JOLPICA_URL } from "@/lib/links";
+
 const SOURCES = [
-  { label: "Jolpica F1", href: "https://github.com/jolpica/jolpica-f1" },
+  { label: "Jolpica F1", href: JOLPICA_URL },
   { label: "OpenF1", href: "https://openf1.org" },
   { label: "Open-Meteo", href: "https://open-meteo.com" },
   { label: "Wikipedia", href: "https://www.wikipedia.org" },
 ];
-
-const ANDROID_APP =
-  "https://play.google.com/store/apps/details?id=com.yabcompany.f1hub";
 
 export const SiteFooter = () => (
   <footer className="border-t border-line">
@@ -23,7 +22,7 @@ export const SiteFooter = () => (
         ))}
         . F1HUB is independent and has no relationship with Formula 1.
       </p>
-      <a href={ANDROID_APP} className="underline hover:text-text">
+      <a href={ANDROID_APP_URL} className="underline hover:text-text">
         Android app
       </a>
     </div>

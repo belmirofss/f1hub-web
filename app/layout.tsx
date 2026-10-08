@@ -5,6 +5,8 @@ import { HistoryTracker } from "@/components/layout/BackButton";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { TabBar } from "@/components/layout/TabBar";
+import { SettingsProvider } from "@/components/settings/SettingsProvider";
+import { ACCENT_SCRIPT } from "@/lib/settings";
 import "./globals.css";
 
 const titillium = Titillium_Web({
@@ -33,31 +35,38 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // The accent script sets a style on <html> before React hydrates
     <html
       lang="en"
       className={`${titillium.variable} ${jetbrains.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: ACCENT_SCRIPT }} />
+      </head>
       {/* Below 768px the body reserves room for the fixed tab bar */}
       <body className="flex min-h-full flex-col pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] max-md:pb-[calc(52px+max(12px,env(safe-area-inset-bottom)))]">
-        <a
-          href="#main"
-          className="fixed top-2 left-2 z-30 -translate-y-20 rounded-md bg-text px-4 py-2.5 font-bold text-background focus:translate-y-0"
-        >
-          Skip to content
-        </a>
-        <SiteHeader />
-        <main
-          id="main"
-          tabIndex={-1}
-          className="mx-auto flex w-full max-w-[1240px] flex-1 flex-col gap-3.5 px-4 pb-6 outline-none md:px-6 lg:gap-5 lg:pb-12"
-        >
-          {children}
-        </main>
-        <SiteFooter />
-        <TabBar />
-        <Suspense>
-          <HistoryTracker />
-        </Suspense>
+        <SettingsProvider>
+          <a
+            href="#main"
+            className="fixed top-2 left-2 z-30 -translate-y-20 rounded-md bg-text px-4 py-2.5 font-bold text-background focus:translate-y-0"
+          >
+            Skip to content
+          </a>
+          <SiteHeader />
+          <main
+            id="main"
+            tabIndex={-1}
+            className="mx-auto flex w-full max-w-[1240px] flex-1 flex-col gap-3.5 px-4 pb-6 outline-none md:px-6 lg:gap-5 lg:pb-12"
+          >
+            {children}
+          </main>
+          <SiteFooter />
+          <TabBar />
+          <Suspense>
+            <HistoryTracker />
+          </Suspense>
+        </SettingsProvider>
       </body>
     </html>
   );

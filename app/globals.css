@@ -32,7 +32,7 @@
 }
 
 @theme inline {
-  /* The user's accent (#4 makes it selectable) and the text colour on top of it */
+  /* The visitor's accent (set from Settings) and the text colour on top of it */
   --color-accent: var(--accent);
   --color-on-accent: var(--on-accent);
 
