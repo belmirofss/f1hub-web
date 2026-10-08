@@ -323,6 +323,10 @@ export async function getLastRaceResults(): Promise<RaceResults | null> {
   return data.MRData.RaceTable.Races[0] ?? null;
 }
 
+// Lap-by-lap data starts in 1996 and pit stops in 2011
+export const LAPS_FIRST_SEASON = 1996;
+export const PIT_STOPS_FIRST_SEASON = 2011;
+
 // Position of every driver at the end of every lap: driverId -> [lap 1, lap 2…]
 export type LapPositions = Record<string, number[]>;
 
@@ -351,7 +355,7 @@ async function loadLapPositions(
 }
 export const getLapPositions = bySeason(loadLapPositions);
 
-// Pit lane times, available from 2011
+// Pit lane times, available from PIT_STOPS_FIRST_SEASON
 async function loadPitStops(
   year: number,
   tier: SeasonTier,
