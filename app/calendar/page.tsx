@@ -1,29 +1,17 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { Stub } from "@/components/Stub";
+import { Calendar, CalendarSkeleton } from "@/components/calendar/Calendar";
 
-export const metadata: Metadata = { title: "Calendar" };
+export const metadata: Metadata = {
+  title: "Calendar",
+  description:
+    "Every round of the Formula 1 season: dates in your time zone, sprint weekends and the winner of each race.",
+};
 
 export default function CalendarPage() {
   return (
-    <>
-      <PageHeader title="Calendar" meta="2026" />
-      <Stub
-        issue={9}
-        links={[
-          {
-            href: "/races/2026/bahrain-grand-prix-in-malaysia",
-            label: "Bahrain Grand Prix in Malaysia",
-          },
-          {
-            href: "/races/2026/singapore-grand-prix/schedule",
-            label: "Singapore Grand Prix",
-          },
-        ]}
-      >
-        Every round of the season, coloured by the winning team, with a jump to
-        the next race.
-      </Stub>
-    </>
+    <Suspense fallback={<CalendarSkeleton />}>
+      <Calendar />
+    </Suspense>
   );
 }
