@@ -1,6 +1,5 @@
 import { Suspense, type ReactNode } from "react";
 import { SlidersHorizontal } from "lucide-react";
-import { HomeTitleFight } from "@/components/home/HomeTitleFight";
 import {
   LastRaceCard,
   LastRaceCardSkeleton,
@@ -28,6 +27,7 @@ import {
 } from "@/components/home/TopFiveCard";
 import { Columns } from "@/components/layout/Columns";
 import { Wordmark } from "@/components/layout/Wordmark";
+import { CurrentTitleFight } from "@/components/standings/CurrentTitleFight";
 import { IconButton } from "@/components/ui/Card";
 import { CardBoundary, SilentBoundary } from "@/components/ui/CardBoundary";
 
@@ -77,7 +77,7 @@ export default function Home() {
                 <TopFiveCard />
               </Slot>
               <Slot fallback={null}>
-                <HomeTitleFight />
+                <CurrentTitleFight compact />
               </Slot>
               <Slot fallback={<TeammateSpotlightCardSkeleton />}>
                 <TeammateSpotlightCard />

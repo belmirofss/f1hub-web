@@ -7,12 +7,15 @@ export const Columns = ({
   children,
   aside,
   asideLabel,
+  asideClassName,
   className,
 }: {
   children: ReactNode;
   aside?: ReactNode;
   // Accessible name for the aside landmark when a page has more than one
   asideLabel?: string;
+  // Lets a page move the aside above the main column or hide it on phones
+  asideClassName?: string;
   className?: string;
 }) => (
   <div className={cn("flex flex-wrap items-start gap-3.5 lg:gap-5", className)}>
@@ -22,7 +25,10 @@ export const Columns = ({
     {aside && (
       <aside
         aria-label={asideLabel}
-        className="flex min-w-0 flex-[1_1_340px] flex-col gap-3.5 lg:gap-5"
+        className={cn(
+          "flex min-w-0 flex-[1_1_340px] flex-col gap-3.5 lg:gap-5",
+          asideClassName,
+        )}
       >
         {aside}
       </aside>
