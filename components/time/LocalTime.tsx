@@ -6,13 +6,15 @@ import {
   formatClock,
   formatDateRange,
   formatDay,
+  formatDayDate,
   formatShortDate,
   utcOffsetLabel,
 } from "@/lib/domain/time";
 import { useHydrated, useNow } from "./useNow";
 
-// "09:00", "FRI 09", "FRI 09 09:00", "09 OCT", "09–11 OCT"
-export type TimeFormat = "clock" | "day" | "dayClock" | "shortDate" | "range";
+// "09:00", "FRI 09", "FRI 09 09:00", "FRI 09 OCT", "09 OCT", "09–11 OCT"
+export type TimeFormat =
+  "clock" | "day" | "dayClock" | "dayDate" | "shortDate" | "range";
 
 // What a Server Component can pass: a Date, a timestamp or an ISO string
 export type TimeValue = Date | number | string;
@@ -39,6 +41,8 @@ const formatTime = (
       return formatDay(date, timeZone);
     case "dayClock":
       return `${formatDay(date, timeZone)} ${formatClock(date, clock24, timeZone)}`;
+    case "dayDate":
+      return formatDayDate(date, timeZone);
     case "shortDate":
       return formatShortDate(date, timeZone);
     case "range":
@@ -52,6 +56,7 @@ const PLACEHOLDERS: Record<TimeFormat, string> = {
   clock: "00:00",
   day: "MON 00",
   dayClock: "MON 00 00:00",
+  dayDate: "MON 00 MON",
   shortDate: "00 MON",
   range: "00–00 MON",
 };

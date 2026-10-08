@@ -15,9 +15,14 @@ const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? "" : "s"}`;
 export const Countdown = ({
   target,
   className,
+  cellClassName,
+  valueClassName,
 }: {
   target: TimeValue;
   className?: string;
+  // Overrides for the tiles and their numbers (wider tiles on desktop)
+  cellClassName?: string;
+  valueClassName?: string;
 }) => {
   const now = useNow(1000);
   const start = new Date(target).getTime();
@@ -58,11 +63,15 @@ export const Countdown = ({
         <div
           key={cell.label}
           aria-hidden
-          className="flex flex-1 flex-col items-center rounded-md bg-background py-2.5"
+          className={cn(
+            "flex flex-1 flex-col items-center rounded-md bg-background py-2.5",
+            cellClassName,
+          )}
         >
           <span
             className={cn(
               "font-mono text-[34px]/[38px] font-bold",
+              valueClassName,
               now === null && "invisible",
             )}
           >

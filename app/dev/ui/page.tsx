@@ -123,6 +123,7 @@ const FORMATS: TimeFormat[] = [
   "clock",
   "day",
   "dayClock",
+  "dayDate",
   "shortDate",
   "range",
 ];
