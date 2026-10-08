@@ -1,7 +1,7 @@
 // Ported from the app's src/helpers/results.ts.
-import type { Result } from "@/lib/api/types";
+import type { QualifyingResult, Result } from "@/lib/api/types";
 
-// Finishers have a number; "R", "D", "W", "N", "E" mean retired, disqualified…
+// Finishers have a number; "R", "D", "W", "N", "E", "F" mean retired, disqualified…
 export const isClassified = (result: Pick<Result, "positionText">) =>
   /^\d+$/.test(result.positionText);
 
@@ -13,6 +13,7 @@ export const getStatusLabel = (result: Result) => {
       W: "DNS",
       N: "NC",
       E: "EXC",
+      F: "DNQ",
     };
     return short[result.positionText] ?? "DNF";
   }
@@ -67,3 +68,74 @@ export const lapTimeToMs = (time?: string) => {
 };
 
 export const formatGapMs = (ms: number) => formatSeconds(ms / 1000);
+
+// Qualifying
+
+export type QualifyingSession = "Q1" | "Q2" | "Q3";
+
+export const getBestQualifyingTime = (result: QualifyingResult) =>
+  result.Q3 || result.Q2 || result.Q1 || undefined;
+
+export type QualifyingGroup = {
+  key: "q3" | "q2" | "q1" | "none" | "all";
+  title: string;
+  // The session the gaps in this group are measured in
+  session?: QualifyingSession;
+  results: QualifyingResult[];
+};
+
+// Knockout qualifying (Q1, Q2, Q3) started in 2006
+export const KNOCKOUT_FIRST_SEASON = 2006;
+
+// Fastest time anyone set in a session, in ms
+export const getSessionFastestMs = (
+  results: QualifyingResult[],
+  session: QualifyingSession,
+) => {
+  const times = results
+    .map((result) => lapTimeToMs(result[session]))
+    .filter((time): time is number => !!time);
+  return times.length ? Math.min(...times) : undefined;
+};
+
+// Splits the order into the session each driver reached. A driver who made
+// Q2 but set no time there still has an empty Q2, so it's the field being
+// there that counts, not the time. Before knockout qualifying everyone is one
+// group, with gaps in the last session that had times.
+export const groupQualifying = (
+  results: QualifyingResult[],
+  season: number,
+): QualifyingGroup[] => {
+  if (season < KNOCKOUT_FIRST_SEASON) {
+    const session = results.some((r) => r.Q2) ? "Q2" : "Q1";
+    return [{ key: "all", title: "Qualifying", session, results }];
+  }
+
+  const timed = results.filter(getBestQualifyingTime);
+  const groups: QualifyingGroup[] = [
+    {
+      key: "q3",
+      title: "Q3",
+      session: "Q3",
+      results: timed.filter((r) => r.Q3 !== undefined),
+    },
+    {
+      key: "q2",
+      title: "Out in Q2",
+      session: "Q2",
+      results: timed.filter((r) => r.Q3 === undefined && r.Q2 !== undefined),
+    },
+    {
+      key: "q1",
+      title: "Out in Q1",
+      session: "Q1",
+      results: timed.filter((r) => r.Q3 === undefined && r.Q2 === undefined),
+    },
+    {
+      key: "none",
+      title: "No time",
+      results: results.filter((r) => !getBestQualifyingTime(r)),
+    },
+  ];
+  return groups.filter((group) => group.results.length > 0);
+};

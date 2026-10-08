@@ -28,11 +28,12 @@ export const StatRows = ({
           {stat.label}
         </dt>
         <dd className="flex min-w-0 flex-1 items-center gap-2.5">
-          <span className="min-w-0 flex-1 truncate text-sm font-bold">
+          {/* Values are short (a time, "▲12"), so the name wraps instead */}
+          <span className="min-w-0 flex-1 py-1 text-sm leading-tight font-bold break-words">
             {stat.who}
           </span>
           {!!stat.value && (
-            <span className="max-w-[45%] truncate font-mono text-xs text-soft">
+            <span className="shrink-0 font-mono text-xs whitespace-nowrap text-soft">
               {stat.value}
             </span>
           )}
