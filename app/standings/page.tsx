@@ -1,30 +1,39 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Columns } from "@/components/layout/Columns";
+import { CurrentTitleFight } from "@/components/standings/CurrentTitleFight";
 import { StandingsHeader } from "@/components/standings/StandingsHeader";
-import { Stub } from "@/components/Stub";
+import {
+  StandingsTable,
+  StandingsTableSkeleton,
+} from "@/components/standings/StandingsTable";
+import { SilentBoundary } from "@/components/ui/CardBoundary";
 
-export const metadata: Metadata = { title: "Drivers' standings" };
+export const metadata: Metadata = {
+  title: "Drivers' standings",
+  description:
+    "The Formula 1 drivers' championship: points, gaps to the leader, last-5 form and who can still be champion.",
+};
 
 export default function DriverStandingsPage() {
   return (
     <>
       <StandingsHeader value="drivers" />
+      {/* Phones show the title fight above the table, desktop beside it */}
       <Columns
+        asideLabel="Title fight"
+        asideClassName="max-lg:order-first max-lg:basis-full"
         aside={
-          <Stub issue={10}>
-            Title fight and, before the finale, the what-if simulator.
-          </Stub>
+          <SilentBoundary>
+            <Suspense fallback={null}>
+              <CurrentTitleFight />
+            </Suspense>
+          </SilentBoundary>
         }
       >
-        <Stub
-          issue={10}
-          links={[
-            { href: "/drivers/antonelli", label: "Andrea Kimi Antonelli" },
-            { href: "/drivers/max_verstappen", label: "Max Verstappen" },
-          ]}
-        >
-          The drivers&apos; championship with gaps and last-5 form.
-        </Stub>
+        <Suspense fallback={<StandingsTableSkeleton />}>
+          <StandingsTable season="current" type="drivers" />
+        </Suspense>
       </Columns>
     </>
   );
