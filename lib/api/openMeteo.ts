@@ -2,8 +2,8 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { CACHE_LIFE } from "./cacheTiers";
 import { fetchJson } from "./fetcher";
-import { FORECAST_DAYS } from "@/lib/domain/weather";
-import type { Forecast } from "./types";
+import { FORECAST_DAYS, hasForecast } from "@/lib/domain/weather";
+import type { Forecast, Race } from "./types";
 
 // Open-Meteo hourly forecast (free, no key). Ported from the app's useWeather.ts.
 
@@ -60,4 +60,17 @@ export async function getForecast(
     wind: hourly.wind_speed_10m,
     humidity: hourly.relative_humidity_2m,
   };
+}
+
+// A race weekend's forecast, or null while the weekend is out of range or
+// once it's over. The date is checked inside the cache, so the forecast is
+// part of the prerendered page and refreshes with it.
+export async function getRaceForecast(race: Race): Promise<Forecast | null> {
+  "use cache";
+  cacheLife(CACHE_LIFE.forecast);
+  cacheTag("forecast");
+
+  if (!hasForecast(race, Date.now())) return null;
+  const { lat, long } = race.Circuit.Location;
+  return getForecast(lat, long);
 }

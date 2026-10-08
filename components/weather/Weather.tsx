@@ -1,5 +1,5 @@
-// Ported from the app's src/components/Weather.tsx. The weekend forecast
-// cards for the race weekend's Schedule tab (#12) go here too.
+// Ported from the app's src/components/Weather.tsx. The race weekend's
+// forecast cards are in WeekendForecast and SessionForecast.
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 import {

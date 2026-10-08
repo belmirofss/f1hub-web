@@ -243,6 +243,26 @@ async function loadSeasonSprintResults(
 }
 export const getSeasonSprintResults = bySeason(loadSeasonSprintResults);
 
+// Which rounds have race, qualifying and sprint results, from each one's P1
+// rows: a request each per season, shared by every race weekend page
+async function loadRoundsWithResults(
+  year: number,
+  tier: SeasonTier,
+): Promise<{ race: string[]; qualifying: string[]; sprint: string[] }> {
+  "use cache";
+  cacheFor(tier);
+  const rounds = async (path: string) => [
+    ...new Set((await allRaces<RaceBase>(path, tier)).map((r) => r.round)),
+  ];
+  const [race, qualifying, sprint] = await Promise.all([
+    rounds(`${year}/results/1.json`),
+    rounds(`${year}/qualifying/1.json`),
+    rounds(`${year}/sprint/1.json`),
+  ]);
+  return { race, qualifying, sprint };
+}
+export const getRoundsWithResults = bySeason(loadRoundsWithResults);
+
 // One race weekend
 
 type Round = string | number;
