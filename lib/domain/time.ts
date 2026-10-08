@@ -3,8 +3,8 @@
 // "9:00 AM", "09 OCT", "09–11 OCT", "GMT-3".
 //
 // Leaving out `timeZone` formats in the runtime's zone: the viewer's in the
-// browser, the server's (UTC on Vercel) during SSR. User-facing times are
-// formatted on the client only (#7).
+// browser, the server's (UTC on Vercel) during SSR. Times in the viewer's
+// zone are formatted on the client only, by components/time/LocalTime.
 
 export const HOUR = 3600000;
 

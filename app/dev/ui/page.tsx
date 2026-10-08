@@ -31,8 +31,16 @@ import { StatGrid } from "@/components/ui/StatGrid";
 import { StatRows } from "@/components/ui/StatRows";
 import { EmptyState } from "@/components/ui/States";
 import { Tabs } from "@/components/ui/Tabs";
+import { Countdown } from "@/components/time/Countdown";
+import { LocalTime, TrackTime, UtcOffset } from "@/components/time/LocalTime";
+import type { TimeFormat } from "@/components/time/LocalTime";
+import {
+  SessionTime,
+  TimeZoneModeProvider,
+  TimeZoneToggle,
+} from "@/components/time/TimeZoneMode";
 import { getDriverCode, getDriverName, getTeamColor } from "@/lib/domain/teams";
-import { RetryDemo, TimeZoneToggle } from "./Demos";
+import { RetryDemo } from "./Demos";
 
 export const metadata: Metadata = {
   title: "UI primitives",
@@ -96,6 +104,27 @@ const TOP5: {
     form: [null, null, null, 3, 5],
     pts: 96,
   },
+];
+
+// Singapore 2026 as drawn in the prototype (track time is GMT+8)
+const TRACK_ZONE = "Asia/Singapore";
+
+const SESSIONS = [
+  { name: "Practice 1", start: "2026-10-09T08:30:00Z" },
+  { name: "Sprint Qualifying", start: "2026-10-09T12:30:00Z" },
+  { name: "Sprint", start: "2026-10-10T09:00:00Z" },
+  { name: "Qualifying", start: "2026-10-10T13:00:00Z" },
+  { name: "Race", start: "2026-10-11T12:00:00Z" },
+];
+
+const RACE_START = new Date(SESSIONS[4].start);
+
+const FORMATS: TimeFormat[] = [
+  "clock",
+  "day",
+  "dayClock",
+  "shortDate",
+  "range",
 ];
 
 const Section = ({
@@ -327,7 +356,9 @@ export default function UiPage() {
           <span className="text-xs font-bold tracking-[1px] text-muted">
             SESSIONS
           </span>
-          <TimeZoneToggle />
+          <TimeZoneModeProvider trackTimeZone={TRACK_ZONE}>
+            <TimeZoneToggle />
+          </TimeZoneModeProvider>
         </div>
         <Segmented
           label="Season"
@@ -337,6 +368,103 @@ export default function UiPage() {
             { value: "2027", label: "2027", disabled: true },
           ]}
         />
+      </Section>
+
+      <Section title="LocalTime · TrackTime · UtcOffset · Countdown">
+        <Card as="section" aria-label="Next race" className="gap-3.5">
+          <Label>Next race · R17/23</Label>
+          <Countdown target={RACE_START} />
+          <TimeZoneModeProvider trackTimeZone={TRACK_ZONE}>
+            <div className="flex flex-col">
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-xs font-bold tracking-[1px] text-muted">
+                  SESSIONS
+                </span>
+                <TimeZoneToggle />
+              </div>
+              {SESSIONS.map((session) => {
+                const isRace = session.name === "Race";
+                return (
+                  <div
+                    key={session.name}
+                    className="flex min-h-10 items-center border-t border-line"
+                  >
+                    <SessionTime
+                      value={session.start}
+                      format="day"
+                      className="w-16 font-mono text-xs text-muted"
+                    />
+                    <span
+                      className={`flex-1 font-semibold ${isRace ? "text-accent" : ""}`}
+                    >
+                      {session.name}
+                    </span>
+                    <SessionTime
+                      value={session.start}
+                      className={`font-mono font-bold ${isRace ? "text-accent" : ""}`}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </TimeZoneModeProvider>
+        </Card>
+        <Countdown target="2026-10-04T08:00:00Z" />
+        <section aria-label="Sessions">
+          <div className="flex border-b border-line pb-1.5">
+            <Label className="flex-1">Session</Label>
+            <Label className="w-[88px] text-right whitespace-nowrap text-text">
+              You · <UtcOffset at={RACE_START} />
+            </Label>
+            <Label className="w-[72px] text-right">Track</Label>
+          </div>
+          {SESSIONS.map((session) => (
+            <div
+              key={session.name}
+              className="flex min-h-[54px] items-center border-b border-line-soft"
+            >
+              <span className="flex-1">
+                <span className="block font-bold">{session.name}</span>
+                <LocalTime
+                  value={session.start}
+                  format="day"
+                  className="block font-mono text-[11px] text-muted"
+                />
+              </span>
+              <LocalTime
+                value={session.start}
+                className="w-[88px] text-right font-mono text-base font-bold"
+              />
+              <TrackTime
+                value={session.start}
+                timeZone={TRACK_ZONE}
+                className="w-[72px] text-right font-mono text-[13px] text-muted"
+              />
+            </div>
+          ))}
+          <div className="flex justify-between gap-3 border-b border-line-soft py-2.5">
+            <span className="text-muted">Track time</span>
+            <UtcOffset
+              timeZone={TRACK_ZONE}
+              at={RACE_START}
+              className="font-semibold"
+            />
+          </div>
+        </section>
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 font-mono text-[13px]">
+          {FORMATS.map((format) => (
+            <div key={format} className="contents">
+              <dt className="text-muted">{format}</dt>
+              <dd>
+                <LocalTime
+                  value={SESSIONS[0].start}
+                  end={RACE_START}
+                  format={format}
+                />
+              </dd>
+            </div>
+          ))}
+        </dl>
       </Section>
 
       <Section title="Tabs">
