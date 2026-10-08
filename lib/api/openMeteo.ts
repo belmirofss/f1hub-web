@@ -2,14 +2,12 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { CACHE_LIFE } from "./cacheTiers";
 import { fetchJson } from "./fetcher";
+import { FORECAST_DAYS } from "@/lib/domain/weather";
 import type { Forecast } from "./types";
 
 // Open-Meteo hourly forecast (free, no key). Ported from the app's useWeather.ts.
 
 const OPEN_METEO_API = "https://api.open-meteo.com/v1/";
-
-// Open-Meteo forecasts up to 16 days ahead
-export const FORECAST_DAYS = 16;
 
 type Response = {
   hourly: {
@@ -24,7 +22,7 @@ type Response = {
   };
 };
 
-// Hourly forecast at the circuit. Check the race is in range first (#6).
+// Hourly forecast at the circuit. Check `hasForecast` first.
 export async function getForecast(
   lat: string,
   long: string,
