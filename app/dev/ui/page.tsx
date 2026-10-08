@@ -116,7 +116,7 @@ export default function UiPage() {
   const cadillac = getTeamColor("cadillac");
 
   return (
-    <main className="mx-auto flex w-full max-w-[420px] flex-col gap-10 px-4 py-8">
+    <div className="mx-auto flex w-full max-w-[420px] flex-col gap-10 py-8">
       <header className="flex items-center justify-between">
         <h1 className="inline-block -skew-x-[10deg] text-[26px] font-black tracking-[-0.5px]">
           F1<span className="text-accent">HUB</span>
@@ -380,6 +380,6 @@ export default function UiPage() {
           <ListSkeleton rows={4} />
         </LoadingRegion>
       </Section>
-    </main>
+    </div>
   );
 }
