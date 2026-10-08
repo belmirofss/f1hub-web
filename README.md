@@ -9,3 +9,13 @@ The web version of [F1HUB](https://github.com/belmirofss/f1hub): Formula 1 calen
 The build plan is in [docs/PLAN.md](docs/PLAN.md), and the work is tracked as numbered GitHub issues, meant to be done in order.
 
 F1HUB is independent and has no relationship with Formula 1.
+
+## Development
+
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+`npm run build` makes a production build, `npm run lint` runs ESLint and `npm run format` runs Prettier.
