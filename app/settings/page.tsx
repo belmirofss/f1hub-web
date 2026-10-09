@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Download, Server, Star } from "lucide-react";
+import { Server, Star } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import {
   AccentPicker,
   ClockSetting,
+  InstallRow,
   ShareRow,
 } from "@/components/settings/SettingsControls";
 import { SettingsRow } from "@/components/settings/SettingsRow";
@@ -47,15 +48,7 @@ export default function SettingsPage() {
         <ClockSetting />
 
         <div className="overflow-hidden rounded-lg border border-line bg-surface">
-          {/* #26 wires this to the install flow */}
-          <SettingsRow
-            as="button"
-            disabled
-            highlight
-            icon={<Download aria-hidden size={18} strokeWidth={2} />}
-            label="Install F1HUB on this device"
-            value="Coming soon"
-          />
+          <InstallRow />
           <SettingsRow
             as="a"
             href={ANDROID_APP_URL}
