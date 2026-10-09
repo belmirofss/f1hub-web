@@ -107,7 +107,7 @@ export default async function TeamPage({
           ]),
         ]}
       />
-      <Suspense fallback={<DetailPageSkeleton />}>
+      <Suspense fallback={<DetailPageSkeleton className="min-h-svh" />}>
         <TeamContent team={team} />
       </Suspense>
     </>

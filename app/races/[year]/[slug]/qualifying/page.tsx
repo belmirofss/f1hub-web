@@ -76,7 +76,7 @@ export default async function QualifyingPage({
   const { race } = await getRaceWeekend(year, slug);
 
   return (
-    <Suspense fallback={<ContentSkeleton />}>
+    <Suspense fallback={<ContentSkeleton rows={20} />}>
       <Qualifying race={race} />
     </Suspense>
   );

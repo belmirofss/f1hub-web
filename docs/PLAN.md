@@ -177,4 +177,4 @@ public/       sw.js · icons/
 - **OpenF1** only covers 2023 onwards, so the Analysis "Tyres", Radio and track map sections are hidden for older races, just like in the app.
 - **Hydration and time zones:** never format a user-facing time on the server.
 - **Ads:** left out because AdSense can't verify a `*.vercel.app` domain.
-- **Colour contrast:** `#5C5C66` "subtle" text fails WCAG AA on the dark background, so use it only for decoration. White on the F1-red accent is about 3.9:1, so use it only for bold text of 14px and up.
+- **Colour contrast:** `#5C5C66` "subtle" text fails WCAG AA on the dark background, so use it only for decoration. White on the F1-red accent is about 3.9:1, so text on the accent picks whichever of white and the background contrasts more (dark on red, papaya and teal; white on blue). Team colours used as text are lightened until they pass 4.5:1.

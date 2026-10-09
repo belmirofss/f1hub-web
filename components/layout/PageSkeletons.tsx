@@ -4,14 +4,15 @@ import {
   LoadingRegion,
   Skeleton,
 } from "@/components/ui/Skeleton";
+import { cn } from "@/lib/cn";
 
 // Placeholders for loading.tsx, shaped like a PageHeader plus content
 
-const Body = () => (
+const Body = ({ rows = 6 }: { rows?: number }) => (
   <div className="flex flex-wrap items-start gap-3.5 lg:gap-5">
     <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-3.5 lg:gap-5">
       <CardSkeleton lines={4} />
-      <ListSkeleton rows={6} />
+      <ListSkeleton rows={rows} />
     </div>
     <div className="hidden min-w-0 flex-[1_1_340px] flex-col gap-5 lg:flex">
       <CardSkeleton />
@@ -29,8 +30,10 @@ export const TabPageSkeleton = () => (
   </LoadingRegion>
 );
 
-export const DetailPageSkeleton = () => (
-  <LoadingRegion className="flex flex-col gap-3.5 lg:gap-5">
+// Pass "min-h-svh" for long pages (driver, team) whose data can take a
+// moment: the footer stays below the fold instead of jumping down later
+export const DetailPageSkeleton = ({ className }: { className?: string }) => (
+  <LoadingRegion className={cn("flex flex-col gap-3.5 lg:gap-5", className)}>
     <div className="flex flex-col gap-1 pt-2 lg:gap-1.5 lg:pt-6">
       <div className="flex min-h-11 items-center gap-3 lg:min-h-0">
         <Skeleton className="size-6 lg:hidden" />
@@ -42,9 +45,11 @@ export const DetailPageSkeleton = () => (
   </LoadingRegion>
 );
 
-// Inside a layout that already shows the header (race weekend tabs)
-export const ContentSkeleton = () => (
+// Inside a layout that already shows the header (race weekend tabs). Pass the
+// number of list rows the page will show, so the footer doesn't jump down when
+// it streams in: 20 for a results table.
+export const ContentSkeleton = ({ rows }: { rows?: number }) => (
   <LoadingRegion>
-    <Body />
+    <Body rows={rows} />
   </LoadingRegion>
 );

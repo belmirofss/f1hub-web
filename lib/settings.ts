@@ -2,6 +2,8 @@
 // and ACCENT_OPTIONS in src/theme.ts. Shared by SettingsProvider and the
 // inline <head> script, which both read the same localStorage entry.
 
+import { contrastRatio } from "@/lib/color";
+
 export const SETTINGS_KEY = "F1HUB_SETTINGS";
 
 export const ACCENT_OPTIONS = [
@@ -21,15 +23,14 @@ export const DEFAULT_SETTINGS: StoredSettings = {
   clock24: true,
 };
 
-// Text colour that stays readable on top of the accent: the background on
-// light accents (Teal), white on the rest. Same luminance check as the app.
-export const onAccent = (hex: string) => {
-  const value = parseInt(hex.slice(1), 16);
-  const r = (value >> 16) & 255;
-  const g = (value >> 8) & 255;
-  const b = value & 255;
-  return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "#0B0B0D" : "#FFFFFF";
-};
+const DARK = "#0B0B0D";
+const WHITE = "#FFFFFF";
+
+// Text colour on top of the accent: whichever of white and the background
+// contrasts more. White on F1 red is only 3.9:1, so red, papaya and teal get
+// dark text (5.1:1 and up) and blue keeps white (4.9:1).
+export const onAccent = (hex: string) =>
+  contrastRatio(hex, DARK) >= contrastRatio(hex, WHITE) ? DARK : WHITE;
 
 const isAccent = (value: unknown): value is string =>
   ACCENT_OPTIONS.some((option) => option.value === value);
