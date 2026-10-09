@@ -1,7 +1,8 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
+import { HOUR } from "@/lib/domain/time";
 import { CACHE_LIFE, type CacheTier } from "./cacheTiers";
-import { fetchJson } from "./fetcher";
+import { ApiError, fetchJson } from "./fetcher";
 import type {
   CarLocation,
   OpenF1Driver,
@@ -21,24 +22,34 @@ const OPENF1_API = "https://api.openf1.org/v1/";
 // OpenF1 has no data before this season
 export const OPENF1_FIRST_SEASON = 2023;
 
-const openF1 = <T>(
+// Every endpoint returns a list. An empty one comes back as a 404 ("No
+// results found."), like a session that hasn't run yet.
+const openF1 = async <T>(
   endpoint: string,
   params: Record<string, string | number>,
   tier: CacheTier,
-) => {
+): Promise<T[]> => {
   const query = new URLSearchParams(
     Object.entries(params).map(([key, value]) => [key, String(value)]),
   );
-  return fetchJson<T>(`${OPENF1_API}${endpoint}?${query}`, {
-    tier,
-    tags: ["openf1"],
-  });
+  try {
+    return await fetchJson<T[]>(`${OPENF1_API}${endpoint}?${query}`, {
+      tier,
+      tags: ["openf1"],
+    });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return [];
+    throw error;
+  }
 };
 
-// A finished session never changes. One still running (or not started) is
-// checked again like the current season.
+// OpenF1 keeps adding team radio for a while after the flag
+const SETTLE_TIME = 6 * HOUR;
+
+// A finished session never changes. One still running (or not started, or
+// only just over) is checked again like the current season.
 const tierFor = (dateEnd: string): CacheTier =>
-  Date.parse(dateEnd) < Date.now() ? "session" : "current";
+  Date.parse(dateEnd) + SETTLE_TIME < Date.now() ? "session" : "current";
 
 const cacheFor = (tier: CacheTier) => {
   cacheLife(CACHE_LIFE[tier]);
@@ -50,7 +61,7 @@ async function loadRaceSessions(year: number): Promise<OpenF1Session[]> {
   // Sessions get added through the season, so only past years keep long
   const tier = year < new Date().getUTCFullYear() ? "session" : "current";
   cacheFor(tier);
-  return openF1<OpenF1Session[]>(
+  return openF1<OpenF1Session>(
     "sessions",
     { year, session_name: "Race" },
     tier,
@@ -79,7 +90,7 @@ async function loadSessionList<T>(
   "use cache";
   const tier = tierFor(dateEnd);
   cacheFor(tier);
-  return openF1<T[]>(endpoint, { session_key: sessionKey }, tier);
+  return openF1<T>(endpoint, { session_key: sessionKey }, tier);
 }
 
 const sessionList =
@@ -100,7 +111,7 @@ async function loadTrackOutline(
   const tier = tierFor(dateEnd);
   cacheFor(tier);
 
-  const laps = await openF1<OpenF1Lap[]>(
+  const laps = await openF1<OpenF1Lap>(
     "laps",
     { session_key: sessionKey, lap_number: 5 },
     tier,
@@ -120,7 +131,7 @@ async function loadTrackOutline(
   const sector3 = sector2 + (lap.duration_sector_2 ?? 0) * 1000;
   const end = start + lap.lap_duration * 1000;
 
-  const locations = await openF1<CarLocation[]>(
+  const locations = await openF1<CarLocation>(
     "location",
     {
       session_key: sessionKey,
