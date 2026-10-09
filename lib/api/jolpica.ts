@@ -756,6 +756,15 @@ export const getConstructorSeasonPositions = (
 
 // Circuits
 
+export async function getCircuit(circuitId: string): Promise<Circuit | null> {
+  "use cache";
+  cacheFor("lists");
+  const data = await jolpica<{
+    MRData: { CircuitTable: { Circuits: Circuit[] } };
+  }>(`circuits/${circuitId}.json`, "lists");
+  return data.MRData.CircuitTable.Circuits[0] ?? null;
+}
+
 // Every race held at a circuit with its winner, plus each race's fastest lap
 export async function getCircuitHistory(circuitId: string): Promise<{
   races: RaceResults[];

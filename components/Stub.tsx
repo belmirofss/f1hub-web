@@ -41,12 +41,3 @@ export const Stub = ({
     )}
   </Card>
 );
-
-// "max_verstappen" or "singapore-grand-prix" → "Max Verstappen",
-// "Singapore Grand Prix", until the real names come from the API
-export const nameFromSlug = (slug: string) =>
-  decodeURIComponent(slug)
-    .split(/[-_]/)
-    .filter(Boolean)
-    .map((word) => word[0].toUpperCase() + word.slice(1))
-    .join(" ");
