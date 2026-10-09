@@ -139,7 +139,7 @@ const AppMark = ({ size }: { size: "md" | "lg" }) => (
     )}
   >
     <span className="-skew-x-[10deg] font-black">
-      F1<span className="text-accent">H</span>
+      F1<span className="text-accent-ink">H</span>
     </span>
   </span>
 );
@@ -205,7 +205,7 @@ const AndroidSheet = ({
         <ul className="flex flex-col gap-3">
           {BENEFITS.map(({ icon: Icon, text }) => (
             <li key={text} className="flex items-center gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-surface-raised text-accent">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-surface-raised text-accent-ink">
                 <Icon aria-hidden size={18} strokeWidth={2} />
               </span>
               <span className="text-sm font-semibold">{text}</span>
@@ -314,7 +314,7 @@ const IosCard = ({
       onClose={onClose}
       className="bg-transparent pr-[max(12px,env(safe-area-inset-right))] pb-[max(14px,env(safe-area-inset-bottom))] pl-[max(12px,env(safe-area-inset-left))] md:m-auto md:max-w-[420px] md:pb-3"
     >
-      <div className="flex flex-col gap-3.5 rounded-[18px] border border-line bg-surface px-4 pt-4 pb-[18px] shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+      <div className="flex flex-col gap-3.5 rounded-[18px] border border-line bg-surface px-4 pt-4 pb-[18px] shadow-[0_20px_40px_rgba(26,24,20,0.2)]">
         <div className="flex items-center gap-3">
           <AppMark size="md" />
           <h2 id={titleId} className="flex-1 text-xl leading-6 font-bold">
@@ -352,7 +352,7 @@ const IosCard = ({
       {browser !== "chrome" && (
         <div
           aria-hidden
-          className="flex flex-col items-center gap-0.5 pt-4 text-accent md:hidden"
+          className="flex flex-col items-center gap-0.5 pt-4 text-accent-ink md:hidden"
         >
           <span className="rounded-full bg-background px-2 py-0.5 font-mono text-[10px] tracking-[1px]">
             {browser === "safari" ? "SAFARI TOOLBAR" : "TOOLBAR"}

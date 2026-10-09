@@ -67,7 +67,7 @@ export const DriverHero = ({
                 {" · "}
                 <Link
                   href={teamHref(team.constructorId)}
-                  className="relative text-text underline after:absolute after:-inset-x-2 after:-inset-y-3 hover:text-accent"
+                  className="relative text-text underline after:absolute after:-inset-x-2 after:-inset-y-3 hover:text-accent-ink"
                 >
                   {team.name}
                 </Link>

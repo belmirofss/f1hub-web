@@ -87,20 +87,24 @@ const COMPOUNDS: Record<string, Compound> = {
   SOFT: {
     name: "Soft",
     letter: "S",
-    className: "bg-[#FF3B3B] text-background",
+    className: "bg-[#D2232D] text-white",
   },
   MEDIUM: {
     name: "Medium",
     letter: "M",
-    className: "bg-sprint text-background",
+    className: "bg-sprint text-text",
   },
-  HARD: { name: "Hard", letter: "H", className: "bg-text text-background" },
+  HARD: {
+    name: "Hard",
+    letter: "H",
+    className: "bg-white text-text ring-1 ring-line-dashed ring-inset",
+  },
   INTERMEDIATE: {
     name: "Inter",
     letter: "I",
-    className: "bg-gain text-background",
+    className: "bg-gain text-white",
   },
-  WET: { name: "Wet", letter: "W", className: "bg-[#4A90FF] text-background" },
+  WET: { name: "Wet", letter: "W", className: "bg-[#1F5FC8] text-white" },
 };
 const UNKNOWN_COMPOUND: Compound = {
   name: "Unknown",

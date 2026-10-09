@@ -5,14 +5,11 @@ import { cn } from "@/lib/cn";
 export const Skeleton = ({ className }: { className?: string }) => (
   <div
     aria-hidden
-    className={cn(
-      "rounded-sm bg-surface-raised motion-safe:animate-pulse",
-      className,
-    )}
+    className={cn("bg-surface-raised motion-safe:animate-pulse", className)}
   />
 );
 
-// A card-shaped placeholder: label, title and a few lines
+// A placeholder shaped like a ruled Card: label, title and a few lines
 export const CardSkeleton = ({
   lines = 3,
   className,
@@ -23,7 +20,7 @@ export const CardSkeleton = ({
   <div
     aria-hidden
     className={cn(
-      "flex flex-col gap-3 rounded-lg border border-line bg-surface p-4",
+      "flex flex-col gap-3 border-t-2 border-line-dashed pt-3 pb-1",
       className,
     )}
   >
@@ -47,10 +44,10 @@ export const ListSkeleton = ({
     {Array.from({ length: rows }, (_, index) => (
       <div
         key={index}
-        className="flex min-h-[54px] items-center gap-2 border-b border-line-soft"
+        className="flex min-h-[54px] items-center gap-2 border-b border-line"
       >
         <Skeleton className="h-4 w-5" />
-        <Skeleton className="h-[30px] w-1 rounded-[2px]" />
+        <Skeleton className="h-[30px] w-1" />
         <div className="flex flex-1 flex-col gap-1.5">
           <Skeleton className="h-4 w-2/5" />
           <Skeleton className="h-2.5 w-1/4" />

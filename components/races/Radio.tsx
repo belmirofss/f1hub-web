@@ -27,7 +27,7 @@ const FLAG_COLORS: Record<string, string> = {
   CLEAR: "bg-gain",
   YELLOW: "bg-sprint",
   "DOUBLE YELLOW": "bg-sprint",
-  RED: "bg-[#FF3B3B]",
+  RED: "bg-[#D2232D]",
   "BLACK AND WHITE": "bg-text",
   CHEQUERED: "bg-text",
 };
@@ -38,7 +38,7 @@ const getCategory = (m: RaceControlMessage) => {
   if (m.message.includes("PENALTY"))
     return { label: "PENALTY", className: "text-loss" };
   if (m.category === "SafetyCar")
-    return { label: "SAFETY CAR", className: "text-sprint" };
+    return { label: "SAFETY CAR", className: "text-sprint-ink" };
   if (m.category === "Flag") return { label: "FLAG", className: "text-text" };
   if (m.category === "Drs") return { label: "DRS", className: "text-muted" };
   return { label: "RACE CONTROL", className: "text-muted" };

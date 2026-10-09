@@ -68,7 +68,7 @@ const SessionRow = ({
           <TrackTime value={session.start} format="day" timeZone="UTC" />
         )}
       </span>
-      <span className={cn("flex-1 font-semibold", isRace && "text-accent")}>
+      <span className={cn("flex-1 font-semibold", isRace && "text-accent-ink")}>
         {session.name}
       </span>
       {hour && (
@@ -83,7 +83,7 @@ const SessionRow = ({
           </span>
         </span>
       )}
-      <span className={cn("font-mono font-bold", isRace && "text-accent")}>
+      <span className={cn("font-mono font-bold", isRace && "text-accent-ink")}>
         {session.hasTime ? (
           <SessionTime value={session.start} format="clock" />
         ) : (
@@ -133,7 +133,7 @@ export const NextRaceCard = async () => {
           Next race · R{race.round}/{races.length}
         </Label>
         {isSprintWeekend(race) && (
-          <span className="rounded-[3px] bg-sprint px-1.5 py-0.5 font-mono text-[11px] font-bold text-background">
+          <span className="rounded-[3px] bg-sprint px-1.5 py-0.5 font-mono text-[11px] font-bold text-text">
             SPRINT
           </span>
         )}

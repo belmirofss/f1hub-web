@@ -6,11 +6,5 @@ export const Label = ({
   className,
   ...props
 }: ComponentPropsWithoutRef<"span">) => (
-  <span
-    className={cn(
-      "font-mono text-[11px] font-medium tracking-[1px] text-muted uppercase",
-      className,
-    )}
-    {...props}
-  />
+  <span className={cn("section-label", className)} {...props} />
 );

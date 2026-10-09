@@ -75,7 +75,7 @@ export const WhatIf = ({
         <button
           type="button"
           onClick={() => setPositions(getWhatIfStart(contenders))}
-          className="relative cursor-pointer text-[13px] font-bold text-accent after:absolute after:-inset-x-2 after:-inset-y-3 hover:underline"
+          className="relative cursor-pointer text-[13px] font-bold text-accent-ink after:absolute after:-inset-x-2 after:-inset-y-3 hover:underline"
         >
           Reset
         </button>
@@ -117,7 +117,7 @@ export const WhatIf = ({
               <span
                 className={cn(
                   "flex-1 text-right font-mono text-[15px] font-bold",
-                  contender.code === champion?.code && "text-accent",
+                  contender.code === champion?.code && "text-accent-ink",
                 )}
               >
                 {+contender.total.toFixed(1)}

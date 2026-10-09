@@ -25,7 +25,7 @@ Work through the GitHub issues **in order** (`#1` → `#29`). Each issue builds 
 | **Team** | Hero, titles, current drivers, all-time stats, points per round chart, constructors' position history, teammate battle link |
 | **Circuit** | Track map from OpenF1 (3 sectors), facts (length, laps, distance, corners, first GP, races held), fastest race lap, recent winners, most wins |
 | **Search** | Global search across drivers, teams, races, circuits and seasons; filter chips with counts; top hit; grouped results; recent searches; "monaco 2024" style year queries; aliases (COTA, Silver Arrows…) |
-| **Settings** | Accent colour (4 options), 12/24-hour clock, store / share / data-source links, privacy note |
+| **Settings** | 12/24-hour clock (the accent colour picker went with the Programme redesign, #72), store / share / data-source links, privacy note |
 
 **Data sources:** Jolpica F1 (Ergast-compatible), OpenF1 (2023+: tyres, radio, race control, track map), Open-Meteo (forecast), Wikipedia REST (bios).
 
@@ -90,7 +90,7 @@ public/       sw.js · icons/
 - **ISR pages:** `generateStaticParams` returns only the current season's races and grid, and everything else renders on first request (`dynamicParams = true`). This keeps builds fast and avoids burning the Jolpica hourly quota at build time.
 - **Race URLs use slugs:** `/races/2026/singapore-grand-prix`, resolved through the season schedule. If a season has two races with the same name, the round is appended.
 - **Dates and time zones:** the server renders `<time dateTime="…UTC">` and a stable fallback. A `<LocalTime>` client component formats it in the viewer's time zone after hydration, so there are no hydration mismatches. Track time uses the circuit time-zone map. `moment-timezone` is replaced by `Intl.DateTimeFormat`, with no date library.
-- **Settings** (accent, clock) and **recent searches** live in `localStorage`. The accent is a CSS variable (`--accent`), set by a tiny inline script in `<head>` before first paint so the colour never flashes.
+- **Settings** (the clock) and **recent searches** live in `localStorage`.
 - **Search** loads a compact index from `/api/search-index` (revalidated daily) the first time the search page opens. The ranking logic is the same `helpers/search.ts` as the app. On desktop, `/` focuses search.
 
 ### Responsive layout
@@ -177,4 +177,4 @@ public/       sw.js · icons/
 - **OpenF1** only covers 2023 onwards, so the Analysis "Tyres", Radio and track map sections are hidden for older races, just like in the app.
 - **Hydration and time zones:** never format a user-facing time on the server.
 - **Ads:** left out because AdSense can't verify a `*.vercel.app` domain.
-- **Colour contrast:** `#5C5C66` "subtle" text fails WCAG AA on the dark background, so use it only for decoration. White on the F1-red accent is about 3.9:1, so text on the accent picks whichever of white and the background contrasts more (dark on red, papaya and teal; white on blue). Team colours used as text are lightened until they pass 4.5:1.
+- **Colour contrast:** the "subtle" colour fails WCAG AA on the paper, so use it only for decoration. The vermilion fill `#D83A1E` takes white text (4.6:1) but is under 4.5:1 as text on paper, so text uses `accent-ink` `#B32E17`. Team colours used as text are darkened until they pass 4.5:1, and driver and team names are never set in team colour.

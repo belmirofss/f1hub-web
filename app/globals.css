@@ -1,56 +1,75 @@
 @import "tailwindcss";
 
 /*
- * "Pit Wall" design tokens, ported from the app's src/theme.ts.
+ * "Programme" design tokens: a printed race-day programme. Warm paper,
+ * ink-black type, vermilion and royal blue, hairline rules instead of boxed
+ * cards, square corners.
  *
  * Spacing uses Tailwind's default 4px scale, which already matches the app:
  * xxs 4 = 1, xs 8 = 2, s 12 = 3, m 16 = 4, l 24 = 6, xl 32 = 8.
  */
 @theme {
-  --color-background: #0b0b0d;
-  --color-surface: #141417;
-  --color-surface-raised: #1c1c21;
-  --color-line: #2a2a30;
-  --color-line-soft: #1f1f24;
-  --color-line-dashed: #3a3a42;
-  --color-text: #f4f4f5;
-  --color-soft: #c9c9d0;
-  --color-muted: #9a9aa3;
-  /* The faintest grey for text: 4.5:1 even on surface-raised */
-  --color-faint: #868690;
+  /* Paper */
+  --color-background: #f1ece2;
+  --color-surface: #faf7f1;
+  /* Chips and the tracks of bars */
+  --color-surface-raised: #e6dfd0;
+  /* Hairline rules */
+  --color-line: #d3c9b5;
+  --color-line-soft: #e0d8c8;
+  --color-line-dashed: #b5a98f;
+  /* Ink: body text and heavy rules */
+  --color-text: #1a1814;
+  --color-soft: #3b372f;
+  /* Labels and meta: 4.8:1 even on surface-raised */
+  --color-muted: #655e51;
+  /* Paper leaves no room for a lighter grey that still reads, so the
+     faintest text colour is the muted one */
+  --color-faint: #655e51;
   /* Fails WCAG AA on the background: decoration only, never text */
-  --color-subtle: #5c5c66;
-  --color-light-off: #26262c;
-  --color-sprint: #ffd400;
-  --color-purple: #b48cff;
-  --color-gain: #3ddc97;
-  --color-loss: #ff7a66;
-  --color-rain: #6fb7ff;
+  --color-subtle: #a0957f;
+  --color-light-off: #dcd3c1;
 
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  /* Vermilion. The fill (buttons, current round, the next session) takes
+     white text; as text on paper it needs the darker ink, because #d83a1e
+     is under 4.5:1 there. */
+  --color-accent: #d83a1e;
+  --color-on-accent: #ffffff;
+  --color-accent-ink: #b32e17;
+  /* Royal blue: losses, retirements, the secondary highlight */
+  --color-second: #1f4fd1;
+
+  /* Sprint yellow is a fill with ink text; as text it's the dark amber */
+  --color-sprint: #ffd400;
+  --color-sprint-ink: #7a5900;
+  --color-purple: #6b2fc2;
+  --color-gain: #146b44;
+  --color-loss: #1f4fd1;
+  --color-rain: #1a5f96;
+
+  /* Square cards and inputs. Pills (filter chips, segmented controls) use
+     rounded-full. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
 }
 
 @theme inline {
-  /* The visitor's accent (set from Settings) and the text colour on top of it */
-  --color-accent: var(--accent);
-  --color-on-accent: var(--on-accent);
-
-  --font-sans: var(--font-titillium), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  /* Headlines, always uppercase */
+  --font-display: var(--font-shoulders), var(--font-instrument), sans-serif;
+  /* All numbers and labels */
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
 :root {
-  --accent: #ff1e00;
-  --on-accent: #0b0b0d;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* The installed app (home screen or desktop window) */
 @custom-variant standalone (@media (display-mode: standalone));
 
-/* Dark behind the page too, so overscroll and resizes never flash white */
+/* Paper behind the page too, so overscroll and resizes never flash */
 html {
   background: var(--color-background);
   /* No double-tap zoom delay */
@@ -74,8 +93,9 @@ body {
   }
 }
 
+/* Ink, not vermilion: an accent ring would vanish around an accent button */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--color-text);
   outline-offset: 2px;
 }
 
@@ -99,4 +119,46 @@ body {
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* Shared heading styles */
+
+/* Page title: tall condensed uppercase, 38px on phones and 60px from 1024px */
+@utility page-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 38px;
+  line-height: 0.9;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  @media (width >= 64rem) {
+    font-size: 60px;
+  }
+}
+
+/* A smaller display headline inside a section: "Singapore Grand Prix" */
+@utility display-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+}
+
+/* Mono caps label above a section: "NEXT RACE · R18/24" */
+@utility section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* Big numbers: points, wins, lap times */
+@utility big-number {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }

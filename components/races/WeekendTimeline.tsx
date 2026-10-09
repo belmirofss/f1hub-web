@@ -77,7 +77,7 @@ export const WeekendTimeline = ({
                   <span
                     className={cn(
                       "h-3.5 font-mono text-[9px] font-bold",
-                      isRace && "text-accent",
+                      isRace && "text-accent-ink",
                       !up && "invisible",
                     )}
                   >

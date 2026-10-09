@@ -50,7 +50,7 @@ export const SeasonBars = async ({
               <span
                 className={cn(
                   "font-mono text-[11px] font-bold",
-                  position === 1 && "text-accent",
+                  position === 1 && "text-accent-ink",
                 )}
               >
                 P{position}

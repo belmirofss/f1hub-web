@@ -3,24 +3,14 @@
 import {
   createContext,
   useContext,
-  useLayoutEffect,
   useMemo,
   useSyncExternalStore,
 } from "react";
 import type { ReactNode } from "react";
-import {
-  DEFAULT_SETTINGS,
-  SETTINGS_KEY,
-  applyAccent,
-  onAccent,
-  parseSettings,
-} from "@/lib/settings";
+import { DEFAULT_SETTINGS, SETTINGS_KEY, parseSettings } from "@/lib/settings";
 import type { StoredSettings } from "@/lib/settings";
 
 type Settings = StoredSettings & {
-  // Text colour that stays readable on top of the accent colour
-  onAccent: string;
-  setAccent: (accent: string) => void;
   setClock24: (clock24: boolean) => void;
 };
 
@@ -49,7 +39,6 @@ const subscribe = (listener: () => void) => {
   const onStorage = (event: StorageEvent) => {
     if (event.key !== SETTINGS_KEY && event.key !== null) return;
     current = parseSettings(event.newValue);
-    applyAccent(current.accent);
     listener();
   };
 
@@ -62,19 +51,15 @@ const subscribe = (listener: () => void) => {
 };
 
 const update = (patch: Partial<StoredSettings>) => {
-  const previous = getSnapshot();
-  current = { ...previous, ...patch };
+  current = { ...getSnapshot(), ...patch };
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(current));
   } catch {}
-  if (current.accent !== previous.accent) applyAccent(current.accent);
   listeners.forEach((listener) => listener());
 };
 
 const SettingsContext = createContext<Settings>({
   ...DEFAULT_SETTINGS,
-  onAccent: onAccent(DEFAULT_SETTINGS.accent),
-  setAccent: () => {},
   setClock24: () => {},
 });
 
@@ -85,15 +70,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     getServerSnapshot,
   );
 
-  // The <head> script has already set the saved accent. In development React
-  // remounts once and clears the style it put on <html>, so set it again.
-  useLayoutEffect(() => applyAccent(getSnapshot().accent), []);
-
   const value = useMemo<Settings>(
     () => ({
       ...settings,
-      onAccent: onAccent(settings.accent),
-      setAccent: (accent) => update({ accent }),
       setClock24: (clock24) => update({ clock24 }),
     }),
     [settings],

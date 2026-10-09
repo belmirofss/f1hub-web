@@ -30,7 +30,7 @@ export const SettingsRow = ({
       <span
         className={cn(
           "flex shrink-0",
-          highlight ? "text-accent" : "text-muted",
+          highlight ? "text-accent-ink" : "text-muted",
         )}
       >
         {icon}

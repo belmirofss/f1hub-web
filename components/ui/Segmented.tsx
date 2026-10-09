@@ -23,7 +23,7 @@ type Props<T extends string> = {
   className?: string;
 };
 
-// Filled pill switch: "Drivers | Constructors | Teammates", "My time | Track".
+// Ink pill switch: "Drivers | Constructors | Teammates", "My time | Track".
 // Options with an href render as links (aria-current), the rest as a radio
 // group that the arrow keys move through.
 export const Segmented = <T extends string>({
@@ -48,10 +48,8 @@ export const Segmented = <T extends string>({
       role={isNav ? undefined : "radiogroup"}
       onKeyDown={isNav ? undefined : onRadioKeyDown}
       className={cn(
-        "flex border border-line",
-        small
-          ? "overflow-hidden rounded-md"
-          : "gap-1 rounded-md bg-surface p-[3px]",
+        "flex rounded-full border border-line",
+        small ? "overflow-hidden" : "gap-1 bg-surface p-[3px]",
         className,
       )}
     >
@@ -59,14 +57,15 @@ export const Segmented = <T extends string>({
         const selected = option.value === value;
         const classes = cn(
           "flex items-center justify-center transition-colors",
+          "rounded-full",
           small
-            ? "min-h-[30px] px-2.5 text-xs"
-            : "min-h-[38px] flex-1 rounded-sm px-2 text-sm",
+            ? "min-h-[30px] px-3 text-xs"
+            : "min-h-[38px] flex-1 px-3 text-sm",
           selected
             ? "bg-text font-bold text-background"
             : "font-semibold text-muted",
           !selected && !option.disabled && "hover:text-text",
-          option.disabled && "opacity-35",
+          option.disabled && "text-subtle",
         );
 
         if (option.disabled) {

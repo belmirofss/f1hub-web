@@ -11,6 +11,7 @@ import {
 } from "@/lib/api/jolpica";
 import type { Constructor, Race, RaceResults, Result } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
+import { textOn } from "@/lib/color";
 import { getCountryCode3ByName } from "@/lib/domain/countries";
 import { raceHref } from "@/lib/domain/routes";
 import {
@@ -138,6 +139,7 @@ const TeamWins = ({ rows }: { rows: Row[] }) => {
 
 const RaceRow = ({ row, races }: { row: Row; races: Race[] }) => {
   const { race, winner, isNext } = row;
+  const winnerColor = getTeamColor(winner?.Constructor.constructorId);
   const { circuitName, Location } = race.Circuit;
 
   return (
@@ -182,9 +184,10 @@ const RaceRow = ({ row, races }: { row: Row; races: Race[] }) => {
         {winner ? (
           <span
             title={getDriverName(winner.Driver)}
-            className="shrink-0 rounded-[4px] px-[7px] py-[3px] font-mono text-[11px] font-bold text-background"
+            className="shrink-0 rounded-[4px] px-[7px] py-[3px] font-mono text-[11px] font-bold"
             style={{
-              backgroundColor: getTeamColor(winner.Constructor.constructorId),
+              backgroundColor: winnerColor,
+              color: textOn(winnerColor),
             }}
           >
             <span className="sr-only">Winner: </span>
@@ -211,7 +214,7 @@ const RaceRow = ({ row, races }: { row: Row; races: Race[] }) => {
 const NextRaceButton = ({ race }: { race: Race }) => (
   <JumpLink
     target={rowId(race)}
-    className="fixed right-[calc(16px+env(safe-area-inset-right))] bottom-[calc(80px+max(12px,env(safe-area-inset-bottom)))] z-10 flex min-h-11 items-center gap-2 rounded-[22px] bg-accent px-4 text-sm font-bold text-on-accent shadow-[0_6px_18px_rgba(0,0,0,0.5)] transition-[filter] hover:brightness-110 md:right-[calc(24px+env(safe-area-inset-right))] md:bottom-6"
+    className="fixed right-[calc(16px+env(safe-area-inset-right))] bottom-[calc(80px+max(12px,env(safe-area-inset-bottom)))] z-10 flex min-h-11 items-center gap-2 rounded-[22px] bg-accent px-4 text-sm font-bold text-on-accent shadow-[0_6px_18px_rgba(26,24,20,0.2)] transition-[filter] hover:brightness-110 md:right-[calc(24px+env(safe-area-inset-right))] md:bottom-6"
   >
     <ArrowDown aria-hidden size={16} strokeWidth={2} />
     Next: {race.Circuit.Location.locality}
