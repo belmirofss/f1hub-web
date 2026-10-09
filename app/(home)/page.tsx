@@ -1,4 +1,3 @@
-import { Suspense, type ReactNode } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import {
   LastRaceCard,
@@ -29,27 +28,7 @@ import { Columns } from "@/components/layout/Columns";
 import { Wordmark } from "@/components/layout/Wordmark";
 import { CurrentTitleFight } from "@/components/standings/CurrentTitleFight";
 import { IconButton } from "@/components/ui/Card";
-import { CardBoundary, SilentBoundary } from "@/components/ui/CardBoundary";
-
-// Each card loads on its own, so one slow or failing API only holds up (or
-// breaks) its own card
-const Slot = ({
-  label,
-  fallback,
-  children,
-}: {
-  // Shown on the card if it fails; omit to drop the card silently
-  label?: string;
-  fallback: ReactNode;
-  children: ReactNode;
-}) => {
-  const content = <Suspense fallback={fallback}>{children}</Suspense>;
-  return label ? (
-    <CardBoundary label={label}>{content}</CardBoundary>
-  ) : (
-    <SilentBoundary>{content}</SilentBoundary>
-  );
-};
+import { Slot } from "@/components/ui/Slot";
 
 export default function Home() {
   return (
