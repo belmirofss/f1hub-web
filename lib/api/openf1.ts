@@ -1,6 +1,7 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { HOUR } from "@/lib/domain/time";
+import { buildTrackMap, type TrackMap } from "@/lib/domain/trackMap";
 import { CACHE_LIFE, type CacheTier } from "./cacheTiers";
 import { ApiError, fetchJson } from "./fetcher";
 import type {
@@ -103,46 +104,57 @@ export const getStints = sessionList<Stint>("stints");
 export const getTeamRadio = sessionList<TeamRadio>("team_radio");
 export const getRaceControl = sessionList<RaceControlMessage>("race_control");
 
-async function loadTrackOutline(
+// A lap that shows the whole circuit at racing speed: the driver's fastest
+// one with every sector timed, which keeps safety car laps out
+const pickCleanLap = (laps: OpenF1Lap[]) =>
+  laps
+    .filter(
+      (l) =>
+        l.date_start &&
+        l.lap_duration &&
+        l.duration_sector_1 &&
+        l.duration_sector_2 &&
+        l.duration_sector_3 &&
+        !l.is_pit_out_lap,
+    )
+    .sort((a, b) => a.lap_duration! - b.lap_duration!)[0];
+
+// The map's whole pipeline runs here, so the 30-day cache holds the finished
+// outline: laps -> one clean lap -> car positions over it -> sectors -> SVG
+async function loadTrackMap(
   sessionKey: number,
   dateEnd: string,
-): Promise<TrackPoint[]> {
+  driverNumber: number,
+): Promise<TrackMap | null> {
   "use cache";
   const tier = tierFor(dateEnd);
   cacheFor(tier);
 
   const laps = await openF1<OpenF1Lap>(
     "laps",
-    { session_key: sessionKey, lap_number: 5 },
+    { session_key: sessionKey, driver_number: driverNumber },
     tier,
   );
-  const lap = laps.find(
-    (l) =>
-      l.date_start &&
-      l.lap_duration &&
-      l.duration_sector_1 &&
-      l.duration_sector_2 &&
-      !l.is_pit_out_lap,
-  );
-  if (!lap?.date_start || !lap.lap_duration) return [];
+  const lap = pickCleanLap(laps);
+  if (!lap) return null;
 
-  const start = Date.parse(lap.date_start);
-  const sector2 = start + (lap.duration_sector_1 ?? 0) * 1000;
-  const sector3 = sector2 + (lap.duration_sector_2 ?? 0) * 1000;
-  const end = start + lap.lap_duration * 1000;
+  const start = Date.parse(lap.date_start!);
+  const sector2 = start + lap.duration_sector_1! * 1000;
+  const sector3 = sector2 + lap.duration_sector_2! * 1000;
+  const end = start + lap.lap_duration! * 1000;
 
   const locations = await openF1<CarLocation>(
     "location",
     {
       session_key: sessionKey,
-      driver_number: lap.driver_number,
+      driver_number: driverNumber,
       "date>": new Date(start).toISOString(),
       "date<": new Date(end).toISOString(),
     },
     tier,
   );
 
-  return locations
+  const points: TrackPoint[] = locations
     .filter((p) => p.x !== 0 || p.y !== 0)
     .map((p) => {
       const time = Date.parse(p.date);
@@ -152,9 +164,13 @@ async function loadTrackOutline(
         sector: time < sector2 ? 0 : time < sector3 ? 1 : 2,
       };
     });
+  // A lap is ~4 samples a second; much less means the feed had gaps
+  if (points.length < 100) return null;
+  return buildTrackMap(points);
 }
 
-// Draws the circuit from one car's position samples over a single lap,
-// split into sectors with that lap's sector times
-export const getTrackOutline = (session: SessionRef) =>
-  loadTrackOutline(session.session_key, session.date_end);
+// Draws the circuit from one car's positions over a single lap of a race,
+// split into sectors with that lap's sector times. The driver should be one
+// who went the distance, like the winner.
+export const getTrackMap = (session: SessionRef, driverNumber: number) =>
+  loadTrackMap(session.session_key, session.date_end, driverNumber);
