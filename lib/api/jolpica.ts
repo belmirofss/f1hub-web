@@ -646,42 +646,85 @@ export const getDriverSeasonStandings = (driverId: string, seasons: string[]) =>
 
 // Constructors
 
-export type ConstructorInfo = {
-  constructor: Constructor;
-  seasons: string[];
-  wins: number;
-};
-
-// Team info, the seasons it raced and its number of wins
 export async function getConstructor(
   constructorId: string,
-): Promise<ConstructorInfo | null> {
+): Promise<Constructor | null> {
   "use cache";
   cacheFor("lists");
-  const [info, seasons, wins] = await Promise.all([
-    jolpica<{ MRData: { ConstructorTable: { Constructors: Constructor[] } } }>(
-      `constructors/${constructorId}.json`,
-      "lists",
-    ),
-    getAllPages<Paged & { MRData: { SeasonTable: { Seasons: Season[] } } }>(
-      `constructors/${constructorId}/seasons.json`,
-      "lists",
-    ),
-    // Only the total is needed
-    jolpica<Paged>(`constructors/${constructorId}/results/1.json`, "lists", {
-      limit: 1,
-    }),
-  ]);
-  const constructor = info.MRData.ConstructorTable.Constructors[0];
-  if (!constructor) return null;
-  return {
-    constructor,
-    seasons: seasons.flatMap((page) =>
-      page.MRData.SeasonTable.Seasons.map((s) => s.season),
-    ),
-    wins: Number(wins.MRData.total),
-  };
+  const data = await jolpica<{
+    MRData: { ConstructorTable: { Constructors: Constructor[] } };
+  }>(`constructors/${constructorId}.json`, "lists");
+  return data.MRData.ConstructorTable.Constructors[0] ?? null;
 }
+
+// Every season the team raced, oldest first
+export async function getConstructorSeasons(
+  constructorId: string,
+): Promise<string[]> {
+  "use cache";
+  cacheFor("lists");
+  const pages = await getAllPages<
+    Paged & { MRData: { SeasonTable: { Seasons: Season[] } } }
+  >(`constructors/${constructorId}/seasons.json`, "lists");
+  return pages.flatMap((page) =>
+    page.MRData.SeasonTable.Seasons.map((s) => s.season),
+  );
+}
+
+// The rounds a team won, as "2026-16". A shared drive in the 1950s has a
+// winning row for each driver, but it's one win.
+const wonRounds = (races: RaceResults[]) => [...new Set(races.map(raceKey))];
+
+async function loadConstructorWins(
+  constructorId: string,
+  tier: CareerTier,
+): Promise<string[]> {
+  "use cache";
+  cacheFor(tier);
+  return wonRounds(
+    await allRaces<RaceResults>(
+      `constructors/${constructorId}/results/1.json`,
+      tier,
+    ),
+  );
+}
+
+async function loadConstructorSeasonWins(
+  year: number,
+  tier: SeasonTier,
+  constructorId: string,
+): Promise<string[]> {
+  "use cache";
+  cacheFor(tier);
+  return wonRounds(
+    await allRaces<RaceResults>(
+      `${year}/constructors/${constructorId}/results/1.json`,
+      tier,
+    ),
+  );
+}
+const getConstructorSeasonWins = bySeason(loadConstructorSeasonWins);
+
+// All-time race wins. Like a driver's career, the history is cached daily for
+// teams on the current grid and monthly for the rest, and the season in
+// progress comes from one small request on the current season's cache.
+export const getConstructorWins = async (
+  constructorId: string,
+  seasons: string[],
+) => {
+  const current = String(await getCurrentSeason());
+  if (!seasons.includes(current))
+    return (await loadConstructorWins(constructorId, "past")).length;
+
+  const [history, season] = await Promise.all([
+    loadConstructorWins(constructorId, "lists"),
+    getConstructorSeasonWins(current, constructorId),
+  ]);
+  return (
+    history.filter((key) => !key.startsWith(`${current}-`)).length +
+    season.length
+  );
+};
 
 async function loadConstructorSeasonPosition(
   year: number,

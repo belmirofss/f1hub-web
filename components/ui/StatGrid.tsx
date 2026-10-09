@@ -17,7 +17,11 @@ export const StatGrid = ({
 }) => (
   <dl className={cn("grid auto-cols-fr grid-flow-col gap-2", className)}>
     {stats.map((stat) => (
-      <div key={stat.label} className="flex min-w-0 flex-col-reverse gap-0.5">
+      <div
+        key={stat.label}
+        // Values stay in line when a long label wraps
+        className="flex min-w-0 flex-col-reverse justify-end gap-0.5"
+      >
         <dt className="font-mono text-[10px] font-medium tracking-[1px] text-muted uppercase">
           {stat.label}
         </dt>
