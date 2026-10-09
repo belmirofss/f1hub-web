@@ -1,6 +1,6 @@
 // Ported from the app's src/helpers/sessions.ts. Session starts are Dates
 // (moment objects in the app).
-import type { Race, SessionTime } from "@/lib/api/types";
+import type { Race, RaceResults, Result, SessionTime } from "@/lib/api/types";
 import { getCircuitTimezone } from "./circuits";
 import { HOUR, formatShortDate, toDate } from "./time";
 
@@ -96,4 +96,31 @@ export const findNextSession = (races: Race[], now: number) => {
     const session = getSessions(race).find((s) => s.start.getTime() > now);
     if (session) return { race, session };
   }
+};
+
+export type RoundState = {
+  race: Race;
+  winner?: Result;
+  isNext: boolean;
+  isPast: boolean;
+};
+
+// A race is done once it has a winner or started over 3 hours ago (results
+// can take a while to reach the API). The first one that isn't is next.
+export const getRoundStates = (
+  races: Race[],
+  winners: RaceResults[],
+  now: number,
+): RoundState[] => {
+  const winnerByRound = new Map(
+    winners.map((race) => [race.round, race.Results?.[0]]),
+  );
+  let nextFound = false;
+  return races.map((race) => {
+    const winner = winnerByRound.get(race.round);
+    const isPast = !!winner || getRaceStart(race).getTime() + 3 * HOUR < now;
+    const isNext = !isPast && !nextFound;
+    if (isNext) nextFound = true;
+    return { race, winner, isNext, isPast };
+  });
 };

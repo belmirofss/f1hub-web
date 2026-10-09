@@ -90,7 +90,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children, spine }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
@@ -115,6 +115,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             Skip to content
           </a>
           <SiteHeader />
+          {/* The season spine (app/@spine): the season of a race or season
+              URL, the current one elsewhere, and none on the calendar */}
+          {spine}
           <main
             id="main"
             tabIndex={-1}

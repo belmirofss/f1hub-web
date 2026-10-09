@@ -9,27 +9,23 @@ import {
   getSeasonSchedule,
   getSeasonWinners,
 } from "@/lib/api/jolpica";
-import type { Constructor, Race, RaceResults, Result } from "@/lib/api/types";
+import type { Constructor, Race, RaceResults } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { textOn } from "@/lib/color";
 import { getCountryCode3ByName } from "@/lib/domain/countries";
 import { raceHref } from "@/lib/domain/routes";
 import {
   getRaceStart,
+  getRoundStates,
   getWeekendStart,
   isSprintWeekend,
+  type RoundState,
 } from "@/lib/domain/sessions";
 import { getDriverCode, getDriverName, getTeamColor } from "@/lib/domain/teams";
-import { HOUR } from "@/lib/domain/time";
 import { getRequestTime } from "@/lib/requestTime";
 import { JumpLink } from "./JumpLink";
 
-type Row = {
-  race: Race;
-  winner?: Result;
-  isNext: boolean;
-  isPast: boolean;
-};
+type Row = RoundState;
 
 const rowId = (race: Race) => `r${race.round}`;
 
@@ -42,22 +38,6 @@ const loadWinners = async (): Promise<RaceResults[]> => {
     console.error(error);
     return [];
   }
-};
-
-// A race is done once it has a winner or started over 3 hours ago (results
-// can take a while to reach the API). The first one that isn't is next.
-const getRows = (races: Race[], winners: RaceResults[], now: number): Row[] => {
-  const winnerByRound = new Map(
-    winners.map((race) => [race.round, race.Results?.[0]]),
-  );
-  let nextFound = false;
-  return races.map((race) => {
-    const winner = winnerByRound.get(race.round);
-    const isPast = !!winner || getRaceStart(race).getTime() + 3 * HOUR < now;
-    const isNext = !isPast && !nextFound;
-    if (isNext) nextFound = true;
-    return { race, winner, isNext, isPast };
-  });
 };
 
 const getTeamWins = (rows: Row[]) => {
@@ -241,7 +221,7 @@ export const Calendar = async () => {
     );
   }
 
-  const rows = getRows(races, winners, now);
+  const rows = getRoundStates(races, winners, now);
   const done = rows.filter((row) => row.isPast).length;
   const next = rows.find((row) => row.isNext)?.race;
 
