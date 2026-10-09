@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SlidersHorizontal } from "lucide-react";
 import {
   LastRaceCard,
@@ -29,6 +30,15 @@ import { Wordmark } from "@/components/layout/Wordmark";
 import { CurrentTitleFight } from "@/components/standings/CurrentTitleFight";
 import { IconButton } from "@/components/ui/Card";
 import { Slot } from "@/components/ui/Slot";
+import { pageMetadata, SITE_DESCRIPTION, SITE_NAME } from "@/lib/metadata";
+
+const TITLE = `${SITE_NAME}: Formula 1 calendar, standings and results`;
+
+export const metadata: Metadata = {
+  ...pageMetadata({ title: TITLE, description: SITE_DESCRIPTION, path: "/" }),
+  // The brand is already in it, so no " | F1HUB"
+  title: { absolute: TITLE },
+};
 
 export default function Home() {
   return (
@@ -40,9 +50,7 @@ export default function Home() {
           <SlidersHorizontal aria-hidden size={18} strokeWidth={2} />
         </IconButton>
       </header>
-      <h1 className="sr-only">
-        F1HUB: Formula 1 calendar, standings and results
-      </h1>
+      <h1 className="sr-only">{TITLE}</h1>
       <div className="flex flex-col gap-3.5 md:pt-5 lg:gap-5">
         <Slot fallback={<NextSessionTickerSkeleton />}>
           <NextSessionTicker />

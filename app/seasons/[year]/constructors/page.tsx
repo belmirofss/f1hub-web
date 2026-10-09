@@ -12,20 +12,36 @@ import {
 } from "@/components/standings/StandingsTable";
 import { SilentBoundary } from "@/components/ui/CardBoundary";
 import { EmptyState } from "@/components/ui/States";
-import { getSeasonInfo } from "@/lib/season";
-
-// The constructors' championship started in 1958
-const FIRST_CONSTRUCTORS_SEASON = 1958;
+import { seasonHref } from "@/lib/domain/routes";
+import { pageMetadata } from "@/lib/metadata";
+import {
+  describeStandings,
+  FIRST_CONSTRUCTORS_SEASON,
+  getSeasonInfo,
+} from "@/lib/season";
 
 export const generateMetadata = async ({
   params,
 }: PageProps<"/seasons/[year]/constructors">): Promise<Metadata> => {
   const { year } = await params;
   await getSeasonInfo(year);
-  return {
-    title: `${year} constructors' championship`,
-    description: `The ${year} Formula 1 constructors' championship: points, wins and each team's drivers.`,
-  };
+  const path = `${seasonHref(year)}/constructors`;
+  if (Number(year) < FIRST_CONSTRUCTORS_SEASON) {
+    return pageMetadata({
+      title: `${year} F1 season: constructors`,
+      description: `The constructors' championship started in ${FIRST_CONSTRUCTORS_SEASON}, so the ${year} Formula 1 season has no team standings.`,
+      path,
+      noindex: true,
+    });
+  }
+  const summary = await describeStandings(year, "constructors");
+  return pageMetadata({
+    title: `${year} F1 season: constructors' championship standings`,
+    description: summary
+      ? `${summary}. Points, wins and each team's drivers.`
+      : `The ${year} Formula 1 constructors' standings: points, wins and each team's drivers.`,
+    path,
+  });
 };
 
 export default async function SeasonConstructorsPage({

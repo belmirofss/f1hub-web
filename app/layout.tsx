@@ -7,6 +7,13 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { TabBar } from "@/components/layout/TabBar";
 import { SettingsProvider } from "@/components/settings/SettingsProvider";
+import {
+  IS_PRODUCTION,
+  NOINDEX,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/metadata";
 import { ACCENT_SCRIPT } from "@/lib/settings";
 import "./globals.css";
 
@@ -22,14 +29,30 @@ const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+// Defaults for every page. Pages set their own title, description, canonical
+// URL and social cards with pageMetadata().
 export const metadata: Metadata = {
-  title: { default: "F1HUB", template: "%s | F1HUB" },
-  description:
-    "Formula 1 calendar, standings, race weekends, analysis and the full archive.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "en_US",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+  ...(!IS_PRODUCTION && { robots: NOINDEX }),
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0b0d",
+  themeColor: "#0B0B0D",
   // Lets the tab bar pad itself with env(safe-area-inset-bottom)
   viewportFit: "cover",
 };

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { io } from "next/cache";
 import { ContentSkeleton } from "@/components/layout/PageSkeletons";
 import { RaceResults } from "@/components/races/RaceResults";
@@ -6,7 +7,35 @@ import { Schedule } from "@/components/races/Schedule";
 import { EmptyState } from "@/components/ui/States";
 import { getQualifying, getRaceResults } from "@/lib/api/jolpica";
 import type { Race } from "@/lib/api/types";
-import { getRaceWeekend, getWeekendTabs } from "@/lib/raceWeekend";
+import { pageMetadata } from "@/lib/metadata";
+import {
+  describeTabs,
+  describeWeekend,
+  describeWin,
+  getRaceWeekend,
+  getWeekendName,
+  getWeekendPodium,
+  getWeekendTabs,
+} from "@/lib/raceWeekend";
+
+export const generateMetadata = async ({
+  params,
+}: PageProps<"/races/[year]/[slug]">): Promise<Metadata> => {
+  const { year, slug } = await params;
+  const { race, races, href } = await getRaceWeekend(year, slug);
+  const [podium, tabs] = await Promise.all([
+    getWeekendPodium(race),
+    getWeekendTabs(race),
+  ]);
+  const where = describeWeekend(race, races);
+  return pageMetadata({
+    title: `${getWeekendName(race)}: schedule, results and analysis`,
+    description: podium?.winner
+      ? `${describeWin(podium.winner)}. ${where}: ${describeTabs(tabs)}.`
+      : `${where}. Session times in your time zone, the weather forecast, then results and analysis.`,
+    path: href,
+  });
+};
 
 const Results = async ({ race, href }: { race: Race; href: string }) => {
   // Request time, so the build doesn't fetch every race's results

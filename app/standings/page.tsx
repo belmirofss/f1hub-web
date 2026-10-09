@@ -8,11 +8,22 @@ import {
   StandingsTableSkeleton,
 } from "@/components/standings/StandingsTable";
 import { SilentBoundary } from "@/components/ui/CardBoundary";
+import { getCurrentSeason } from "@/lib/api/jolpica";
+import { orFallback, pageMetadata } from "@/lib/metadata";
+import { describeStandings } from "@/lib/season";
 
-export const metadata: Metadata = {
-  title: "Drivers' standings",
-  description:
-    "The Formula 1 drivers' championship: points, gaps to the leader, last-5 form and who can still be champion.",
+export const generateMetadata = async (): Promise<Metadata> => {
+  const [season, summary] = await Promise.all([
+    orFallback(getCurrentSeason()),
+    describeStandings("current", "drivers"),
+  ]);
+  return pageMetadata({
+    title: `F1 drivers' standings${season ? ` ${season}` : ""}: points and title fight`,
+    description: summary
+      ? `${summary}. Points, gaps, last-5 form and who can still be champion.`
+      : "The Formula 1 drivers' championship: points, gaps to the leader, last-5 form and who can still be champion.",
+    path: "/standings",
+  });
 };
 
 export default function DriverStandingsPage() {

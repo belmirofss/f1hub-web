@@ -9,11 +9,15 @@ import {
 import { SettingsRow } from "@/components/settings/SettingsRow";
 import { ANDROID_APP_URL, JOLPICA_URL } from "@/lib/links";
 import pkg from "@/package.json";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Settings",
-  robots: { index: false },
-};
+  description:
+    "Pick F1HUB's accent colour and a 12 or 24-hour clock. Settings stay on this device.",
+  path: "/settings",
+  noindex: true,
+});
 
 export default function SettingsPage() {
   return (

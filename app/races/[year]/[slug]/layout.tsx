@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Map as MapIcon } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -18,17 +17,6 @@ import {
 } from "@/lib/raceWeekend";
 
 export const generateStaticParams = getCurrentRaceParams;
-
-export const generateMetadata = async ({
-  params,
-}: LayoutProps<"/races/[year]/[slug]">): Promise<Metadata> => {
-  const { year, slug } = await params;
-  const { race } = await getRaceWeekend(year, slug);
-  return {
-    title: `${race.raceName} ${year}`,
-    description: `${race.raceName} ${year} at ${race.Circuit.circuitName}: session times in your time zone, weather forecast, results and analysis.`,
-  };
-};
 
 // "R17 · SGP · 11 OCT", with the race day at the track
 const raceMeta = (race: Race) => {

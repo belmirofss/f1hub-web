@@ -6,17 +6,43 @@ import { QualifyingTable } from "@/components/races/QualifyingTable";
 import { EmptyState } from "@/components/ui/States";
 import { getCurrentSeason, getQualifying } from "@/lib/api/jolpica";
 import type { Race } from "@/lib/api/types";
-import { getRaceWeekend } from "@/lib/raceWeekend";
+import {
+  getBestQualifyingTime,
+  KNOCKOUT_FIRST_SEASON,
+} from "@/lib/domain/results";
+import { getDriverName } from "@/lib/domain/teams";
+import { pageMetadata } from "@/lib/metadata";
+import {
+  getRaceWeekend,
+  getWeekendName,
+  getWeekendPodium,
+  getWeekendTabs,
+} from "@/lib/raceWeekend";
 
 export const generateMetadata = async ({
   params,
 }: PageProps<"/races/[year]/[slug]/qualifying">): Promise<Metadata> => {
   const { year, slug } = await params;
-  const { race } = await getRaceWeekend(year, slug);
-  return {
-    title: `${race.raceName} ${year} qualifying`,
-    description: `${race.raceName} ${year} qualifying results: who made Q3, who went out in Q2 and Q1, best times and gaps.`,
-  };
+  const { race, href } = await getRaceWeekend(year, slug);
+  const [podium, tabs] = await Promise.all([
+    getWeekendPodium(race),
+    getWeekendTabs(race),
+  ]);
+  const pole = podium?.pole;
+  const time = pole && getBestQualifyingTime(pole);
+  const details =
+    Number(race.season) >= KNOCKOUT_FIRST_SEASON
+      ? "Who made Q3, who went out in Q2 and Q1, best times and gaps."
+      : "The grid order, best lap times and gaps to pole.";
+  return pageMetadata({
+    title: `${getWeekendName(race)} qualifying results`,
+    description: pole
+      ? `${getDriverName(pole.Driver)} took pole${time ? ` in ${time}` : ""} for ${pole.Constructor.name}. ${details}`
+      : `Qualifying results for the ${getWeekendName(race)}: best lap times and gaps to pole.`,
+    path: `${href}/qualifying`,
+    // An empty tab until qualifying, and for good before 1994
+    noindex: !tabs.qualifying,
+  });
 };
 
 const Qualifying = async ({ race }: { race: Race }) => {

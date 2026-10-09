@@ -8,18 +8,32 @@ import { EmptyState } from "@/components/ui/States";
 import { getSprint } from "@/lib/api/jolpica";
 import type { Race } from "@/lib/api/types";
 import { isSprintWeekend } from "@/lib/domain/sessions";
-import { getRaceWeekend } from "@/lib/raceWeekend";
+import { pageMetadata } from "@/lib/metadata";
+import {
+  describeWin,
+  getRaceWeekend,
+  getWeekendName,
+  getWeekendPodium,
+  getWeekendTabs,
+} from "@/lib/raceWeekend";
 
 export const generateMetadata = async ({
   params,
 }: PageProps<"/races/[year]/[slug]/sprint">): Promise<Metadata> => {
   const { year, slug } = await params;
-  const { race } = await getRaceWeekend(year, slug);
+  const { race, href } = await getRaceWeekend(year, slug);
   if (!isSprintWeekend(race)) notFound();
-  return {
-    title: `${race.raceName} ${year} sprint results`,
-    description: `${race.raceName} ${year} sprint classification: places gained, gaps, retirements and points.`,
-  };
+  const [podium, tabs] = await Promise.all([
+    getWeekendPodium(race),
+    getWeekendTabs(race),
+  ]);
+  const winner = podium?.sprintWinner;
+  return pageMetadata({
+    title: `${getWeekendName(race)} sprint results`,
+    description: `${winner ? `${describeWin(winner, "sprint")}. ` : ""}${getWeekendName(race)} sprint results: places gained, gaps and points.`,
+    path: `${href}/sprint`,
+    noindex: !tabs.sprint,
+  });
 };
 
 const SprintResults = async ({ race }: { race: Race }) => {

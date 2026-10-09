@@ -17,10 +17,16 @@ import { Columns } from "@/components/layout/Columns";
 import { DetailPageSkeleton } from "@/components/layout/PageSkeletons";
 import { Slot } from "@/components/ui/Slot";
 import { TitlesCard } from "@/components/ui/TitlesCard";
-import { getDriver, getDriverCareer } from "@/lib/api/jolpica";
+import {
+  getCurrentSeason,
+  getDriver,
+  getDriverCareer,
+} from "@/lib/api/jolpica";
 import type { Driver } from "@/lib/api/types";
 import { getTitleSeasons } from "@/lib/domain/drivers";
+import { driverHref } from "@/lib/domain/routes";
 import { getDriverName } from "@/lib/domain/teams";
+import { listOf, orFallback, pageMetadata, plural } from "@/lib/metadata";
 
 // Driver ids are lowercase words joined by "_" ("max_verstappen")
 const findDriver = async (param: string) => {
@@ -35,15 +41,41 @@ export const generateMetadata = async ({
   params,
 }: PageProps<"/drivers/[driverId]">): Promise<Metadata> => {
   const driver = await findDriver((await params).driverId);
+  const [career, current] = await Promise.all([
+    orFallback(getDriverCareer(driver.driverId)),
+    orFallback(getCurrentSeason()),
+  ]);
   const name = getDriverName(driver);
   const titles = getTitleSeasons(driver.driverId).length;
-  const champion = titles
-    ? `${titles > 1 ? `${titles}× ` : ""}Formula 1 world champion`
-    : "Formula 1 driver";
-  return {
-    title: name,
-    description: `${name}, ${driver.nationality} ${champion}: season and career stats, last 5 races, championship position by season and biography.`,
-  };
+  const who = `${name}, ${driver.nationality} ${
+    titles
+      ? `${titles > 1 ? `${titles}× ` : ""}Formula 1 world champion`
+      : "Formula 1 driver"
+  }`;
+
+  // "4 wins, 12 podiums and 3 poles from 40 starts since 2025"
+  let record = "";
+  const first = career?.seasons[0];
+  const last = career?.seasons.at(-1);
+  if (career?.starts && first && last) {
+    const span =
+      Number(last.season) === current
+        ? `since ${first.season}, with ${last.team.name} in ${last.season}`
+        : first === last
+          ? `in ${first.season}`
+          : `from ${first.season} to ${last.season}`;
+    record = `: ${listOf([
+      plural(career.wins, "win"),
+      plural(career.podiums, "podium"),
+      plural(career.poles, "pole"),
+    ])} from ${plural(career.starts, "start")} ${span}`;
+  }
+
+  return pageMetadata({
+    title: `${name}: F1 stats, results and career`,
+    description: `${who}${record}. Stats by season, last 5 races and biography.`,
+    path: driverHref(driver.driverId),
+  });
 };
 
 // The page waits for this one cached request before it starts streaming, so

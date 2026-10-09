@@ -11,19 +11,23 @@ import {
   StandingsTableSkeleton,
 } from "@/components/standings/StandingsTable";
 import { SilentBoundary } from "@/components/ui/CardBoundary";
-import { getSeasonInfo } from "@/lib/season";
+import { seasonHref } from "@/lib/domain/routes";
+import { pageMetadata } from "@/lib/metadata";
+import { describeStandings, getSeasonInfo } from "@/lib/season";
 
 export const generateMetadata = async ({
   params,
 }: PageProps<"/seasons/[year]">): Promise<Metadata> => {
   const { year } = await params;
-  const { champion } = await getSeasonInfo(year);
-  return {
-    title: `${year} drivers' championship`,
-    description: champion
-      ? `The ${year} Formula 1 season: ${champion.driver} won the drivers' title with ${champion.team}. Final standings, points and wins.`
-      : `The ${year} Formula 1 drivers' championship: points, wins and last-5 form.`,
-  };
+  await getSeasonInfo(year);
+  const summary = await describeStandings(year, "drivers");
+  return pageMetadata({
+    title: `${year} F1 season: drivers' championship standings`,
+    description: summary
+      ? `${summary}. Points, wins and form for every driver.`
+      : `The ${year} Formula 1 drivers' standings: points, wins and last-5 form for every driver.`,
+    path: seasonHref(year),
+  });
 };
 
 export default async function SeasonDriversPage({

@@ -23,9 +23,16 @@ import { TeamHero } from "@/components/teams/TeamHero";
 import { TeammateLink } from "@/components/teams/TeammateLink";
 import { Slot } from "@/components/ui/Slot";
 import { TitlesCard } from "@/components/ui/TitlesCard";
-import { getConstructor, getConstructorSeasons } from "@/lib/api/jolpica";
+import {
+  getConstructor,
+  getConstructorSeasons,
+  getConstructorWins,
+  getCurrentSeason,
+} from "@/lib/api/jolpica";
 import type { Constructor } from "@/lib/api/types";
 import { getConstructorTitles } from "@/lib/data/constructorChampions";
+import { teamHref } from "@/lib/domain/routes";
+import { orFallback, pageMetadata, plural } from "@/lib/metadata";
 
 // Constructor ids are lowercase words joined by "_" or "-" ("red_bull",
 // "brabham-repco")
@@ -41,12 +48,40 @@ export const generateMetadata = async ({
   params,
 }: PageProps<"/teams/[constructorId]">): Promise<Metadata> => {
   const team = await findTeam((await params).constructorId);
-  const titles = getConstructorTitles(team.constructorId).length;
-  const champion = titles ? `, ${titles}× constructors' champion` : "";
-  return {
-    title: team.name,
-    description: `${team.name}, ${team.nationality} Formula 1 team${champion}: drivers, all-time stats, points per round and constructors' championship history.`,
-  };
+  const { constructorId, name } = team;
+  const titles = getConstructorTitles(constructorId).length;
+  const [seasons, current] = await Promise.all([
+    orFallback(getConstructorSeasons(constructorId)),
+    orFallback(getCurrentSeason()),
+  ]);
+  const wins =
+    seasons && (await orFallback(getConstructorWins(constructorId, seasons)));
+
+  // "202 wins in 61 seasons since 1966"
+  let record = "";
+  const first = seasons?.[0];
+  const last = seasons?.at(-1);
+  if (seasons && first && last && wins !== null) {
+    const span =
+      Number(last) === current
+        ? `since ${first}`
+        : first === last
+          ? `in ${first}`
+          : `from ${first} to ${last}`;
+    record = `${plural(wins, "win")} in ${plural(seasons.length, "season")} ${span}`;
+  }
+
+  const facts = [
+    titles ? `${titles}× constructors' champion` : "",
+    record,
+  ].filter(Boolean);
+  return pageMetadata({
+    title: `${name}: F1 team stats, drivers and history`,
+    description: `${name}, ${team.nationality} Formula 1 team${
+      facts.length ? `: ${facts.join(", ")}` : ""
+    }. Drivers, all-time stats and championship history.`,
+    path: teamHref(constructorId),
+  });
 };
 
 // The page waits for this one cached request before it starts streaming, so
