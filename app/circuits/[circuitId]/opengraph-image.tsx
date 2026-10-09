@@ -94,9 +94,12 @@ export default async function Image({
 
   const races = (await orFallback(getCircuitHistory(circuitId)))?.races ?? [];
   const map = await orFallback(loadMap(races));
-  const facts = getCircuitFacts(circuitId, races);
-  // Three tiles to a row
-  const rows = [facts.slice(0, 3), facts.slice(3)].filter((r) => r.length);
+  // One row of up to four tiles: the race distance stays on the page, and
+  // the laps too when the layout numbers fill the row
+  const facts = getCircuitFacts(circuitId, races).filter(
+    (fact, _, all) =>
+      fact.label !== "Km race" && (fact.label !== "Laps" || all.length < 6),
+  );
   const { Location } = circuit;
 
   return ogImage(
@@ -110,7 +113,14 @@ export default async function Image({
             justifyContent: "space-between",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flexShrink: 0,
+              gap: 8,
+            }}
+          >
             <OgTitle size={map ? 72 : 84}>{circuit.circuitName}</OgTitle>
             <div
               style={{ display: "flex", fontSize: 30, color: OG_COLORS.muted }}
@@ -118,10 +128,8 @@ export default async function Image({
               {`${Location.locality}, ${Location.country}`}
             </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {rows.map((row, index) => (
-              <OgStats key={index} stats={row} />
-            ))}
+          <div style={{ display: "flex" }}>
+            <OgStats stats={facts} />
           </div>
         </div>
         {map && (
