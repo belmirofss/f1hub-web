@@ -1,6 +1,8 @@
 // Ported from the app's src/helpers/teams.ts. The driver arguments are
 // structural so this doesn't depend on the API types (#5).
 
+import { readableOn } from "@/lib/color";
+
 // Approximate team colours keyed by the API's constructorId.
 const TEAM_COLORS: Record<string, string> = {
   mclaren: "#FF8000",
@@ -44,6 +46,11 @@ export const getTeamColor = (constructorId?: string) => {
   const hash = [...constructorId].reduce((sum, c) => sum + c.charCodeAt(0), 0);
   return FALLBACK_COLORS[hash % FALLBACK_COLORS.length];
 };
+
+// The team colour as text on a card (surface-raised): dark blues like Red
+// Bull's get lightened until they pass AA contrast
+export const getTeamTextColor = (constructorId?: string) =>
+  readableOn(getTeamColor(constructorId), "#1C1C21");
 
 export const getDriverCode = (driver: { code?: string; familyName: string }) =>
   driver.code ?? driver.familyName.replace(/\s/g, "").slice(0, 3).toUpperCase();

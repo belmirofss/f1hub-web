@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import { onRadioKeyDown } from "./radioKeys";
 
 export type SegmentedOption<T extends string> = {
   value: T;
@@ -21,8 +24,8 @@ type Props<T extends string> = {
 };
 
 // Filled pill switch: "Drivers | Constructors | Teammates", "My time | Track".
-// Options with an href render as links (aria-current), the rest as toggle
-// buttons (aria-pressed), so it works in Server and Client Components alike.
+// Options with an href render as links (aria-current), the rest as a radio
+// group that the arrow keys move through.
 export const Segmented = <T extends string>({
   options,
   value,
@@ -34,11 +37,16 @@ export const Segmented = <T extends string>({
   const small = size === "small";
   const isNav = options.some((option) => option.href);
   const Group = isNav ? "nav" : "div";
+  // The radio that takes Tab: the selected one, or the first if none is
+  const focusable = options.some((o) => o.value === value && !o.disabled)
+    ? value
+    : options.find((o) => !o.disabled)?.value;
 
   return (
     <Group
       aria-label={label}
-      role={isNav ? undefined : "group"}
+      role={isNav ? undefined : "radiogroup"}
+      onKeyDown={isNav ? undefined : onRadioKeyDown}
       className={cn(
         "flex border border-line",
         small
@@ -63,7 +71,13 @@ export const Segmented = <T extends string>({
 
         if (option.disabled) {
           return (
-            <span key={option.value} aria-disabled="true" className={classes}>
+            <span
+              key={option.value}
+              role={isNav ? undefined : "radio"}
+              aria-checked={isNav ? undefined : false}
+              aria-disabled="true"
+              className={classes}
+            >
               {option.label}
             </span>
           );
@@ -86,7 +100,9 @@ export const Segmented = <T extends string>({
           <button
             key={option.value}
             type="button"
-            aria-pressed={selected}
+            role="radio"
+            aria-checked={selected}
+            tabIndex={option.value === focusable ? 0 : -1}
             onClick={() => onChange?.(option.value)}
             className={cn(classes, "cursor-pointer")}
           >

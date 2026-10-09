@@ -5,7 +5,11 @@ import type { Constructor, Driver } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { getCountryCode3ByNationality } from "@/lib/domain/countries";
 import { teamHref } from "@/lib/domain/routes";
-import { getDriverCode, getTeamColor } from "@/lib/domain/teams";
+import {
+  getDriverCode,
+  getTeamColor,
+  getTeamTextColor,
+} from "@/lib/domain/teams";
 
 // The page header: Back + "DRIVER · 2026", then the team bar, the code in a
 // circle, the given name over the slanted surname, nationality and team
@@ -36,7 +40,7 @@ export const DriverHero = ({
         <span
           aria-hidden
           className="flex size-[76px] shrink-0 items-center justify-center rounded-full border border-line bg-surface-raised font-mono text-lg font-bold lg:size-24 lg:text-[22px]"
-          style={{ color }}
+          style={{ color: getTeamTextColor(team?.constructorId) }}
         >
           {getDriverCode(driver)}
         </span>

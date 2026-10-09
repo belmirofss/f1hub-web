@@ -7,7 +7,11 @@ import { getDriverStandings } from "@/lib/api/jolpica";
 import type { DriverStanding } from "@/lib/api/types";
 import { formatPoints } from "@/lib/domain/drivers";
 import { driverHref } from "@/lib/domain/routes";
-import { getDriverCode, getDriverName, getTeamColor } from "@/lib/domain/teams";
+import {
+  getDriverCode,
+  getDriverName,
+  getTeamTextColor,
+} from "@/lib/domain/teams";
 
 // "P1 · 8 WINS". Drivers who never scored have no position.
 const details = (standing: DriverStanding) => {
@@ -36,7 +40,7 @@ export const TeamDrivers = async ({
     s.Constructors.some((c) => c.constructorId === constructorId),
   );
   if (!drivers.length) return null;
-  const color = getTeamColor(constructorId);
+  const color = getTeamTextColor(constructorId);
 
   return (
     <Card as="section" aria-labelledby="team-drivers" className="gap-0 pb-1">

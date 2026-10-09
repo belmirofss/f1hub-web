@@ -84,7 +84,11 @@ const LapChartCard = async ({
 type Compound = { name: string; letter: string; className: string };
 
 const COMPOUNDS: Record<string, Compound> = {
-  SOFT: { name: "Soft", letter: "S", className: "bg-[#FF3B3B] text-white" },
+  SOFT: {
+    name: "Soft",
+    letter: "S",
+    className: "bg-[#FF3B3B] text-background",
+  },
   MEDIUM: {
     name: "Medium",
     letter: "M",
@@ -96,7 +100,7 @@ const COMPOUNDS: Record<string, Compound> = {
     letter: "I",
     className: "bg-gain text-background",
   },
-  WET: { name: "Wet", letter: "W", className: "bg-[#4A90FF] text-white" },
+  WET: { name: "Wet", letter: "W", className: "bg-[#4A90FF] text-background" },
 };
 const UNKNOWN_COMPOUND: Compound = {
   name: "Unknown",

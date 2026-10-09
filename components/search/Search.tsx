@@ -14,6 +14,7 @@ import { BackButton } from "@/components/layout/BackButton";
 import { SEARCH_INPUT_ID } from "@/components/layout/SearchShortcut";
 import { EmptyState, ErrorState } from "@/components/ui/States";
 import { Label } from "@/components/ui/Label";
+import { onRadioKeyDown } from "@/components/ui/radioKeys";
 import { raceHref } from "@/lib/domain/routes";
 import {
   search,
@@ -65,7 +66,7 @@ export const SearchField = ({
 }) => (
   <div className="flex items-center gap-1 lg:pt-6">
     <BackButton fallbackHref="/" className="-ml-2.5 lg:hidden" />
-    <label className="flex min-h-[46px] min-w-0 flex-1 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-muted focus-within:border-line-dashed">
+    <label className="flex min-h-[46px] min-w-0 flex-1 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-muted focus-within:border-accent">
       <SearchIcon aria-hidden size={18} strokeWidth={2} className="shrink-0" />
       <span className="sr-only">
         Search drivers, teams, circuits, races and seasons
@@ -249,8 +250,9 @@ export const Search = () => {
         <SearchField value={query} onChange={onChange} />
         {!!trimmed && results.length > 0 && (
           <div
-            role="group"
+            role="radiogroup"
             aria-label="Filter results"
+            onKeyDown={onRadioKeyDown}
             className="-mx-4 no-scrollbar flex gap-1.5 overflow-x-auto px-4 md:mx-0 md:px-0"
           >
             {FILTERS.filter(

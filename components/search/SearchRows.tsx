@@ -139,8 +139,10 @@ export const FilterChip = ({
 }) => (
   <button
     type="button"
+    role="radio"
+    aria-checked={on}
+    tabIndex={on ? 0 : -1}
     onClick={onSelect}
-    aria-pressed={on}
     aria-label={`${label}, ${count} results`}
     className={cn(
       "flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border px-3 font-mono text-xs font-bold whitespace-nowrap transition-colors",

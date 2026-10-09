@@ -101,7 +101,7 @@ export default async function DriverPage({
           ]),
         ]}
       />
-      <Suspense fallback={<DetailPageSkeleton />}>
+      <Suspense fallback={<DetailPageSkeleton className="min-h-svh" />}>
         <DriverContent driver={driver} />
       </Suspense>
     </>

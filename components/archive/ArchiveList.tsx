@@ -46,7 +46,7 @@ export const ArchiveList = ({ rows }: { rows: ArchiveRow[] }) => {
 
   return (
     <div className="flex flex-col gap-3.5 lg:gap-5">
-      <label className="flex min-h-[46px] items-center gap-2.5 rounded-[10px] border border-line bg-surface px-3.5 text-muted focus-within:border-line-dashed lg:max-w-md">
+      <label className="flex min-h-[46px] items-center gap-2.5 rounded-[10px] border border-line bg-surface px-3.5 text-muted focus-within:border-accent lg:max-w-md">
         <Search aria-hidden size={18} strokeWidth={2} className="shrink-0" />
         <span className="sr-only">Search the archive</span>
         <input

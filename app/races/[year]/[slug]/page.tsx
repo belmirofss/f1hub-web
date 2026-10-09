@@ -71,7 +71,7 @@ export default async function RaceWeekendPage({
   if (!results) return <Schedule race={race} />;
 
   return (
-    <Suspense fallback={<ContentSkeleton />}>
+    <Suspense fallback={<ContentSkeleton rows={20} />}>
       <Results race={race} href={href} />
     </Suspense>
   );

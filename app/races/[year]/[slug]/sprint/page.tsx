@@ -58,7 +58,7 @@ export default async function SprintPage({
   if (!isSprintWeekend(race)) notFound();
 
   return (
-    <Suspense fallback={<ContentSkeleton />}>
+    <Suspense fallback={<ContentSkeleton rows={20} />}>
       <SprintResults race={race} />
     </Suspense>
   );
