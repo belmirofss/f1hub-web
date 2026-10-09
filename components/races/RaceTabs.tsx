@@ -5,7 +5,7 @@ import { Tabs, type Tab } from "@/components/ui/Tabs";
 import type { WeekendTabs } from "@/lib/raceWeekend";
 
 // Weekend sections under the race header. Sprint only shows on sprint
-// weekends and Radio from 2023; tabs without data yet are disabled.
+// weekends and Radio from 2023; tabs without data are disabled.
 export const RaceTabs = ({
   base,
   available,
@@ -14,7 +14,7 @@ export const RaceTabs = ({
   available: WeekendTabs;
 }) => {
   const segment = useSelectedLayoutSegment();
-  const { results, qualifying, sprint, radio } = available;
+  const { results, qualifying, sprint, analysis, radio } = available;
 
   const tabs: Tab[] = [
     { href: `${base}/schedule`, label: "Schedule" },
@@ -23,7 +23,7 @@ export const RaceTabs = ({
       ? []
       : [{ href: `${base}/sprint`, label: "Sprint", disabled: !sprint }]),
     { href: `${base}/qualifying`, label: "Qualifying", disabled: !qualifying },
-    { href: `${base}/analysis`, label: "Analysis", disabled: !results },
+    { href: `${base}/analysis`, label: "Analysis", disabled: !analysis },
     ...(radio
       ? [{ href: `${base}/radio`, label: "Radio", disabled: !results }]
       : []),
