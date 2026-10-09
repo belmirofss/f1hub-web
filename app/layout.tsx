@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Titillium_Web } from "next/font/google";
+import { InstallPrompt } from "@/components/install/InstallPrompt";
 import { HistoryTracker } from "@/components/layout/BackButton";
 import { SearchShortcut } from "@/components/layout/SearchShortcut";
 import { ServiceWorker } from "@/components/layout/ServiceWorker";
@@ -17,6 +18,7 @@ import {
   SITE_URL,
   socialImage,
 } from "@/lib/metadata";
+import { INSTALL_SCRIPT } from "@/lib/install";
 import { ACCENT_SCRIPT } from "@/lib/settings";
 import "./globals.css";
 
@@ -79,6 +81,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: ACCENT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: INSTALL_SCRIPT }} />
       </head>
       {/* Below 768px the body reserves room for the fixed tab bar */}
       <body className="flex min-h-full flex-col pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] max-md:pb-[calc(52px+max(12px,env(safe-area-inset-bottom)))]">
@@ -102,6 +105,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Suspense>
             <HistoryTracker />
             <ServiceWorker />
+            <InstallPrompt />
           </Suspense>
           <SearchShortcut />
         </SettingsProvider>

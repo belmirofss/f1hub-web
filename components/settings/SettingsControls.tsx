@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
-import { Share } from "lucide-react";
+import { Download, Share } from "lucide-react";
+import { useInstallPrompt } from "@/components/install/useInstallPrompt";
 import { Label } from "@/components/ui/Label";
 import { Segmented } from "@/components/ui/Segmented";
 import { ACCENT_OPTIONS } from "@/lib/settings";
@@ -112,6 +113,23 @@ export const ShareRow = () => {
       icon={<Share aria-hidden size={18} strokeWidth={2} />}
       label="Share F1HUB"
       value={<span aria-live="polite">{status}</span>}
+    />
+  );
+};
+
+// Opens the same install flow as the automatic prompt. Hidden once F1HUB is
+// installed, or when it's already running as the installed app.
+export const InstallRow = () => {
+  const { ready, standalone, installed, openPrompt } = useInstallPrompt();
+  if (ready && (standalone || installed)) return null;
+
+  return (
+    <SettingsRow
+      as="button"
+      highlight
+      onClick={openPrompt}
+      icon={<Download aria-hidden size={18} strokeWidth={2} />}
+      label="Install F1HUB on this device"
     />
   );
 };
