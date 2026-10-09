@@ -7,7 +7,7 @@ import { Archive, Calendar, House } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 // The app's "podium" tab icon, which lucide doesn't have
-const Podium = (props: SVGProps<SVGSVGElement>) => (
+export const Podium = (props: SVGProps<SVGSVGElement>) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
