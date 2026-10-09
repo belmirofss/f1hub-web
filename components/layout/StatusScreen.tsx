@@ -3,12 +3,14 @@ import { Label } from "@/components/ui/Label";
 import { cn } from "@/lib/cn";
 
 // Full-page message for 404, errors and offline: a row of start lights,
-// a label, a big slanted title, a line of text and some ways out.
+// a label, a big slanted title, a line of text, optional details and some
+// ways out.
 export const StatusScreen = ({
   lit,
   label,
   title,
   children,
+  details,
   actions,
 }: {
   // How many of the five start lights are on
@@ -16,6 +18,7 @@ export const StatusScreen = ({
   label: string;
   title: string;
   children: ReactNode;
+  details?: ReactNode;
   actions: ReactNode;
 }) => (
   <div className="flex w-full max-w-xl flex-1 flex-col justify-center gap-[18px] py-10">
@@ -33,6 +36,7 @@ export const StatusScreen = ({
     <Label className="text-accent">{label}</Label>
     <h1 className="-skew-x-6 text-[30px] leading-[34px] font-black">{title}</h1>
     <p className="text-[15px] leading-[22px] text-soft">{children}</p>
+    {details}
     <div className="flex flex-wrap gap-2">{actions}</div>
   </div>
 );
