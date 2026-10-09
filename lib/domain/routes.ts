@@ -37,3 +37,10 @@ export const teamHref = (constructorId: string) => `/teams/${constructorId}`;
 export const circuitHref = (circuitId: string) => `/circuits/${circuitId}`;
 
 export const seasonHref = (season: string | number) => `/seasons/${season}`;
+
+export const FIRST_SEASON = 1950;
+
+// Four digits, 1950 or later. The upper bound needs the clock or the API, so
+// pages check the API's seasons and Proxy (proxy.ts) the clock.
+export const isSeasonYear = (year: string) =>
+  /^\d{4}$/.test(year) && Number(year) >= FIRST_SEASON;
