@@ -27,10 +27,12 @@ import {
 } from "@/components/home/TopFiveCard";
 import { Columns } from "@/components/layout/Columns";
 import { Wordmark } from "@/components/layout/Wordmark";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { CurrentTitleFight } from "@/components/standings/CurrentTitleFight";
 import { IconButton } from "@/components/ui/Card";
 import { Slot } from "@/components/ui/Slot";
 import { pageMetadata, SITE_DESCRIPTION, SITE_NAME } from "@/lib/metadata";
+import { websiteLd } from "@/lib/structuredData";
 
 const TITLE = `${SITE_NAME}: Formula 1 calendar, standings and results`;
 
@@ -51,6 +53,7 @@ export default function Home() {
         </IconButton>
       </header>
       <h1 className="sr-only">{TITLE}</h1>
+      <JsonLd data={websiteLd()} />
       <div className="flex flex-col gap-3.5 md:pt-5 lg:gap-5">
         <Slot fallback={<NextSessionTickerSkeleton />}>
           <NextSessionTicker />

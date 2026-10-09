@@ -15,6 +15,7 @@ import {
 import { TeammateCard } from "@/components/drivers/TeammateCard";
 import { Columns } from "@/components/layout/Columns";
 import { DetailPageSkeleton } from "@/components/layout/PageSkeletons";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { Slot } from "@/components/ui/Slot";
 import { TitlesCard } from "@/components/ui/TitlesCard";
 import {
@@ -27,6 +28,7 @@ import { getTitleSeasons } from "@/lib/domain/drivers";
 import { driverHref } from "@/lib/domain/routes";
 import { getDriverName } from "@/lib/domain/teams";
 import { listOf, orFallback, pageMetadata, plural } from "@/lib/metadata";
+import { breadcrumbLd, driverLd } from "@/lib/structuredData";
 
 // Driver ids are lowercase words joined by "_" ("max_verstappen")
 const findDriver = async (param: string) => {
@@ -90,9 +92,19 @@ export default async function DriverPage({
   const driver = await findDriver((await params).driverId);
 
   return (
-    <Suspense fallback={<DetailPageSkeleton />}>
-      <DriverContent driver={driver} />
-    </Suspense>
+    <>
+      <JsonLd
+        data={[
+          driverLd(driver),
+          breadcrumbLd([
+            { name: getDriverName(driver), path: driverHref(driver.driverId) },
+          ]),
+        ]}
+      />
+      <Suspense fallback={<DetailPageSkeleton />}>
+        <DriverContent driver={driver} />
+      </Suspense>
+    </>
   );
 }
 

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Columns } from "@/components/layout/Columns";
 import { DetailPageSkeleton } from "@/components/layout/PageSkeletons";
+import { JsonLd } from "@/components/seo/JsonLd";
 import {
   AllTimeStats,
   AllTimeStatsSkeleton,
@@ -33,6 +34,7 @@ import type { Constructor } from "@/lib/api/types";
 import { getConstructorTitles } from "@/lib/data/constructorChampions";
 import { teamHref } from "@/lib/domain/routes";
 import { orFallback, pageMetadata, plural } from "@/lib/metadata";
+import { breadcrumbLd, teamLd } from "@/lib/structuredData";
 
 // Constructor ids are lowercase words joined by "_" or "-" ("red_bull",
 // "brabham-repco")
@@ -96,9 +98,19 @@ export default async function TeamPage({
   const team = await findTeam((await params).constructorId);
 
   return (
-    <Suspense fallback={<DetailPageSkeleton />}>
-      <TeamContent team={team} />
-    </Suspense>
+    <>
+      <JsonLd
+        data={[
+          teamLd(team),
+          breadcrumbLd([
+            { name: team.name, path: teamHref(team.constructorId) },
+          ]),
+        ]}
+      />
+      <Suspense fallback={<DetailPageSkeleton />}>
+        <TeamContent team={team} />
+      </Suspense>
+    </>
   );
 }
 

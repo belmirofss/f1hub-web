@@ -834,3 +834,10 @@ export async function getAllCircuits(): Promise<Circuit[]> {
   >("circuits.json", "lists");
   return pages.flatMap((page) => page.MRData.CircuitTable.Circuits);
 }
+
+// Every race since 1950 (~12 pages), schedule fields only
+export async function getAllRaces(): Promise<RaceBase[]> {
+  "use cache";
+  cacheFor("lists");
+  return allRaces<RaceBase>("races.json", "lists");
+}
