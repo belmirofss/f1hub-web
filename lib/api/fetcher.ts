@@ -57,8 +57,9 @@ const createQueue = (concurrent: number, gapMs: number): Queue => {
 };
 
 const QUEUES: Record<string, Queue> = {
-  // Jolpica: ~4 requests a second, 500 an hour
-  "api.jolpi.ca": createQueue(3, 260),
+  // Jolpica: 4 requests a second, 500 an hour. Starting 3 a second leaves
+  // room for network jitter on long runs like a race's 13 pages of laps.
+  "api.jolpi.ca": createQueue(3, 340),
   // OpenF1 free tier: 3 requests a second, 30 a minute
   "api.openf1.org": createQueue(1, 400),
 };
