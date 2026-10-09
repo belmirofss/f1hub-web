@@ -15,6 +15,7 @@ import {
 import { Columns } from "@/components/layout/Columns";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ContentSkeleton } from "@/components/layout/PageSkeletons";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { InlineLink } from "@/components/ui/Card";
 import { Slot } from "@/components/ui/Slot";
 import { EmptyState } from "@/components/ui/States";
@@ -25,6 +26,7 @@ import { getWinsByDriver } from "@/lib/domain/circuits";
 import { circuitHref } from "@/lib/domain/routes";
 import { getDriverName } from "@/lib/domain/teams";
 import { orFallback, pageMetadata, plural } from "@/lib/metadata";
+import { breadcrumbLd, circuitLd } from "@/lib/structuredData";
 
 // Circuit ids are lowercase words joined by "_" ("marina_bay")
 const findCircuit = async (param: string) => {
@@ -81,6 +83,17 @@ export default async function CircuitPage({
 
   return (
     <>
+      <JsonLd
+        data={[
+          circuitLd(circuit),
+          breadcrumbLd([
+            {
+              name: circuit.circuitName,
+              path: circuitHref(circuit.circuitId),
+            },
+          ]),
+        ]}
+      />
       <PageHeader
         back="/calendar"
         meta={`CIRCUIT · ${circuit.Location.country.toUpperCase()}`}

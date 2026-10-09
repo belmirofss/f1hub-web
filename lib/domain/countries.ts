@@ -1473,3 +1473,9 @@ export const getCountryCode3ByName = (name: string) =>
 // "British" -> "GBR", from the API's driver nationality
 export const getCountryCode3ByNationality = (nationality: string) =>
   byNationality.get(key(nationality)) ?? nationality.slice(0, 3).toUpperCase();
+
+// "British" -> "United Kingdom", for structured data
+export const getCountryNameByNationality = (nationality: string) => {
+  const code = byNationality.get(key(nationality));
+  return COUNTRIES.find((country) => country.CCA3 === code)?.Name;
+};
