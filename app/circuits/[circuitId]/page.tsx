@@ -65,6 +65,7 @@ export const generateMetadata = async ({
     title: `${circuitName}: F1 track map, facts and winners`,
     description: `${facts.join(" ")} Track map, lap length, fastest race lap and recent winners.`,
     path: circuitHref(circuitId),
+    image: `${circuitHref(circuitId)}/opengraph-image`,
   });
 };
 

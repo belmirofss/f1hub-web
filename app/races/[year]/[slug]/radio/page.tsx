@@ -23,6 +23,7 @@ export const generateMetadata = async ({
     title: `${getWeekendName(race)} team radio`,
     description: `Team radio and race control from the ${getWeekendName(race)} at ${race.Circuit.circuitName}, lap by lap: flags, safety cars, penalties and deleted laps.`,
     path: `${href}/radio`,
+    image: `${href}/opengraph-image`,
     // Nothing to hear until the race has run
     noindex: !results,
   });

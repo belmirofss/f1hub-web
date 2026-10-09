@@ -45,6 +45,7 @@ export const generateMetadata = async ({
       ? `How ${describeWin(winner)}, lap by lap: ${charts}.`
       : `${getWeekendName(race)} lap by lap: ${charts}.`,
     path: `${href}/analysis`,
+    image: `${href}/opengraph-image`,
     noindex: !tabs.analysis,
   });
 };

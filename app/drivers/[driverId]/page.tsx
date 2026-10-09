@@ -75,6 +75,7 @@ export const generateMetadata = async ({
     title: `${name}: F1 stats, results and career`,
     description: `${who}${record}. Stats by season, last 5 races and biography.`,
     path: driverHref(driver.driverId),
+    image: `${driverHref(driver.driverId)}/opengraph-image`,
   });
 };
 

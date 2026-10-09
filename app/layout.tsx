@@ -8,11 +8,13 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { TabBar } from "@/components/layout/TabBar";
 import { SettingsProvider } from "@/components/settings/SettingsProvider";
 import {
+  DEFAULT_IMAGE,
   IS_PRODUCTION,
   NOINDEX,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_URL,
+  socialImage,
 } from "@/lib/metadata";
 import { ACCENT_SCRIPT } from "@/lib/settings";
 import "./globals.css";
@@ -42,11 +44,13 @@ export const metadata: Metadata = {
     locale: "en_US",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
+    images: socialImage(DEFAULT_IMAGE, SITE_NAME),
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
+    images: socialImage(DEFAULT_IMAGE, SITE_NAME),
   },
   ...(!IS_PRODUCTION && { robots: NOINDEX }),
 };

@@ -41,6 +41,7 @@ export const generateMetadata = async ({
     title: `${year} F1 season: every race and winner`,
     description: `All ${rounds} races of the ${year} Formula 1 season with their dates and winners.${most}`,
     path: `${seasonHref(year)}/races`,
+    image: `${seasonHref(year)}/opengraph-image`,
   });
 };
 

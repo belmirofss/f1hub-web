@@ -81,6 +81,7 @@ export const generateMetadata = async ({
       facts.length ? `: ${facts.join(", ")}` : ""
     }. Drivers, all-time stats and championship history.`,
     path: teamHref(constructorId),
+    image: `${teamHref(constructorId)}/opengraph-image`,
   });
 };
 

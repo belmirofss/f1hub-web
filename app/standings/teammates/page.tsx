@@ -12,6 +12,7 @@ export const generateMetadata = async (): Promise<Metadata> => {
     description: `Who is beating whom inside every Formula 1 team${season ? ` in ${season}` : ""}: qualifying, race, points and podium head-to-heads, with the average qualifying gap.`,
     // ?team= only picks the pair shown first
     path: "/standings/teammates",
+    image: "/standings/opengraph-image",
   });
 };
 

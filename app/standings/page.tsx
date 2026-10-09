@@ -23,6 +23,7 @@ export const generateMetadata = async (): Promise<Metadata> => {
       ? `${summary}. Points, gaps, last-5 form and who can still be champion.`
       : "The Formula 1 drivers' championship: points, gaps to the leader, last-5 form and who can still be champion.",
     path: "/standings",
+    image: "/standings/opengraph-image",
   });
 };
 

@@ -40,6 +40,7 @@ export const generateMetadata = async ({
       ? `${getDriverName(pole.Driver)} took pole${time ? ` in ${time}` : ""} for ${pole.Constructor.name}. ${details}`
       : `Qualifying results for the ${getWeekendName(race)}: best lap times and gaps to pole.`,
     path: `${href}/qualifying`,
+    image: `${href}/opengraph-image`,
     // An empty tab until qualifying, and for good before 1994
     noindex: !tabs.qualifying,
   });

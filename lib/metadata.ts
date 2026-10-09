@@ -28,8 +28,19 @@ type PageMetadata = {
   description: string;
   // "/races/2026/singapore-grand-prix", without the query string
   path: string;
+  // The opengraph-image route that draws the page's card, like
+  // "/drivers/max_verstappen/opengraph-image". The default card otherwise.
+  image?: string;
   noindex?: boolean;
 };
+
+export const DEFAULT_IMAGE = "/opengraph-image";
+
+// The card's tags. A page's own `openGraph` replaces the parent's, file-based
+// image included, so every page names its image itself. X gets the same PNG.
+export const socialImage = (url: string, alt: string) => [
+  { url, alt, width: 1200, height: 630, type: "image/png" },
+];
 
 // Title, description, canonical URL and social cards for one page. Nested
 // fields replace the parent's rather than merging, so every page sets all of
@@ -39,22 +50,27 @@ export const pageMetadata = ({
   title,
   description,
   path,
+  image = DEFAULT_IMAGE,
   noindex,
-}: PageMetadata): Metadata => ({
-  title,
-  description,
-  alternates: { canonical: path },
-  openGraph: {
-    type: "website",
-    siteName: SITE_NAME,
-    locale: "en_US",
-    url: path,
+}: PageMetadata): Metadata => {
+  const images = socialImage(image, title);
+  return {
     title,
     description,
-  },
-  twitter: { card: "summary_large_image", title, description },
-  ...(noindex && { robots: NOINDEX }),
-});
+    alternates: { canonical: path },
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: "en_US",
+      url: path,
+      title,
+      description,
+      images,
+    },
+    twitter: { card: "summary_large_image", title, description, images },
+    ...(noindex && { robots: NOINDEX }),
+  };
+};
 
 // For the data-driven part of a description: a failed request shouldn't
 // fail the page, so it falls back to the generic text

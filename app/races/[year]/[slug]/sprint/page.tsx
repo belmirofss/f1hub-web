@@ -32,6 +32,7 @@ export const generateMetadata = async ({
     title: `${getWeekendName(race)} sprint results`,
     description: `${winner ? `${describeWin(winner, "sprint")}. ` : ""}${getWeekendName(race)} sprint results: places gained, gaps and points.`,
     path: `${href}/sprint`,
+    image: `${href}/opengraph-image`,
     noindex: !tabs.sprint,
   });
 };

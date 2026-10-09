@@ -19,6 +19,7 @@ export const generateMetadata = async ({
     description: `${describeWeekend(race, races)}: every session in your time zone and at the track, the weekend forecast and circuit info.`,
     // Until there are results the weekend's main page is this schedule
     path: results ? `${href}/schedule` : href,
+    image: `${href}/opengraph-image`,
   });
 };
 
