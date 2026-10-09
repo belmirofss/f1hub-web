@@ -1,6 +1,12 @@
 // Ported from the app's src/helpers/search.ts. Results link to URLs instead
 // of screens, and the index is plain JSON so /api/search-index can send it.
-import type { Circuit, Constructor, Driver, Race } from "@/lib/api/types";
+import type {
+  Circuit,
+  Constructor,
+  Driver,
+  Location,
+  Race,
+} from "@/lib/api/types";
 import { CHAMPIONS } from "@/lib/data/champions";
 import { CONSTRUCTOR_CHAMPIONS } from "@/lib/data/constructorChampions";
 import {
@@ -27,18 +33,89 @@ export type SearchItem = {
   href: string;
 };
 
+// The index only carries the fields search reads, so /api/search-index stays
+// small
+export type IndexDriver = Pick<
+  Driver,
+  | "driverId"
+  | "givenName"
+  | "familyName"
+  | "code"
+  | "permanentNumber"
+  | "nationality"
+>;
+export type IndexConstructor = Pick<
+  Constructor,
+  "constructorId" | "name" | "nationality"
+>;
+export type IndexCircuit = Pick<Circuit, "circuitId" | "circuitName"> & {
+  Location: Pick<Location, "locality" | "country">;
+};
+export type IndexRace = Pick<Race, "season" | "round" | "raceName" | "date"> & {
+  Circuit: IndexCircuit;
+};
+
 export type SearchIndex = {
-  drivers: Driver[];
-  constructors: Constructor[];
-  circuits: Circuit[];
+  drivers: IndexDriver[];
+  constructors: IndexConstructor[];
+  circuits: IndexCircuit[];
   seasons: string[];
   currentSeason?: string;
   // Current grid: driverId → team, from the current standings
-  currentTeams: Record<string, Constructor>;
-  currentRaces: Race[];
+  currentTeams: Record<string, IndexConstructor>;
+  currentRaces: IndexRace[];
   // Schedule of the year typed in the query, once it's loaded
-  yearRaces: Race[];
+  yearRaces: IndexRace[];
 };
+
+// What /api/search-index sends: everything but the typed year's schedule
+export type SearchIndexData = Omit<SearchIndex, "yearRaces">;
+
+export const toIndexDriver = ({
+  driverId,
+  givenName,
+  familyName,
+  code,
+  permanentNumber,
+  nationality,
+}: Driver): IndexDriver => ({
+  driverId,
+  givenName,
+  familyName,
+  code,
+  permanentNumber,
+  nationality,
+});
+
+export const toIndexConstructor = ({
+  constructorId,
+  name,
+  nationality,
+}: Constructor): IndexConstructor => ({ constructorId, name, nationality });
+
+export const toIndexCircuit = ({
+  circuitId,
+  circuitName,
+  Location: { locality, country },
+}: Circuit): IndexCircuit => ({
+  circuitId,
+  circuitName,
+  Location: { locality, country },
+});
+
+export const toIndexRace = ({
+  season,
+  round,
+  raceName,
+  date,
+  Circuit,
+}: Race): IndexRace => ({
+  season,
+  round,
+  raceName,
+  date,
+  Circuit: toIndexCircuit(Circuit),
+});
 
 // Names fans use that the API doesn't know
 const TEAM_ALIASES: Record<string, string[]> = {
@@ -134,7 +211,11 @@ Object.values(CONSTRUCTOR_CHAMPIONS).forEach((id) =>
 const titlesText = (count?: number) =>
   count ? `${count}× champion` : undefined;
 
-const raceItem = (race: Race, races: Race[], rank: number): Ranked => ({
+const raceItem = (
+  race: IndexRace,
+  races: IndexRace[],
+  rank: number,
+): Ranked => ({
   key: `race-${race.season}-${race.round}`,
   type: "race",
   rank,
@@ -166,7 +247,7 @@ export const seasonItem = (
   };
 };
 
-const raceKeys = (race: Race) => [
+const raceKeys = (race: IndexRace) => [
   race.raceName,
   race.Circuit.circuitName,
   race.Circuit.Location.locality,

@@ -1,17 +1,25 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { Stub } from "@/components/Stub";
+import { Search, SearchField } from "@/components/search/Search";
 
 export const metadata: Metadata = {
   title: "Search",
+  description: "Search Formula 1 drivers, teams, races, circuits and seasons.",
   robots: { index: false },
 };
 
+// The page is static; the query comes from the URL in the browser
 export default function SearchPage() {
   return (
-    <>
-      <PageHeader back="/" title="Search" />
-      <Stub issue={20}>Drivers, teams, races, circuits and seasons.</Stub>
-    </>
+    <Suspense
+      fallback={
+        <div className="mx-auto flex w-full max-w-[760px] flex-col gap-3">
+          <h1 className="sr-only">Search</h1>
+          <SearchField value="" />
+        </div>
+      }
+    >
+      <Search />
+    </Suspense>
   );
 }

@@ -62,6 +62,7 @@ app/
   settings/page.tsx          noindex
   offline/page.tsx           service worker fallback
   api/search-index/route.ts
+  api/seasons/[year]/races/route.ts    "monaco 2024" searches
   manifest.ts · sitemap.ts · robots.ts · opengraph-image.tsx (per route)
 lib/
   api/        jolpica.ts · openf1.ts · openMeteo.ts · wikipedia.ts · fetcher.ts (throttle, retry, revalidate)
