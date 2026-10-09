@@ -38,6 +38,13 @@ export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
+  // Home screen app on iOS. The status bar draws over the page, so the top
+  // of the page needs env(safe-area-inset-top).
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "black-translucent",
+  },
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
