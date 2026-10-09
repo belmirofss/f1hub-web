@@ -5,12 +5,15 @@ import {
   getAllCircuits,
   getAllConstructors,
   getAllDrivers,
+  getChampions,
+  getConstructorChampions,
   getCurrentSeason,
   getDriverStandings,
   getSeasonSchedule,
   getSeasons,
 } from "@/lib/api/jolpica";
 import {
+  toIndexChampion,
   toIndexCircuit,
   toIndexConstructor,
   toIndexDriver,
@@ -40,10 +43,14 @@ export async function getSearchIndex(): Promise<SearchIndexData> {
       getCurrentSeason(),
     ],
   );
-  const [races, standings] = await Promise.all([
-    getSeasonSchedule(current),
-    getDriverStandings(current),
-  ]);
+  const [races, standings, champions, constructorChampions] = await Promise.all(
+    [
+      getSeasonSchedule(current),
+      getDriverStandings(current),
+      getChampions(),
+      getConstructorChampions(),
+    ],
+  );
 
   // Before the first race there are no standings, so no current grid
   const currentTeams: Record<string, IndexConstructor> = {};
@@ -58,6 +65,8 @@ export async function getSearchIndex(): Promise<SearchIndexData> {
     circuits: circuits.map(toIndexCircuit),
     seasons: seasons.map((s) => s.season),
     currentSeason: String(current),
+    champions: champions.map(toIndexChampion),
+    constructorChampions,
     currentTeams,
     currentRaces: races.map(toIndexRace),
   };

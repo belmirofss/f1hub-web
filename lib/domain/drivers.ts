@@ -1,5 +1,4 @@
 // Driver page helpers, from the app's src/screens/Driver/Driver.tsx
-import { CHAMPIONS } from "@/lib/data/champions";
 
 // 1 → "1st", 22 → "22nd", 13 → "13th"
 export const ordinal = (n: number) => {
@@ -7,10 +6,6 @@ export const ordinal = (n: number) => {
   const v = n % 100;
   return `${n}${suffix[(v - 20) % 10] ?? suffix[v] ?? suffix[0]}`;
 };
-
-// Seasons the driver won the title, oldest first
-export const getTitleSeasons = (driverId: string) =>
-  CHAMPIONS.filter((c) => c.driverId === driverId).map((c) => c.season);
 
 // 2026 → "'26"
 export const shortYear = (season: string) => `'${season.slice(2)}`;

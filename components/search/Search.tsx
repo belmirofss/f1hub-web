@@ -234,9 +234,7 @@ export const Search = () => {
           },
         ]
       : []),
-    ...(index.currentSeason
-      ? [seasonItem(index.currentSeason, index.currentSeason)]
-      : []),
+    ...(index.currentSeason ? [seasonItem(index.currentSeason, index)] : []),
   ];
 
   const top = filter === "all" ? shown[0] : undefined;

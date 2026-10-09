@@ -1,6 +1,8 @@
 // Constructors' champions by season (the title started in 1958), keyed by the
 // Jolpica constructorId. The API's "constructorStandings/1" filter doesn't work
-// per team, so titles ship with the app. Add a line here when a season ends.
+// per team, so titles ship with the app. Seasons that finish after the last
+// line come from the API (getConstructorChampions), so adding a line is
+// optional: it just stops that season from being fetched.
 export const CONSTRUCTOR_CHAMPIONS: Record<string, string> = {
   "1958": "vanwall",
   "1959": "cooper-climax",
@@ -71,8 +73,3 @@ export const CONSTRUCTOR_CHAMPIONS: Record<string, string> = {
   "2024": "mclaren",
   "2025": "mclaren",
 };
-
-export const getConstructorTitles = (constructorId: string) =>
-  Object.entries(CONSTRUCTOR_CHAMPIONS)
-    .filter(([, id]) => id === constructorId)
-    .map(([season]) => season);

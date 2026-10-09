@@ -1,6 +1,8 @@
 // Final drivers' standings for finished seasons, generated from the Jolpica F1 API
 // (one request per season). Past titles never change, so they ship with the app
-// instead of costing ~75 requests. Add a line here when a season ends.
+// instead of costing ~75 requests. Seasons that finish after the last line
+// come from the API (getChampions), so adding a line is optional: it just
+// stops that season from being fetched.
 export type Champion = {
   season: string;
   rounds: number;

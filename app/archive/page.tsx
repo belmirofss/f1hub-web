@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { io } from "next/cache";
 import { Search } from "lucide-react";
 import {
   Archive,
@@ -8,19 +9,22 @@ import {
 } from "@/components/archive/Archive";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { IconButton } from "@/components/ui/Card";
-import { CHAMPIONS } from "@/lib/data/champions";
+import { getChampions } from "@/lib/api/jolpica";
 import { FIRST_SEASON } from "@/lib/domain/routes";
 import { pageMetadata } from "@/lib/metadata";
 
-// Finished seasons ship with the app, so this costs no request
-const first = CHAMPIONS[0];
-const latest = CHAMPIONS.at(-1)!;
-
-export const metadata: Metadata = pageMetadata({
-  title: `F1 archive: every season and champion since ${FIRST_SEASON}`,
-  description: `${CHAMPIONS.length} Formula 1 seasons with each drivers' champion and team, from ${first.driver} in ${first.season} to ${latest.driver} in ${latest.season}. Open a season for its final standings and race winners.`,
-  path: "/archive",
-});
+export const generateMetadata = async (): Promise<Metadata> => {
+  // Request time, like the list, so the build doesn't depend on the APIs
+  await io();
+  const champions = await getChampions();
+  const first = champions[0];
+  const latest = champions.at(-1)!;
+  return pageMetadata({
+    title: `F1 archive: every season and champion since ${FIRST_SEASON}`,
+    description: `${champions.length} Formula 1 seasons with each drivers' champion and team, from ${first.driver} in ${first.season} to ${latest.driver} in ${latest.season}. Open a season for its final standings and race winners.`,
+    path: "/archive",
+  });
+};
 
 export default function ArchivePage() {
   return (

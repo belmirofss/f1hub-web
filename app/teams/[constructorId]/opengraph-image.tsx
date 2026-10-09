@@ -3,11 +3,11 @@ import { connection } from "next/server";
 import {
   getConstructor,
   getConstructorSeasons,
+  getConstructorTitles,
   getConstructorWins,
   getCurrentSeason,
   getDriverStandings,
 } from "@/lib/api/jolpica";
-import { getConstructorTitles } from "@/lib/data/constructorChampions";
 import { formatPoints } from "@/lib/domain/drivers";
 import { getDriverName, getTeamColor } from "@/lib/domain/teams";
 import { orFallback } from "@/lib/metadata";
@@ -44,9 +44,10 @@ export default async function Image({
     : null;
   if (!team) notFound();
 
-  const [seasons, current] = await Promise.all([
+  const [seasons, current, titleSeasons] = await Promise.all([
     orFallback(getConstructorSeasons(constructorId)),
     orFallback(getCurrentSeason()),
+    getConstructorTitles(constructorId),
   ]);
   const latest = seasons?.at(-1);
   const [wins, standings] = await Promise.all([
@@ -60,7 +61,7 @@ export default async function Image({
     )
     .slice(0, 2);
 
-  const titles = getConstructorTitles(constructorId).length;
+  const titles = titleSeasons.length;
   const color = getTeamColor(constructorId);
   const stats: OgStat[] = [
     { label: "Titles", value: titles },

@@ -2,8 +2,11 @@ import Link from "next/link";
 import { io } from "next/cache";
 import { LinkCard, TeamBar } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
-import { getConstructorStandings, getCurrentSeason } from "@/lib/api/jolpica";
-import { CONSTRUCTOR_CHAMPIONS } from "@/lib/data/constructorChampions";
+import {
+  getConstructorChampions,
+  getConstructorStandings,
+  getCurrentSeason,
+} from "@/lib/api/jolpica";
 import { driverHref, teamHref } from "@/lib/domain/routes";
 import { getTeamColor } from "@/lib/domain/teams";
 import type { SeasonInfo } from "@/lib/season";
@@ -43,7 +46,7 @@ const Champion = ({
   </Link>
 );
 
-// From the shipped champions list, so it costs no requests
+// From the season info, so it costs no requests of its own
 export const DriversChampionCard = ({
   champion,
 }: {
@@ -62,10 +65,10 @@ export const DriversChampionCard = ({
 // The title started in 1958. Points and wins come from the final standings,
 // which the table below loads anyway.
 export const ConstructorsChampionCard = async ({ year }: { year: string }) => {
-  const teamId = CONSTRUCTOR_CHAMPIONS[year];
-  if (!teamId) return null;
   // Request time, so the build doesn't depend on the APIs
   await io();
+  const teamId = (await getConstructorChampions())[year];
+  if (!teamId) return null;
   const standings = await getConstructorStandings(year);
   const team = standings?.standings.find(
     (s) => s.Constructor.constructorId === teamId,

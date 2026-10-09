@@ -51,6 +51,8 @@ const EMPTY: SearchIndexData = {
   constructors: [],
   circuits: [],
   seasons: [],
+  champions: [],
+  constructorChampions: {},
   currentTeams: {},
   currentRaces: [],
 };
@@ -86,7 +88,9 @@ export const useSearchIndex = (year?: string) => {
 
   const index = useMemo<SearchIndex>(
     () => ({
-      ...(data ?? EMPTY),
+      // An index cached before a field was added still works
+      ...EMPTY,
+      ...data,
       yearRaces: (year && yearRaces[year]) || [],
     }),
     [data, year, yearRaces],

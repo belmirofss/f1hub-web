@@ -27,11 +27,11 @@ import { TitlesCard } from "@/components/ui/TitlesCard";
 import {
   getConstructor,
   getConstructorSeasons,
+  getConstructorTitles,
   getConstructorWins,
   getCurrentSeason,
 } from "@/lib/api/jolpica";
 import type { Constructor } from "@/lib/api/types";
-import { getConstructorTitles } from "@/lib/data/constructorChampions";
 import { teamHref } from "@/lib/domain/routes";
 import { orFallback, pageMetadata, plural } from "@/lib/metadata";
 import { breadcrumbLd, teamLd } from "@/lib/structuredData";
@@ -51,11 +51,12 @@ export const generateMetadata = async ({
 }: PageProps<"/teams/[constructorId]">): Promise<Metadata> => {
   const team = await findTeam((await params).constructorId);
   const { constructorId, name } = team;
-  const titles = getConstructorTitles(constructorId).length;
-  const [seasons, current] = await Promise.all([
+  const [titleSeasons, seasons, current] = await Promise.all([
+    getConstructorTitles(constructorId),
     orFallback(getConstructorSeasons(constructorId)),
     orFallback(getCurrentSeason()),
   ]);
+  const titles = titleSeasons.length;
   const wins =
     seasons && (await orFallback(getConstructorWins(constructorId, seasons)));
 
@@ -117,9 +118,11 @@ export default async function TeamPage({
 // Everything that needs the team's seasons
 const TeamContent = async ({ team }: { team: Constructor }) => {
   const { constructorId } = team;
-  const seasons = await getConstructorSeasons(constructorId);
+  const [seasons, titles] = await Promise.all([
+    getConstructorSeasons(constructorId),
+    getConstructorTitles(constructorId),
+  ]);
   const latest = seasons.at(-1);
-  const titles = getConstructorTitles(constructorId);
 
   return (
     <>
