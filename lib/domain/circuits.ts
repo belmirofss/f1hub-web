@@ -1,4 +1,5 @@
 // Ported from the app's src/helpers/circuits.ts.
+import type { Driver, RaceResults } from "@/lib/api/types";
 
 // The API has no time zone for circuits, so map the ones on recent calendars.
 const CIRCUIT_TIMEZONES: Record<string, string> = {
@@ -74,3 +75,16 @@ const CIRCUIT_LAYOUTS: Record<string, { length: number; corners: number }> = {
 
 export const getCircuitLayout = (circuitId: string) =>
   CIRCUIT_LAYOUTS[circuitId];
+
+// The drivers who won at a circuit, most wins first
+export const getWinsByDriver = (races: RaceResults[]) => {
+  const byDriver = new Map<string, { driver: Driver; wins: number }>();
+  races.forEach((race) => {
+    const winner = race.Results?.[0]?.Driver;
+    if (!winner) return;
+    const entry = byDriver.get(winner.driverId) ?? { driver: winner, wins: 0 };
+    entry.wins++;
+    byDriver.set(winner.driverId, entry);
+  });
+  return [...byDriver.values()].sort((a, b) => b.wins - a.wins);
+};

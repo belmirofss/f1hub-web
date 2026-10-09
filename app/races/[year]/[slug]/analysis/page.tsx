@@ -12,17 +12,41 @@ import {
 } from "@/lib/api/jolpica";
 import { OPENF1_FIRST_SEASON } from "@/lib/api/openf1";
 import type { Race } from "@/lib/api/types";
-import { getRaceWeekend } from "@/lib/raceWeekend";
+import { listOf, pageMetadata } from "@/lib/metadata";
+import {
+  describeWin,
+  getRaceWeekend,
+  getWeekendName,
+  getWeekendPodium,
+  getWeekendTabs,
+} from "@/lib/raceWeekend";
 
 export const generateMetadata = async ({
   params,
 }: PageProps<"/races/[year]/[slug]/analysis">): Promise<Metadata> => {
   const { year, slug } = await params;
-  const { race } = await getRaceWeekend(year, slug);
-  return {
-    title: `${race.raceName} ${year} analysis`,
-    description: `${race.raceName} ${year} lap by lap: position chart, tyre strategy and the fastest pit stops.`,
-  };
+  const { race, href } = await getRaceWeekend(year, slug);
+  const [podium, tabs] = await Promise.all([
+    getWeekendPodium(race),
+    getWeekendTabs(race),
+  ]);
+  // Tyres come from OpenF1 (2023 on) and pit stops from 2011
+  const season = Number(race.season);
+  const tyres = season >= OPENF1_FIRST_SEASON;
+  const charts = listOf([
+    "position chart",
+    ...(tyres ? ["tyre strategy"] : []),
+    ...(season >= PIT_STOPS_FIRST_SEASON ? ["the fastest pit stops"] : []),
+  ]);
+  const winner = podium?.winner;
+  return pageMetadata({
+    title: `${getWeekendName(race)} lap chart${tyres ? " and tyre strategy" : ""}`,
+    description: winner
+      ? `How ${describeWin(winner)}, lap by lap: ${charts}.`
+      : `${getWeekendName(race)} lap by lap: ${charts}.`,
+    path: `${href}/analysis`,
+    noindex: !tabs.analysis,
+  });
 };
 
 const RaceAnalysis = async ({ race }: { race: Race }) => {

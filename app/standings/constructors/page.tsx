@@ -10,11 +10,22 @@ import {
 import { LinkCard } from "@/components/ui/Card";
 import { SilentBoundary } from "@/components/ui/CardBoundary";
 import { Label } from "@/components/ui/Label";
+import { getCurrentSeason } from "@/lib/api/jolpica";
+import { orFallback, pageMetadata } from "@/lib/metadata";
+import { describeStandings } from "@/lib/season";
 
-export const metadata: Metadata = {
-  title: "Constructors' standings",
-  description:
-    "The Formula 1 constructors' championship: points, wins, gaps to the leader and each team's best finish over the last five races.",
+export const generateMetadata = async (): Promise<Metadata> => {
+  const [season, summary] = await Promise.all([
+    orFallback(getCurrentSeason()),
+    describeStandings("current", "constructors"),
+  ]);
+  return pageMetadata({
+    title: `F1 constructors' standings${season ? ` ${season}` : ""}: points and wins`,
+    description: summary
+      ? `${summary}. Points, wins, gaps and last-5 form.`
+      : "The Formula 1 constructors' championship: points, wins, gaps to the leader and each team's form over the last five races.",
+    path: "/standings/constructors",
+  });
 };
 
 export default function ConstructorStandingsPage() {

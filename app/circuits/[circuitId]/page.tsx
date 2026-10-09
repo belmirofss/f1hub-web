@@ -21,6 +21,10 @@ import { EmptyState } from "@/components/ui/States";
 import { getCircuit, getCircuitHistory } from "@/lib/api/jolpica";
 import { OPENF1_FIRST_SEASON } from "@/lib/api/openf1";
 import type { Circuit } from "@/lib/api/types";
+import { getWinsByDriver } from "@/lib/domain/circuits";
+import { circuitHref } from "@/lib/domain/routes";
+import { getDriverName } from "@/lib/domain/teams";
+import { orFallback, pageMetadata, plural } from "@/lib/metadata";
 
 // Circuit ids are lowercase words joined by "_" ("marina_bay")
 const findCircuit = async (param: string) => {
@@ -34,11 +38,34 @@ const findCircuit = async (param: string) => {
 export const generateMetadata = async ({
   params,
 }: PageProps<"/circuits/[circuitId]">): Promise<Metadata> => {
-  const { circuitName, Location } = await findCircuit((await params).circuitId);
-  return {
-    title: circuitName,
-    description: `${circuitName} in ${Location.locality}, ${Location.country}: Formula 1 track map, lap length, fastest race lap, recent winners and most wins.`,
-  };
+  const { circuitId, circuitName, Location } = await findCircuit(
+    (await params).circuitId,
+  );
+  const races = (await orFallback(getCircuitHistory(circuitId)))?.races ?? [];
+  const where = `${circuitName} in ${Location.locality}, ${Location.country}`;
+
+  // "has hosted 16 Formula 1 races, the first in 2008. Most wins: …"
+  const facts: string[] = [];
+  if (races.length) {
+    const first = races[0].season;
+    facts.push(
+      races.length === 1
+        ? `${where} hosted its first Formula 1 race in ${first}.`
+        : `${where} has hosted ${plural(races.length, "Formula 1 race")}, the first in ${first}.`,
+    );
+    const [most] = getWinsByDriver(races);
+    if (most && most.wins > 1) {
+      facts.push(`Most wins: ${getDriverName(most.driver)} (${most.wins}).`);
+    }
+  } else {
+    facts.push(`${where}.`);
+  }
+
+  return pageMetadata({
+    title: `${circuitName}: F1 track map, facts and winners`,
+    description: `${facts.join(" ")} Track map, lap length, fastest race lap and recent winners.`,
+    path: circuitHref(circuitId),
+  });
 };
 
 // The page waits for this one cached request before it starts streaming, so

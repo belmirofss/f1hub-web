@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
-import type { Driver, RaceResults } from "@/lib/api/types";
+import type { RaceResults } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
+import { getWinsByDriver } from "@/lib/domain/circuits";
 import { driverHref } from "@/lib/domain/routes";
 import { getDriverName } from "@/lib/domain/teams";
 
@@ -11,17 +12,7 @@ const COUNT = 3;
 // The drivers who won here most, as bars against the leader. Hidden until
 // someone has won here twice.
 export const MostWins = ({ races }: { races: RaceResults[] }) => {
-  const byDriver = new Map<string, { driver: Driver; wins: number }>();
-  races.forEach((race) => {
-    const winner = race.Results?.[0]?.Driver;
-    if (!winner) return;
-    const entry = byDriver.get(winner.driverId) ?? { driver: winner, wins: 0 };
-    entry.wins++;
-    byDriver.set(winner.driverId, entry);
-  });
-  const top = [...byDriver.values()]
-    .sort((a, b) => b.wins - a.wins)
-    .slice(0, COUNT);
+  const top = getWinsByDriver(races).slice(0, COUNT);
   const most = top[0]?.wins ?? 0;
   if (most < 2) return null;
 

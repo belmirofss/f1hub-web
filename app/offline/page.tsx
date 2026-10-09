@@ -5,11 +5,14 @@ import {
   primaryButton,
   secondaryButton,
 } from "@/components/layout/StatusScreen";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Offline",
-  robots: { index: false },
-};
+  description: "You're offline. Pages you've opened before still work.",
+  path: "/offline",
+  noindex: true,
+});
 
 // Service worker fallback. #25 adds the saved pages and the retry.
 export default function OfflinePage() {

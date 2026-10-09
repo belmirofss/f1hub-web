@@ -1,12 +1,14 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Search, SearchField } from "@/components/search/Search";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Search",
   description: "Search Formula 1 drivers, teams, races, circuits and seasons.",
-  robots: { index: false },
-};
+  path: "/search",
+  noindex: true,
+});
 
 // The page is static; the query comes from the URL in the browser
 export default function SearchPage() {

@@ -8,12 +8,19 @@ import {
 } from "@/components/archive/Archive";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { IconButton } from "@/components/ui/Card";
+import { CHAMPIONS } from "@/lib/data/champions";
+import { FIRST_SEASON } from "@/lib/domain/routes";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Archive",
-  description:
-    "Every Formula 1 season since 1950 with its drivers' champion and team. Open a season for its final standings and race winners.",
-};
+// Finished seasons ship with the app, so this costs no request
+const first = CHAMPIONS[0];
+const latest = CHAMPIONS.at(-1)!;
+
+export const metadata: Metadata = pageMetadata({
+  title: `F1 archive: every season and champion since ${FIRST_SEASON}`,
+  description: `${CHAMPIONS.length} Formula 1 seasons with each drivers' champion and team, from ${first.driver} in ${first.season} to ${latest.driver} in ${latest.season}. Open a season for its final standings and race winners.`,
+  path: "/archive",
+});
 
 export default function ArchivePage() {
   return (
