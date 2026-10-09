@@ -3,11 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AboutCard, AboutCardSkeleton } from "@/components/drivers/AboutCard";
 import { DriverHero } from "@/components/drivers/DriverHero";
-import {
-  StatsCard,
-  StatsCardSkeleton,
-  TitlesCard,
-} from "@/components/drivers/DriverStats";
+import { StatsCard, StatsCardSkeleton } from "@/components/drivers/DriverStats";
 import {
   RecentRaces,
   RecentRacesSkeleton,
@@ -20,6 +16,7 @@ import { TeammateCard } from "@/components/drivers/TeammateCard";
 import { Columns } from "@/components/layout/Columns";
 import { DetailPageSkeleton } from "@/components/layout/PageSkeletons";
 import { Slot } from "@/components/ui/Slot";
+import { TitlesCard } from "@/components/ui/TitlesCard";
 import { getDriver, getDriverCareer } from "@/lib/api/jolpica";
 import type { Driver } from "@/lib/api/types";
 import { getTitleSeasons } from "@/lib/domain/drivers";
