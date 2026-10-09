@@ -22,9 +22,9 @@ import {
   getCurrentSeason,
   getDriver,
   getDriverCareer,
+  getTitleSeasons,
 } from "@/lib/api/jolpica";
 import type { Driver } from "@/lib/api/types";
-import { getTitleSeasons } from "@/lib/domain/drivers";
 import { driverHref } from "@/lib/domain/routes";
 import { getDriverName } from "@/lib/domain/teams";
 import { listOf, orFallback, pageMetadata, plural } from "@/lib/metadata";
@@ -43,12 +43,13 @@ export const generateMetadata = async ({
   params,
 }: PageProps<"/drivers/[driverId]">): Promise<Metadata> => {
   const driver = await findDriver((await params).driverId);
-  const [career, current] = await Promise.all([
+  const [career, current, titleSeasons] = await Promise.all([
     orFallback(getDriverCareer(driver.driverId)),
     orFallback(getCurrentSeason()),
+    getTitleSeasons(driver.driverId),
   ]);
   const name = getDriverName(driver);
-  const titles = getTitleSeasons(driver.driverId).length;
+  const titles = titleSeasons.length;
   const who = `${name}, ${driver.nationality} ${
     titles
       ? `${titles > 1 ? `${titles}× ` : ""}Formula 1 world champion`
@@ -111,9 +112,11 @@ export default async function DriverPage({
 // Everything that needs the career (2–6 pages on a cold cache)
 const DriverContent = async ({ driver }: { driver: Driver }) => {
   const { driverId } = driver;
-  const career = await getDriverCareer(driverId);
+  const [career, titles] = await Promise.all([
+    getDriverCareer(driverId),
+    getTitleSeasons(driverId),
+  ]);
   const latest = career.seasons.at(-1);
-  const titles = getTitleSeasons(driverId);
 
   return (
     <>

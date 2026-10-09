@@ -1,6 +1,7 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import {
+  getChampion,
   getConstructorStandings,
   getCurrentSeason,
   getDriverStandings,
@@ -25,12 +26,12 @@ export type SeasonInfo = {
 };
 
 // The season a URL points to, or a 404 for a year the API doesn't have.
-// Finished seasons come from the shipped champions list, so they cost no
-// requests; the rest are checked against the API's seasons.
+// Finished seasons in the shipped champions list cost no requests; the rest
+// are checked against the API's seasons.
 export const getSeasonInfo = async (year: string): Promise<SeasonInfo> => {
   if (!isSeasonYear(year)) notFound();
 
-  const champion = CHAMPIONS.find((c) => c.season === year);
+  const champion = await getChampion(year);
   if (champion) return { year, rounds: champion.rounds, champion };
 
   const seasons = await getSeasons();

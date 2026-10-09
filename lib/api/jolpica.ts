@@ -1,6 +1,11 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
+import { CHAMPIONS, type Champion } from "@/lib/data/champions";
+import { CONSTRUCTOR_CHAMPIONS } from "@/lib/data/constructorChampions";
 import { isClassified } from "@/lib/domain/results";
+import { findNextRace } from "@/lib/domain/sessions";
+import { getDriverName } from "@/lib/domain/teams";
+import { orFallback } from "@/lib/metadata";
 import { CACHE_LIFE, type CacheTier } from "./cacheTiers";
 import { fetchJson } from "./fetcher";
 import type {
@@ -777,6 +782,128 @@ export const getConstructorSeasonPositions = (
       position: await getConstructorSeasonPosition(season, constructorId),
     })),
   );
+
+// Champions
+
+// The title files in lib/data are the fixed history. Seasons that finish
+// after their last line come from the API: the running season costs only the
+// standings and schedule most pages load anyway, and a finished one adds a
+// request per title, cached for a month.
+
+// A season is over once the standings are after the last round of the
+// schedule and that race has ended. Cached with the season, so the clock
+// read here is at most one revalidation old.
+async function loadSeasonFinished(
+  year: number,
+  tier: SeasonTier,
+): Promise<boolean> {
+  "use cache";
+  cacheFor(tier);
+  const [standings, races] = await Promise.all([
+    loadDriverStandings(year, tier),
+    loadSeasonSchedule(year, tier),
+  ]);
+  return (
+    !!standings &&
+    races.length > 0 &&
+    Number(standings.round) === races.length &&
+    !findNextRace(races, Date.now())
+  );
+}
+const isSeasonFinished = bySeason(loadSeasonFinished);
+
+async function loadDriversChampion(year: number): Promise<Champion | null> {
+  "use cache";
+  cacheFor("past");
+  const data = await jolpica<StandingsTable<"DriverStandings", DriverStanding>>(
+    `${year}/driverStandings/1.json`,
+    "past",
+  );
+  const list = data.MRData.StandingsTable.StandingsLists[0];
+  const leader = list?.DriverStandings[0];
+  const team = leader?.Constructors.at(-1);
+  if (!leader || !team) return null;
+  return {
+    season: list.season,
+    rounds: Number(list.round),
+    driverId: leader.Driver.driverId,
+    driver: getDriverName(leader.Driver),
+    teamId: team.constructorId,
+    team: team.name,
+    points: Number(leader.points),
+    wins: Number(leader.wins),
+  };
+}
+
+async function loadConstructorsChampion(year: number): Promise<string | null> {
+  "use cache";
+  cacheFor("past");
+  const data = await jolpica<
+    StandingsTable<"ConstructorStandings", ConstructorStanding>
+  >(`${year}/constructorStandings/1.json`, "past");
+  return (
+    data.MRData.StandingsTable.StandingsLists[0]?.ConstructorStandings[0]
+      ?.Constructor.constructorId ?? null
+  );
+}
+
+// Seasons after `last` that have finished, oldest first. Usually none, or
+// the one that just ended. Seasons before the current one are over without
+// asking.
+const getFinishedSeasonsAfter = async (last: string) => {
+  const current = await getCurrentSeason();
+  const years: number[] = [];
+  for (let year = Number(last) + 1; year <= current; year++) {
+    if (year < current || (await isSeasonFinished(year))) years.push(year);
+  }
+  return years;
+};
+
+// Every drivers' champion, oldest first
+export const getChampions = async (): Promise<Champion[]> => {
+  // If the API fails the file alone still shows
+  const added = await orFallback(
+    getFinishedSeasonsAfter(CHAMPIONS.at(-1)!.season).then((years) =>
+      Promise.all(years.map(loadDriversChampion)),
+    ),
+  );
+  return [...CHAMPIONS, ...(added ?? []).filter((c) => c !== null)];
+};
+
+// The drivers' champion of a season, or undefined while it's running.
+// Seasons in the file cost no requests.
+export const getChampion = async (season: string) =>
+  CHAMPIONS.find((c) => c.season === season) ??
+  (await getChampions()).find((c) => c.season === season);
+
+// Seasons the driver won the title, oldest first
+export const getTitleSeasons = async (driverId: string) =>
+  (await getChampions())
+    .filter((c) => c.driverId === driverId)
+    .map((c) => c.season);
+
+// Constructors' champions by season: season → constructorId
+export const getConstructorChampions = async (): Promise<
+  Record<string, string>
+> => {
+  const last = Object.keys(CONSTRUCTOR_CHAMPIONS).at(-1)!;
+  const years = (await orFallback(getFinishedSeasonsAfter(last))) ?? [];
+  const added = await orFallback(
+    Promise.all(years.map(loadConstructorsChampion)),
+  );
+  const champions = { ...CONSTRUCTOR_CHAMPIONS };
+  years.forEach((year, i) => {
+    const constructorId = added?.[i];
+    if (constructorId) champions[year] = constructorId;
+  });
+  return champions;
+};
+
+// Seasons the team won the constructors' title, oldest first
+export const getConstructorTitles = async (constructorId: string) =>
+  Object.entries(await getConstructorChampions())
+    .filter(([, id]) => id === constructorId)
+    .map(([season]) => season);
 
 // Circuits
 

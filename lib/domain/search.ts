@@ -7,8 +7,7 @@ import type {
   Location,
   Race,
 } from "@/lib/api/types";
-import { CHAMPIONS } from "@/lib/data/champions";
-import { CONSTRUCTOR_CHAMPIONS } from "@/lib/data/constructorChampions";
+import type { Champion } from "@/lib/data/champions";
 import {
   circuitHref,
   driverHref,
@@ -54,6 +53,10 @@ export type IndexCircuit = Pick<Circuit, "circuitId" | "circuitName"> & {
 export type IndexRace = Pick<Race, "season" | "round" | "raceName" | "date"> & {
   Circuit: IndexCircuit;
 };
+export type IndexChampion = Pick<
+  Champion,
+  "season" | "rounds" | "driverId" | "driver" | "team"
+>;
 
 export type SearchIndex = {
   drivers: IndexDriver[];
@@ -61,6 +64,9 @@ export type SearchIndex = {
   circuits: IndexCircuit[];
   seasons: string[];
   currentSeason?: string;
+  // Drivers' champions, oldest first, and constructors' champions by season
+  champions: IndexChampion[];
+  constructorChampions: Record<string, string>;
   // Current grid: driverId → team, from the current standings
   currentTeams: Record<string, IndexConstructor>;
   currentRaces: IndexRace[];
@@ -102,6 +108,14 @@ export const toIndexCircuit = ({
   circuitName,
   Location: { locality, country },
 });
+
+export const toIndexChampion = ({
+  season,
+  rounds,
+  driverId,
+  driver,
+  team,
+}: Champion): IndexChampion => ({ season, rounds, driverId, driver, team });
 
 export const toIndexRace = ({
   season,
@@ -199,14 +213,12 @@ export const parseQuery = (raw: string, seasons: string[]): ParsedQuery => {
 
 type Ranked = SearchItem & { rank: number };
 
-const driverTitles = new Map<string, number>();
-CHAMPIONS.forEach((c) =>
-  driverTitles.set(c.driverId, (driverTitles.get(c.driverId) ?? 0) + 1),
-);
-const teamTitles = new Map<string, number>();
-Object.values(CONSTRUCTOR_CHAMPIONS).forEach((id) =>
-  teamTitles.set(id, (teamTitles.get(id) ?? 0) + 1),
-);
+// Titles per driver or team id
+const countTitles = (ids: string[]) => {
+  const titles = new Map<string, number>();
+  ids.forEach((id) => titles.set(id, (titles.get(id) ?? 0) + 1));
+  return titles;
+};
 
 const titlesText = (count?: number) =>
   count ? `${count}× champion` : undefined;
@@ -227,10 +239,13 @@ const raceItem = (
 
 export const seasonItem = (
   season: string,
-  currentSeason?: string,
+  {
+    champions,
+    currentSeason,
+  }: Pick<SearchIndex, "champions" | "currentSeason">,
   rank = 0,
 ): Ranked => {
-  const champion = CHAMPIONS.find((c) => c.season === season);
+  const champion = champions.find((c) => c.season === season);
   return {
     key: `season-${season}`,
     type: "season",
@@ -262,6 +277,8 @@ export const search = (raw: string, index: SearchIndex): SearchItem[] => {
   const currentTeamIds = new Set(
     Object.values(index.currentTeams).map((c) => c.constructorId),
   );
+  const driverTitles = countTitles(index.champions.map((c) => c.driverId));
+  const teamTitles = countTitles(Object.values(index.constructorChampions));
 
   index.drivers.forEach((driver) => {
     const team = index.currentTeams[driver.driverId];
@@ -370,16 +387,12 @@ export const search = (raw: string, index: SearchIndex): SearchItem[] => {
   });
 
   if (query.year)
-    results.push(
-      seasonItem(query.year, index.currentSeason, query.words.length ? 6 : -5),
-    );
+    results.push(seasonItem(query.year, index, query.words.length ? 6 : -5));
   if (query.yearPrefix) {
     index.seasons
       .filter((s) => s.startsWith(query.yearPrefix!))
       .reverse()
-      .forEach((s, i) =>
-        results.push(seasonItem(s, index.currentSeason, i / 100)),
-      );
+      .forEach((s, i) => results.push(seasonItem(s, index, i / 100)));
   }
 
   return (

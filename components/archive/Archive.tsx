@@ -5,20 +5,19 @@ import {
   Skeleton,
 } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/States";
-import { getCurrentSeason, getSeasons } from "@/lib/api/jolpica";
-import { CHAMPIONS } from "@/lib/data/champions";
+import { getChampions, getCurrentSeason, getSeasons } from "@/lib/api/jolpica";
 import { seasonHref } from "@/lib/domain/routes";
 import { getTeamColor } from "@/lib/domain/teams";
 import { ArchiveList, type ArchiveRow } from "./ArchiveList";
 
-// Every season the API has, newest first, with the champion from the
-// shipped list
+// Every season the API has, newest first, with its champion
 const getRows = async (): Promise<ArchiveRow[]> => {
-  const [seasons, current] = await Promise.all([
+  const [seasons, current, champions] = await Promise.all([
     getSeasons(),
     getCurrentSeason(),
+    getChampions(),
   ]);
-  const championBySeason = new Map(CHAMPIONS.map((c) => [c.season, c]));
+  const championBySeason = new Map(champions.map((c) => [c.season, c]));
 
   return seasons.toReversed().map(({ season }) => {
     const champion = championBySeason.get(season);

@@ -5,8 +5,9 @@ import {
   getDriver,
   getDriverCareer,
   getDriverSeasonStanding,
+  getTitleSeasons,
 } from "@/lib/api/jolpica";
-import { formatPoints, getTitleSeasons, ordinal } from "@/lib/domain/drivers";
+import { formatPoints, ordinal } from "@/lib/domain/drivers";
 import { getDriverCode, getTeamColor } from "@/lib/domain/teams";
 import { orFallback } from "@/lib/metadata";
 import {
@@ -40,9 +41,10 @@ export default async function Image({
     : null;
   if (!driver) notFound();
 
-  const [career, current] = await Promise.all([
+  const [career, current, titleSeasons] = await Promise.all([
     orFallback(getDriverCareer(driverId)),
     orFallback(getCurrentSeason()),
+    getTitleSeasons(driverId),
   ]);
   const latest = career?.seasons.at(-1);
   // Points and wins from the standings, as on the page: they include sprints
@@ -50,7 +52,7 @@ export default async function Image({
     latest &&
     (await orFallback(getDriverSeasonStanding(latest.season, driverId)));
   const position = Number(standing?.position);
-  const titles = getTitleSeasons(driverId).length;
+  const titles = titleSeasons.length;
   const color = getTeamColor(latest?.team.constructorId);
   const racing = !!latest && Number(latest.season) === current;
 

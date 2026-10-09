@@ -2,8 +2,7 @@ import { Card } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { StatGrid } from "@/components/ui/StatGrid";
-import { getConstructorWins } from "@/lib/api/jolpica";
-import { CHAMPIONS } from "@/lib/data/champions";
+import { getChampions, getConstructorWins } from "@/lib/api/jolpica";
 
 // Constructors' and drivers' titles won with the team, race wins and seasons
 export const AllTimeStats = async ({
@@ -15,8 +14,11 @@ export const AllTimeStats = async ({
   seasons: string[];
   titles: string[];
 }) => {
-  const wins = await getConstructorWins(constructorId, seasons);
-  const driverTitles = CHAMPIONS.filter(
+  const [wins, champions] = await Promise.all([
+    getConstructorWins(constructorId, seasons),
+    getChampions(),
+  ]);
+  const driverTitles = champions.filter(
     (c) => c.teamId === constructorId,
   ).length;
 
