@@ -8,11 +8,9 @@ import { ShareSchedule } from "@/components/races/ShareSchedule";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { getCurrentSeason } from "@/lib/api/jolpica";
 import type { Race } from "@/lib/api/types";
-import { getCircuitTimezone } from "@/lib/domain/circuits";
 import { getCountryCode3ByName } from "@/lib/domain/countries";
 import { circuitHref, seasonHref } from "@/lib/domain/routes";
-import { getRaceStart, getSessions } from "@/lib/domain/sessions";
-import { formatShortDate } from "@/lib/domain/time";
+import { formatRaceDay, getSessions } from "@/lib/domain/sessions";
 import {
   getCurrentRaceParams,
   getRaceWeekend,
@@ -32,13 +30,12 @@ export const generateMetadata = async ({
   };
 };
 
-// "R17 · SGP · 11 OCT", the race day at the track. Without a start time
-// only the UTC date is known.
+// "R17 · SGP · 11 OCT", with the race day at the track
 const raceMeta = (race: Race) => {
-  const zone = race.time && getCircuitTimezone(race.Circuit.circuitId);
-  const day = formatShortDate(getRaceStart(race), zone || "UTC");
   const country = getCountryCode3ByName(race.Circuit.Location.country);
-  return [`R${race.round}`, country, day].filter(Boolean).join(" · ");
+  return [`R${race.round}`, country, formatRaceDay(race)]
+    .filter(Boolean)
+    .join(" · ");
 };
 
 const RaceHeader = async ({

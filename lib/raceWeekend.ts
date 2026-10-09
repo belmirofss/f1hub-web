@@ -8,18 +8,16 @@ import {
 } from "@/lib/api/jolpica";
 import { OPENF1_FIRST_SEASON } from "@/lib/api/openf1";
 import type { Race } from "@/lib/api/types";
-import { findRaceBySlug, getRaceSlug } from "@/lib/domain/routes";
+import { findRaceBySlug, getRaceSlug, isSeasonYear } from "@/lib/domain/routes";
 import { isSprintWeekend } from "@/lib/domain/sessions";
 
 // One race weekend (/races/2026/singapore-grand-prix), shared by its layout
 // and tabs. Every call is cached, so each page can ask again.
 
-const FIRST_SEASON = 1950;
-
 // The race a URL points to, or a 404 for an unknown year or slug
 export const getRaceWeekend = async (year: string, slug: string) => {
+  if (!isSeasonYear(year)) notFound();
   const season = Number(year);
-  if (!/^\d{4}$/.test(year) || season < FIRST_SEASON) notFound();
   // Next year's calendar can be out before the season starts
   if (season > (await getCurrentSeason()) + 1) notFound();
 

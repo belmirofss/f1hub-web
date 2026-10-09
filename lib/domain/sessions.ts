@@ -1,7 +1,8 @@
 // Ported from the app's src/helpers/sessions.ts. Session starts are Dates
 // (moment objects in the app).
 import type { Race, SessionTime } from "@/lib/api/types";
-import { HOUR, toDate } from "./time";
+import { getCircuitTimezone } from "./circuits";
+import { HOUR, formatShortDate, toDate } from "./time";
 
 export type SessionKey =
   "fp1" | "fp2" | "fp3" | "sprintQualifying" | "sprint" | "qualifying" | "race";
@@ -70,6 +71,13 @@ export const getSessions = (race: Race): Session[] =>
   }).sort((a, b) => a.start.getTime() - b.start.getTime());
 
 export const getRaceStart = (race: Race) => toDate(race.date, race.time);
+
+// "11 OCT", the race day at the track, so the server can render it. Without
+// a start time only the UTC date is known.
+export const formatRaceDay = (race: Race) => {
+  const zone = race.time && getCircuitTimezone(race.Circuit.circuitId);
+  return formatShortDate(getRaceStart(race), zone || "UTC");
+};
 
 export const getWeekendStart = (race: Race) => {
   const sessions = getSessions(race);
