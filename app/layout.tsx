@@ -12,6 +12,7 @@ import { SettingsProvider } from "@/components/settings/SettingsProvider";
 import { Toaster } from "@/components/ui/Toast";
 import {
   DEFAULT_IMAGE,
+  GSC_VERIFICATION,
   IS_PRODUCTION,
   NOINDEX,
   SITE_DESCRIPTION,
@@ -64,6 +65,9 @@ export const metadata: Metadata = {
     images: socialImage(DEFAULT_IMAGE, SITE_NAME),
   },
   ...(!IS_PRODUCTION && { robots: NOINDEX }),
+  // Google Search Console ownership check, production only
+  ...(IS_PRODUCTION &&
+    GSC_VERIFICATION && { verification: { google: GSC_VERIFICATION } }),
 };
 
 export const viewport: Viewport = {

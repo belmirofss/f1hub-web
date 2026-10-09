@@ -20,6 +20,9 @@ export const IS_PRODUCTION = process.env.VERCEL_ENV === "production";
 
 export const NOINDEX = { index: false, follow: true } as const;
 
+// The content of Search Console's <meta name="google-site-verification">
+export const GSC_VERIFICATION = process.env.NEXT_PUBLIC_GSC_VERIFICATION;
+
 type PageMetadata = {
   // "Singapore Grand Prix 2026: schedule, results and analysis". The root
   // template adds " | F1HUB" to the <title>, but not to the social cards,
