@@ -10,6 +10,7 @@ import { cn } from "@/lib/cn";
 import { getCircuitLayout, getCircuitTimezone } from "@/lib/domain/circuits";
 import { circuitHref } from "@/lib/domain/routes";
 import { getRaceStart, getSessions, type Session } from "@/lib/domain/sessions";
+import { EXTERNAL_LINK } from "@/lib/links";
 import { WeekendTimeline } from "./WeekendTimeline";
 
 // The weather is extra: if Open-Meteo is down the schedule still shows
@@ -159,8 +160,7 @@ export const Schedule = async ({ race }: { race: Race }) => {
           </LinkCard>
           <a
             href={race.url.replace(/^http:/, "https:")}
-            target="_blank"
-            rel="noopener noreferrer"
+            {...EXTERNAL_LINK}
             className="flex min-h-11 items-center justify-between gap-3 rounded-md bg-surface px-3 text-sm font-semibold transition-colors hover:bg-surface-raised"
           >
             Race history on Wikipedia
