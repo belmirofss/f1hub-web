@@ -53,7 +53,7 @@ export const Toaster = () => {
       {toast && (
         <p
           key={toast.id}
-          className="rounded-[22px] border border-line bg-surface-raised px-4 py-2.5 text-sm font-semibold shadow-[0_6px_18px_rgba(0,0,0,0.5)]"
+          className="rounded-full bg-text px-4 py-2.5 text-sm font-semibold text-background shadow-[0_6px_18px_rgba(26,24,20,0.2)]"
         >
           {toast.message}
         </p>

@@ -52,7 +52,7 @@ const Summary = ({ summary }: { summary: RadioSummary }) => (
       {
         value: summary.yellows,
         label: "Yellow flags",
-        className: "text-sprint",
+        className: "text-sprint-ink",
       },
       { value: summary.safetyCars, label: "Safety cars" },
       { value: summary.deleted, label: "Laps deleted", className: "text-loss" },

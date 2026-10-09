@@ -3,8 +3,8 @@ import { Label } from "@/components/ui/Label";
 import { cn } from "@/lib/cn";
 
 // Full-page message for 404, errors and offline: a row of start lights,
-// a label, a big slanted title, a line of text, optional details and some
-// ways out.
+// a label, a big headline, a line of text, optional details and some ways
+// out.
 export const StatusScreen = ({
   lit,
   label,
@@ -27,14 +27,14 @@ export const StatusScreen = ({
         <span
           key={index}
           className={cn(
-            "h-2 flex-1 rounded-[2px]",
+            "h-2 flex-1",
             index < lit ? "bg-accent" : "bg-light-off",
           )}
         />
       ))}
     </div>
-    <Label className="text-accent">{label}</Label>
-    <h1 className="-skew-x-6 text-[30px] leading-[34px] font-black">{title}</h1>
+    <Label className="text-accent-ink">{label}</Label>
+    <h1 className="page-title">{title}</h1>
     <p className="text-[15px] leading-[22px] text-soft">{children}</p>
     {details}
     <div className="flex flex-wrap gap-2">{actions}</div>
@@ -42,7 +42,7 @@ export const StatusScreen = ({
 );
 
 export const primaryButton =
-  "flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-accent px-4 font-bold text-on-accent";
+  "flex min-h-11 cursor-pointer items-center justify-center bg-accent px-4 font-bold text-on-accent transition-colors hover:bg-accent-ink";
 
 export const secondaryButton =
-  "flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-surface-raised px-4 font-semibold transition-colors hover:bg-line";
+  "flex min-h-11 cursor-pointer items-center justify-center border border-line px-4 font-semibold transition-colors hover:border-text";

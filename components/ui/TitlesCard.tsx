@@ -13,14 +13,14 @@ export const TitlesCard = ({
   if (!titles.length) return null;
 
   return (
-    <Card className="flex-row flex-wrap items-center gap-x-2 gap-y-0.5 rounded-[10px] px-3 py-2.5">
+    <Card className="flex-row flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5">
       <Trophy
         aria-hidden
         size={18}
         strokeWidth={2}
-        className="shrink-0 text-accent"
+        className="shrink-0 text-accent-ink"
       />
-      <p className="text-sm font-bold whitespace-nowrap">
+      <p className="display-title text-xl whitespace-nowrap">
         {titles.length === 1
           ? `${titles[0]} ${champion}`
           : `${titles.length}× ${champion}`}

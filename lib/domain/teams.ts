@@ -47,10 +47,11 @@ export const getTeamColor = (constructorId?: string) => {
   return FALLBACK_COLORS[hash % FALLBACK_COLORS.length];
 };
 
-// The team colour as text on a card (surface-raised): dark blues like Red
-// Bull's get lightened until they pass AA contrast
+// The team colour as text on a chip (surface-raised): light ones like
+// Mercedes teal, Haas grey and McLaren orange get darkened until they pass AA
+// contrast. Only for short codes: names are never set in team colour.
 export const getTeamTextColor = (constructorId?: string) =>
-  readableOn(getTeamColor(constructorId), "#1C1C21");
+  readableOn(getTeamColor(constructorId), "#E6DFD0");
 
 export const getDriverCode = (driver: { code?: string; familyName: string }) =>
   driver.code ?? driver.familyName.replace(/\s/g, "").slice(0, 3).toUpperCase();

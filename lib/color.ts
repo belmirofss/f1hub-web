@@ -22,13 +22,22 @@ export const contrastRatio = (a: string, b: string) => {
   return (light + 0.05) / (dark + 0.05);
 };
 
-// The colour mixed with just enough white to be read as text on the
-// background (4.5:1, WCAG AA). Light colours come back unchanged.
+// Ink or white, whichever reads better on top of the colour: ink on light
+// team colours like Mercedes teal, white on dark ones like Red Bull blue
+export const textOn = (hex: string) =>
+  contrastRatio(hex, "#1a1814") >= contrastRatio(hex, "#ffffff")
+    ? "#1a1814"
+    : "#ffffff";
+
+// The colour mixed with just enough black (on a light background) or white
+// (on a dark one) to be read as text on it (4.5:1, WCAG AA). Colours that
+// already pass come back unchanged.
 export const readableOn = (hex: string, background: string) => {
   const rgb = channels(hex);
-  for (let white = 0; white < 1; white += 0.05) {
-    const mixed = toHex(rgb.map((c) => c + (255 - c) * white));
+  const target = luminance(background) > 0.18 ? 0 : 255;
+  for (let amount = 0; amount < 1; amount += 0.05) {
+    const mixed = toHex(rgb.map((c) => c + (target - c) * amount));
     if (contrastRatio(mixed, background) >= 4.5) return mixed;
   }
-  return "#ffffff";
+  return target ? "#ffffff" : "#000000";
 };

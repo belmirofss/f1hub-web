@@ -118,7 +118,7 @@ export const SessionForecast = ({ rows }: { rows: SessionForecastRow[] }) => {
               <span
                 className={cn(
                   "flex-1 font-bold",
-                  row.key === "race" && "text-accent",
+                  row.key === "race" && "text-accent-ink",
                 )}
               >
                 {row.name}

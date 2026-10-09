@@ -17,10 +17,6 @@ type Props = {
   className?: string;
 };
 
-// From 1024px titles get the big slanted desktop treatment
-const desktopTitle =
-  "lg:-skew-x-6 lg:text-[40px] lg:leading-[44px] lg:font-black";
-
 // The app's screen header. Tab pages: big title with the meta on its
 // baseline. Detail pages: Back + meta on one row and the title under it.
 // Desktop has the browser's back button, so there the meta sits above the
@@ -41,11 +37,11 @@ export const PageHeader = ({
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 flex-1 items-baseline justify-between gap-3 lg:flex-none lg:flex-col lg:items-start lg:gap-0.5">
-            <h1 className={cn("text-[28px] leading-9 font-bold", desktopTitle)}>
-              {title}
-            </h1>
+            <h1 className="page-title break-words">{title}</h1>
             {meta && (
-              <p className="shrink-0 font-mono text-xs text-muted">{meta}</p>
+              <p className="shrink-0 font-mono text-xs tracking-[0.14em] text-muted">
+                {meta}
+              </p>
             )}
           </div>
           {actions && <div className="flex items-center gap-2">{actions}</div>}
@@ -64,7 +60,7 @@ export const PageHeader = ({
             className="lg:hidden standalone:flex"
           />
           {meta && (
-            <p className="truncate font-mono text-xs tracking-[1px] text-muted">
+            <p className="truncate font-mono text-xs tracking-[0.14em] text-muted">
               {meta}
             </p>
           )}
@@ -74,14 +70,7 @@ export const PageHeader = ({
             {actions}
           </div>
         )}
-        <h1
-          className={cn(
-            "text-[26px] leading-[30px] font-bold [grid-area:title]",
-            desktopTitle,
-          )}
-        >
-          {title}
-        </h1>
+        <h1 className="page-title break-words [grid-area:title]">{title}</h1>
       </div>
       {children}
     </header>

@@ -35,7 +35,7 @@ export const ErrorState = ({
       <button
         type="button"
         onClick={onRetry}
-        className="min-h-11 cursor-pointer rounded-md border border-line px-4 font-bold transition-colors hover:bg-surface-raised"
+        className="min-h-11 cursor-pointer border border-text px-4 font-bold transition-colors hover:bg-text hover:text-background"
       >
         Try again
       </button>

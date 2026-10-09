@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 export type GridStat = {
   label: string;
   value: string | number;
-  // Tailwind text colour class for the value, e.g. "text-accent"
+  // Tailwind text colour class for the value, e.g. "text-accent-ink"
   className?: string;
 };
 
@@ -22,12 +22,12 @@ export const StatGrid = ({
         // Values stay in line when a long label wraps
         className="flex min-w-0 flex-col-reverse justify-end gap-0.5"
       >
-        <dt className="font-mono text-[10px] font-medium tracking-[1px] text-muted uppercase">
+        <dt className="font-mono text-[10px] font-medium tracking-[0.14em] text-muted uppercase">
           {stat.label}
         </dt>
         <dd
           className={cn(
-            "truncate font-mono text-[22px] leading-7 font-bold",
+            "truncate big-number text-[22px] leading-7",
             stat.className,
           )}
         >

@@ -30,10 +30,10 @@ export const Tabs = ({ tabs, value, label, className }: Props) => (
     {tabs.map((tab) => {
       const selected = tab.href === value;
       const classes = cn(
-        "-mb-px flex min-h-11 shrink-0 items-center border-b-2 border-transparent px-3 text-sm whitespace-nowrap",
+        "-mb-px flex min-h-11 shrink-0 items-center border-b-[3px] border-transparent px-3 font-mono text-xs tracking-[0.08em] whitespace-nowrap uppercase",
         selected
           ? "border-accent font-bold text-text"
-          : "font-semibold text-muted",
+          : "font-medium text-muted",
       );
 
       if (tab.disabled) {
@@ -41,7 +41,7 @@ export const Tabs = ({ tabs, value, label, className }: Props) => (
           <span
             key={tab.href}
             aria-disabled="true"
-            className={cn(classes, "text-subtle opacity-35")}
+            className={cn(classes, "text-subtle")}
           >
             {tab.label}
           </span>

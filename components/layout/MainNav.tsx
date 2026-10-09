@@ -80,7 +80,7 @@ export const NavItems = ({
           className={cn(
             "rounded-md px-3 py-2 font-semibold transition-colors",
             active
-              ? "bg-surface text-text shadow-[inset_0_-2px_0_var(--accent)]"
+              ? "bg-surface text-text shadow-[inset_0_-2px_0_var(--color-accent)]"
               : "text-muted hover:text-text",
           )}
         >
@@ -97,7 +97,7 @@ export const NavItems = ({
         className={cn(
           "-mt-px flex min-h-[51px] flex-1 flex-col items-center gap-[3px] border-t-2 pt-2 text-[11px] leading-4",
           active
-            ? "border-accent font-bold text-accent"
+            ? "border-accent font-bold text-accent-ink"
             : "border-transparent font-semibold text-muted",
         )}
       >

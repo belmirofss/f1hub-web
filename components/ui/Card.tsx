@@ -7,10 +7,12 @@ type CardProps = ComponentPropsWithoutRef<"div"> & {
   as?: "div" | "section" | "article";
 };
 
+// A ruled section of the programme: a heavy ink rule on top, then a mono
+// <Label> and the content straight on the paper. No box around it.
 export const Card = ({ as: Tag = "div", className, ...props }: CardProps) => (
   <Tag
     className={cn(
-      "flex flex-col gap-3 rounded-lg border border-line bg-surface p-4",
+      "flex flex-col gap-3 border-t-2 border-text pt-3 pb-1",
       className,
     )}
     {...props}
@@ -27,7 +29,7 @@ export const LinkCard = ({
   <Link
     href={href}
     className={cn(
-      "flex items-center gap-3 rounded-lg border border-line bg-surface p-4 transition-colors hover:bg-surface-raised",
+      "flex items-center gap-3 border-t-2 border-text py-3 transition-colors hover:bg-surface",
       className,
     )}
     {...props}
@@ -50,7 +52,7 @@ export const InlineLink = ({
 }: ComponentPropsWithoutRef<typeof Link>) => (
   <Link
     className={cn(
-      "relative text-[13px] font-bold text-accent after:absolute after:-inset-x-2 after:-inset-y-3 hover:underline",
+      "relative font-mono text-xs font-bold tracking-[0.06em] text-accent-ink uppercase after:absolute after:-inset-x-2 after:-inset-y-3 hover:underline",
       className,
     )}
     {...props}
@@ -69,7 +71,7 @@ export const TeamBar = ({
 }) => (
   <span
     aria-hidden
-    className={cn("block w-1 shrink-0 rounded-[2px]", className)}
+    className={cn("block w-1 shrink-0", className)}
     style={{ backgroundColor: color, height }}
   />
 );
@@ -93,7 +95,7 @@ export const IconButton = ({
   onClick,
 }: IconButtonProps) => {
   const classes = cn(
-    "flex size-11 shrink-0 items-center justify-center rounded-md text-text transition-colors hover:bg-surface-raised",
+    "flex size-11 shrink-0 items-center justify-center text-text transition-colors hover:bg-surface-raised",
     bordered && "border border-line",
     className,
   );

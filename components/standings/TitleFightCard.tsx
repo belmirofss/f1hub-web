@@ -97,7 +97,7 @@ export const TitleFightCompact = ({
     >
       <div className="flex items-center justify-between gap-3">
         <h2 id="title-fight">
-          <Label className="text-accent">
+          <Label className="text-accent-ink">
             Title fight · {left.points} pts left
           </Label>
         </h2>
@@ -199,7 +199,7 @@ export const TitleFightFull = ({ fight }: { fight: TitleFight }) => {
       className="gap-3.5 border-line-dashed"
     >
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <Label className="text-accent">Title fight</Label>
+        <Label className="text-accent-ink">Title fight</Label>
         <Label>
           {left.races} {left.races === 1 ? "round" : "rounds"} left ·{" "}
           {left.points} pts

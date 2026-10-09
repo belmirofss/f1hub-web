@@ -118,7 +118,7 @@ export const TopHit = ({ item, onOpen }: Omit<RowProps, "first">) => (
       </span>
       <span className="flex justify-between border-t border-dashed border-line-dashed pt-2">
         <Label>Opens {OPENS[item.type]}</Label>
-        <span className="font-mono text-[11px] font-bold tracking-[1px] text-accent">
+        <span className="font-mono text-[11px] font-bold tracking-[1px] text-accent-ink">
           GO →
         </span>
       </span>
@@ -145,7 +145,7 @@ export const FilterChip = ({
     onClick={onSelect}
     aria-label={`${label}, ${count} results`}
     className={cn(
-      "flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border px-3 font-mono text-xs font-bold whitespace-nowrap transition-colors",
+      "flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3 font-mono text-xs font-bold whitespace-nowrap transition-colors",
       on
         ? "border-line-dashed bg-surface-raised text-text"
         : "border-line text-muted hover:text-text",

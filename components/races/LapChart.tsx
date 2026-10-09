@@ -9,6 +9,10 @@ import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
 import { cn } from "@/lib/cn";
+import { readableOn } from "@/lib/color";
+
+// The paper the labels sit on: light team colours get darkened to read on it
+const PAPER = "#F1ECE2";
 
 export type LapChartDriver = {
   id: string;
@@ -91,7 +95,7 @@ export const LapChart = ({
               aria-pressed={on}
               onClick={() => toggle(driver.id)}
               className={cn(
-                "flex h-8 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 font-mono text-xs font-bold transition-colors",
+                "flex h-8 cursor-pointer items-center gap-1.5 rounded-full border px-3 font-mono text-xs font-bold transition-colors",
                 on
                   ? "border-line-dashed bg-surface-raised text-text"
                   : "border-line text-muted hover:text-text",
@@ -169,7 +173,7 @@ export const LapChart = ({
                   style={{
                     left: `${x(end.lap)}%`,
                     top: `${y(end.position)}%`,
-                    color: driver.color,
+                    color: readableOn(driver.color, PAPER),
                   }}
                 >
                   {driver.code}

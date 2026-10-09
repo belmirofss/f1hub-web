@@ -25,7 +25,7 @@ The web version of [F1HUB](https://github.com/belmirofss/f1hub): Formula 1 calen
 - **Race weekends:** schedule and forecast, race, sprint and qualifying results, lap chart, tyre strategy, pit stops, team radio and race control
 - **Archive** of every season since 1950, plus pages for every driver, team and circuit
 - **Search** across all of it
-- **Installable app** (PWA) that works offline for pages you've visited, with an accent colour and a 12/24-hour clock in Settings
+- **Installable app** (PWA) that works offline for pages you've visited, with a 12/24-hour clock in Settings
 
 ## Data sources
 

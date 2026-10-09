@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Server, Star } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import {
-  AccentPicker,
   ClockSetting,
   InstallRow,
   ShareRow,
@@ -15,7 +14,7 @@ import { pageMetadata } from "@/lib/metadata";
 export const metadata: Metadata = pageMetadata({
   title: "Settings",
   description:
-    "Pick F1HUB's accent colour and a 12 or 24-hour clock. Settings stay on this device.",
+    "Pick a 12 or 24-hour clock for F1HUB. Settings stay on this device.",
   path: "/settings",
   noindex: true,
 });
@@ -31,12 +30,12 @@ export default function SettingsPage() {
             className="flex size-14 shrink-0 items-center justify-center rounded-lg border border-line bg-surface"
           >
             <span className="-skew-x-[10deg] font-black">
-              F1<span className="text-accent">H</span>
+              F1<span className="text-accent-ink">H</span>
             </span>
           </span>
           <div>
             <p className="text-xl font-black">
-              F1<span className="text-accent">HUB</span>
+              F1<span className="text-accent-ink">HUB</span>
             </p>
             <p className="font-mono text-xs text-muted">
               VERSION {pkg.version} · WEB
@@ -44,7 +43,6 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <AccentPicker />
         <ClockSetting />
 
         <div className="overflow-hidden rounded-lg border border-line bg-surface">

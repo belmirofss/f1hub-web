@@ -22,12 +22,9 @@ export const SplitBar = ({ a, b, color, height = 8, className }: Props) => {
       className={cn("flex gap-0.5", className)}
       style={{ height }}
     >
+      <span style={{ flexGrow: grow(a), backgroundColor: color }} />
       <span
-        className="rounded-l-[2px]"
-        style={{ flexGrow: grow(a), backgroundColor: color }}
-      />
-      <span
-        className="rounded-r-[2px] opacity-35"
+        className="opacity-30"
         style={{ flexGrow: grow(b), backgroundColor: color }}
       />
     </span>

@@ -23,9 +23,9 @@ export const NextSessionTicker = async () => {
     >
       <span
         aria-hidden
-        className="size-2 shrink-0 rounded-full bg-accent shadow-[0_0_0_2px_color-mix(in_srgb,var(--accent)_40%,transparent)]"
+        className="size-2 shrink-0 rounded-full bg-accent shadow-[0_0_0_2px_color-mix(in_srgb,var(--color-accent)_40%,transparent)]"
       />
-      <span className="text-accent">Next</span>
+      <span className="text-accent-ink">Next</span>
       <span className="min-w-0 flex-1 truncate">
         {session.name} ·{" "}
         <span className="lg:hidden">{race.Circuit.Location.country}</span>

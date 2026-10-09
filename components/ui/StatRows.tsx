@@ -16,12 +16,12 @@ export const StatRows = ({
   stats: Stat[];
   className?: string;
 }) => (
-  <dl className={cn("flex flex-col divide-y divide-line-soft", className)}>
+  <dl className={cn("flex flex-col divide-y divide-line", className)}>
     {stats.map((stat) => (
       <div key={stat.label} className="flex min-h-11 items-center gap-2.5">
         <dt
           className={cn(
-            "w-[92px] shrink-0 font-mono text-[10px] font-medium tracking-[1px] text-muted uppercase",
+            "w-[92px] shrink-0 font-mono text-[10px] font-medium tracking-[0.14em] text-muted uppercase",
             stat.labelClassName,
           )}
         >
