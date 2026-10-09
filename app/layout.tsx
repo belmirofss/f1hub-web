@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Titillium_Web } from "next/font/google";
 import { HistoryTracker } from "@/components/layout/BackButton";
+import { SearchShortcut } from "@/components/layout/SearchShortcut";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { TabBar } from "@/components/layout/TabBar";
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Suspense>
             <HistoryTracker />
           </Suspense>
+          <SearchShortcut />
         </SettingsProvider>
       </body>
     </html>
