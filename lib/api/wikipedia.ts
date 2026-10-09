@@ -11,12 +11,19 @@ const WIKIPEDIA_SUMMARY_API =
 // Wikimedia asks API clients to identify themselves
 const USER_AGENT = "F1HUB-web (https://github.com/belmirofss/f1hub-web)";
 
-async function loadSummary(title: string): Promise<string | null> {
+export type WikipediaSummary = {
+  // The article's first paragraph
+  extract: string;
+  // "Argentine racing driver (1911–1995)"
+  description?: string;
+};
+
+async function loadSummary(title: string): Promise<WikipediaSummary | null> {
   "use cache";
   cacheLife(CACHE_LIFE.wikipedia);
   cacheTag("wikipedia");
   try {
-    const data = await fetchJson<{ extract?: string }>(
+    const data = await fetchJson<{ extract?: string; description?: string }>(
       `${WIKIPEDIA_SUMMARY_API}${encodeURIComponent(title)}`,
       {
         tier: "wikipedia",
@@ -24,7 +31,8 @@ async function loadSummary(title: string): Promise<string | null> {
         headers: { "User-Agent": USER_AGENT },
       },
     );
-    return data.extract || null;
+    if (!data.extract) return null;
+    return { extract: data.extract, description: data.description };
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
     throw error;

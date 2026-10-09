@@ -427,10 +427,9 @@ export type CareerRace = {
   season: string;
   round: string;
   raceName: string;
-  position: number; // 0 = not classified
-  positionText: string;
-  grid: number;
-  points: number;
+  position: number; // best finish, 0 = not classified
+  grid: number; // 0 = pit lane start
+  points: number; // race only
   sprintPoints: number;
   sprintPosition?: number;
   Constructor: Constructor;
@@ -438,13 +437,14 @@ export type CareerRace = {
 
 export type CareerSeason = {
   season: string;
-  points: number;
+  points: number; // race + sprint, before any dropped scores
   wins: number;
-  team: Constructor;
+  podiums: number;
+  team: Constructor; // the last one that season
 };
 
 export type Career = {
-  races: CareerRace[]; // oldest first
+  races: CareerRace[]; // starts, oldest first
   starts: number;
   wins: number;
   podiums: number;
@@ -452,60 +452,83 @@ export type Career = {
   seasons: CareerSeason[]; // oldest first
 };
 
-// A driver's whole career: race, sprint and qualifying results (3–10 pages).
-// Daily, not per race, to keep big careers off the hourly quota.
-export async function getDriverCareer(driverId: string): Promise<Career> {
-  "use cache";
-  cacheFor("lists");
-  const [results, sprints, qualifying] = await Promise.all([
-    allRaces<RaceResults>(`drivers/${driverId}/results.json`, "lists"),
-    allRaces<RaceSprintResults>(`drivers/${driverId}/sprint.json`, "lists"),
-    allRaces<QualifyingResults>(`drivers/${driverId}/qualifying.json`, "lists"),
-  ]);
+// Withdrawn and failed to qualify: in the results, but not a start
+const NOT_STARTED = new Set(["W", "F"]);
 
+const isPodium = (position: number) => position >= 1 && position <= 3;
+
+type CareerTier = Extract<CacheTier, "lists" | "past">;
+
+// Starts and pole positions, before the totals are added up
+type CareerEntries = {
+  races: CareerRace[];
+  poles: string[]; // "2026-16"
+};
+
+const raceKey = (race: Pick<RaceBase, "season" | "round">) =>
+  `${race.season}-${race.round}`;
+
+// Turns a driver's result rows into starts. In the 1950s drivers could share
+// cars, so one race can hold several of their results: the best finish
+// counts, and the points add up.
+const toCareerEntries = (
+  results: RaceResults[],
+  sprints: RaceSprintResults[],
+): CareerEntries => {
   const sprintByRound = new Map(
-    sprints.map((race) => [
-      `${race.season}-${race.round}`,
-      race.SprintResults?.[0],
-    ]),
+    sprints.map((race) => [raceKey(race), race.SprintResults?.[0]]),
   );
 
-  const races: CareerRace[] = results.flatMap((race) => {
-    const result = race.Results?.[0];
-    if (!result) return [];
-    const sprint = sprintByRound.get(`${race.season}-${race.round}`);
+  const entries = mergeRaces(results, "Results");
+  const races: CareerRace[] = entries.flatMap((race) => {
+    const rows = (race.Results ?? []).filter(
+      (row) => !NOT_STARTED.has(row.positionText),
+    );
+    if (!rows.length) return [];
+    const finish = (row: (typeof rows)[number]) =>
+      isClassified(row) ? Number(row.position) : Infinity;
+    const best = rows.reduce((a, b) => (finish(b) < finish(a) ? b : a));
+    const sprint = sprintByRound.get(raceKey(race));
     return [
       {
         season: race.season,
         round: race.round,
         raceName: race.raceName,
-        position: isClassified(result) ? Number(result.position) : 0,
-        positionText: result.positionText,
-        grid: Number(result.grid),
-        points: Number(result.points),
+        position: isClassified(best) ? Number(best.position) : 0,
+        grid: Number(best.grid),
+        points: rows.reduce((sum, row) => sum + Number(row.points), 0),
         sprintPoints: Number(sprint?.points ?? 0),
         sprintPosition:
           sprint && isClassified(sprint) ? Number(sprint.position) : undefined,
-        Constructor: result.Constructor,
+        Constructor: best.Constructor,
       },
     ];
   });
 
-  // The API's "qualifying/1" filter is unreliable, so count pole positions here
-  const poles = qualifying.filter(
-    (race) => race.QualifyingResults?.[0]?.position === "1",
-  ).length;
+  // Pole position is the front of the grid, which is how the record books
+  // count it: penalties and sprints can move it away from the fastest
+  // qualifier. It also works before qualifying results start in the 1990s.
+  const poles = entries
+    .filter((race) => race.Results?.some((row) => row.grid === "1"))
+    .map(raceKey);
 
+  return { races, poles };
+};
+
+// Career totals and the numbers for each season
+const summarizeCareer = ({ races, poles }: CareerEntries): Career => {
   const seasons = new Map<string, CareerSeason>();
   races.forEach((race) => {
     const season = seasons.get(race.season) ?? {
       season: race.season,
       points: 0,
       wins: 0,
+      podiums: 0,
       team: race.Constructor,
     };
     season.points += race.points + race.sprintPoints;
     season.wins += race.position === 1 ? 1 : 0;
+    season.podiums += isPodium(race.position) ? 1 : 0;
     season.team = race.Constructor;
     seasons.set(race.season, season);
   });
@@ -514,36 +537,110 @@ export async function getDriverCareer(driverId: string): Promise<Career> {
     races,
     starts: races.length,
     wins: races.filter((r) => r.position === 1).length,
-    podiums: races.filter((r) => r.position >= 1 && r.position <= 3).length,
-    poles,
+    podiums: races.filter((r) => isPodium(r.position)).length,
+    poles: poles.length,
     seasons: [...seasons.values()],
   };
+};
+
+// A driver's whole career: race and sprint results (2–6 pages)
+async function loadDriverCareer(
+  driverId: string,
+  tier: CareerTier,
+): Promise<CareerEntries> {
+  "use cache";
+  cacheFor(tier);
+  const [results, sprints] = await Promise.all([
+    allRaces<RaceResults>(`drivers/${driverId}/results.json`, tier),
+    allRaces<RaceSprintResults>(`drivers/${driverId}/sprint.json`, tier),
+  ]);
+  return toCareerEntries(results, sprints);
 }
 
-// Championship position in one season (0 = not classified)
-async function loadDriverSeasonPosition(
+// One season of a career (a page each for races and sprints)
+async function loadDriverSeasonCareer(
   year: number,
   tier: SeasonTier,
   driverId: string,
-): Promise<number> {
+): Promise<CareerEntries> {
+  "use cache";
+  cacheFor(tier);
+  const [results, sprints] = await Promise.all([
+    allRaces<RaceResults>(`${year}/drivers/${driverId}/results.json`, tier),
+    allRaces<RaceSprintResults>(
+      `${year}/drivers/${driverId}/sprint.json`,
+      tier,
+    ),
+  ]);
+  return toCareerEntries(results, sprints);
+}
+const getDriverSeasonCareer = bySeason(loadDriverSeasonCareer);
+
+// Current drivers' careers grow every race weekend; retired ones never change.
+// Before the first race the new season has no standings, so last season's
+// grid still counts as current.
+const getCareerTier = async (driverId: string): Promise<CareerTier> => {
+  const current = await getCurrentSeason();
+  const standings =
+    (await getDriverStandings(current)) ??
+    (await getDriverStandings(current - 1));
+  const racing = standings?.standings.some(
+    (s) => s.Driver.driverId === driverId,
+  );
+  return racing ? "lists" : "past";
+};
+
+// The whole career is cached daily for current drivers and monthly for
+// retired ones, to keep big careers off the hourly quota. The season in
+// progress comes from two small requests on the current season's cache
+// instead, so it's as fresh as the standings.
+export const getDriverCareer = async (driverId: string) => {
+  const tier = await getCareerTier(driverId);
+  if (tier === "past")
+    return summarizeCareer(await loadDriverCareer(driverId, tier));
+
+  const current = String(await getCurrentSeason());
+  const [history, season] = await Promise.all([
+    loadDriverCareer(driverId, tier),
+    getDriverSeasonCareer(current, driverId),
+  ]);
+  return summarizeCareer({
+    races: [
+      ...history.races.filter((race) => race.season !== current),
+      ...season.races,
+    ],
+    poles: [
+      ...history.poles.filter((key) => !key.startsWith(`${current}-`)),
+      ...season.poles,
+    ],
+  });
+};
+
+// Championship position, points and wins in one season, or null when the
+// driver has no standing that season
+async function loadDriverSeasonStanding(
+  year: number,
+  tier: SeasonTier,
+  driverId: string,
+): Promise<DriverStanding | null> {
   "use cache";
   cacheFor(tier);
   const data = await jolpica<StandingsTable<"DriverStandings", DriverStanding>>(
     `${year}/drivers/${driverId}/driverStandings.json`,
     tier,
   );
-  const standing =
-    data.MRData.StandingsTable.StandingsLists[0]?.DriverStandings[0];
-  return Number(standing?.position ?? 0);
+  return (
+    data.MRData.StandingsTable.StandingsLists[0]?.DriverStandings[0] ?? null
+  );
 }
-const getDriverSeasonPosition = bySeason(loadDriverSeasonPosition);
+export const getDriverSeasonStanding = bySeason(loadDriverSeasonStanding);
 
-// Championship position in each of the given seasons (one small request each)
-export const getDriverSeasonPositions = (driverId: string, seasons: string[]) =>
+// The driver's standing in each of the given seasons (one small request each)
+export const getDriverSeasonStandings = (driverId: string, seasons: string[]) =>
   Promise.all(
     seasons.map(async (season) => ({
       season,
-      position: await getDriverSeasonPosition(season, driverId),
+      standing: await getDriverSeasonStanding(season, driverId),
     })),
   );
 
