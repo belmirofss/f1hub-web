@@ -15,7 +15,7 @@ Work through the GitHub issues **in order** (`#1` → `#29`). Each issue builds 
 
 | Area | Features to port |
 |---|---|
-| **Home** | Wordmark + settings; "NEXT" session ticker; search bar; **Next race card** (round, sprint badge, countdown d/h/m, "lights out" state, weather summary, session list with per-session temperature, *My time / Track* toggle, weekend + circuit links, "season complete" state); **Last race card** (winner, pole, fastest lap, top gainer, shortcuts to lap chart/tyres/radio); **Top 5 with last-5 form chips**; **Title fight (compact)**; **Closest teammate battle** |
+| **Home** | Search bar; **Next race card** (round, sprint badge, countdown d/h/m, "lights out" state, weather summary, session list with per-session temperature, *My time / Track* toggle, weekend + circuit links, "season complete" state); **Last race card** (winner, pole, fastest lap, top gainer, shortcuts to lap chart/tyres/radio); **Top 5 with last-5 form chips**; **Title fight (compact)**; **Closest teammate battle** |
 | **Calendar** | Season strip coloured by winning team (tap to scroll), team wins legend, race rows (round, country code, dates, sprint, winner chip / NEXT chip), "Jump to next race" button, `done/total` meta |
 | **Standings** | Drivers / Constructors / Teammates; tables with team bar, gap to leader and last-5 form; **Title fight** card (who can still win, reach bars, what each driver needs); **What-if simulator** before the finale |
 | **Teammates** | Pair card (qualifying, race, points and podium head-to-heads with split bars, average qualifying gap); list of every team. Also its own screen per season and team |
@@ -95,8 +95,10 @@ public/       sw.js · icons/
 
 ### Responsive layout
 
-- **< 768px:** the app layout, with a bottom tab bar (Home, Calendar, Standings, Archive), back buttons in headers and full-width cards.
-- **≥ 1024px:** top navigation with an inline search field, a 1240px max-width container, a two-column grid (main + aside) and wide tables with extra columns (grid, laps, team, wins). See the desktop artboards.
+- **Every width:** a header (wordmark, search, settings) and the **season spine** under it: one cell per round of the season, coloured by the winning team, the next round in vermilion, with a popover on hover or keyboard focus. Race and season pages show their own year and the calendar page hides it. Next session details live in the next round's popover.
+- **< 768px:** the app layout, with a bottom tab bar (Home, Calendar, Standings, Archive), the spine as a sideways strip centred on the current round, back buttons in headers and full-width cards.
+- **≥ 768px:** the four sections move into the header, and the spine gets a season switcher.
+- **≥ 1024px:** an inline search field, a 1240px max-width container, a two-column grid (main + aside) and wide tables with extra columns (grid, laps, team, wins). See the desktop artboards.
 - Tables that can overflow go in an `overflow-x: auto` box. Touch targets are at least 44px.
 
 ---
