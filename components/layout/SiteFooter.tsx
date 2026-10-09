@@ -1,4 +1,4 @@
-import { ANDROID_APP_URL, JOLPICA_URL } from "@/lib/links";
+import { ANDROID_APP_URL, EXTERNAL_LINK, JOLPICA_URL } from "@/lib/links";
 
 const SOURCES = [
   { label: "Jolpica F1", href: JOLPICA_URL },
@@ -15,14 +15,22 @@ export const SiteFooter = () => (
         {SOURCES.map((source, index) => (
           <span key={source.href}>
             {index > 0 && " · "}
-            <a href={source.href} className="hover:text-text">
+            <a
+              href={source.href}
+              {...EXTERNAL_LINK}
+              className="hover:text-text"
+            >
               {source.label}
             </a>
           </span>
         ))}
         . F1HUB is independent and has no relationship with Formula 1.
       </p>
-      <a href={ANDROID_APP_URL} className="underline hover:text-text">
+      <a
+        href={ANDROID_APP_URL}
+        {...EXTERNAL_LINK}
+        className="underline hover:text-text"
+      >
         Android app
       </a>
     </div>

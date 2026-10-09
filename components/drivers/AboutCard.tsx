@@ -7,6 +7,7 @@ import type { Driver } from "@/lib/api/types";
 import { getWikipediaSummary } from "@/lib/api/wikipedia";
 import { getDeathYear } from "@/lib/domain/drivers";
 import { formatLongDate, toDate, yearsBetween } from "@/lib/domain/time";
+import { EXTERNAL_LINK } from "@/lib/links";
 import { getRequestTime } from "@/lib/requestTime";
 
 // " · 20 years", worked out per request so the cached page doesn't age
@@ -79,9 +80,11 @@ export const AboutCard = async ({
       </dl>
       <InlineLink
         href={driver.url.replace(/^http:/, "https:")}
+        {...EXTERNAL_LINK}
         className="self-start"
       >
         Read on Wikipedia
+        <span className="sr-only"> (opens in a new tab)</span>
       </InlineLink>
     </Card>
   );

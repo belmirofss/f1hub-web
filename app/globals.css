@@ -46,11 +46,31 @@
   color-scheme: dark;
 }
 
+/* The installed app (home screen or desktop window) */
+@custom-variant standalone (@media (display-mode: standalone));
+
+/* Dark behind the page too, so overscroll and resizes never flash white */
+html {
+  background: var(--color-background);
+  /* No double-tap zoom delay */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   background: var(--color-background);
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: 15px;
+}
+
+/* The installed app doesn't rubber-band or glow at the ends of the page. A
+   browser tab keeps pull-to-refresh. */
+@media (display-mode: standalone) {
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
 }
 
 :focus-visible {

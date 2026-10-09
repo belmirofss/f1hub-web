@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { TabBar } from "@/components/layout/TabBar";
 import { SettingsProvider } from "@/components/settings/SettingsProvider";
+import { Toaster } from "@/components/ui/Toast";
 import {
   DEFAULT_IMAGE,
   IS_PRODUCTION,
@@ -66,8 +67,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // The status bar on Android, and the browser bar where it's tinted
   themeColor: "#0B0B0D",
-  // Lets the tab bar pad itself with env(safe-area-inset-bottom)
+  colorScheme: "dark",
+  // The page draws under the notch and home indicator, and pads itself with
+  // env(safe-area-inset-*)
   viewportFit: "cover",
 };
 
@@ -84,7 +88,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: INSTALL_SCRIPT }} />
       </head>
       {/* Below 768px the body reserves room for the fixed tab bar */}
-      <body className="flex min-h-full flex-col pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] max-md:pb-[calc(52px+max(12px,env(safe-area-inset-bottom)))]">
+      <body className="flex min-h-full flex-col pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] max-md:pb-[calc(52px+max(12px,env(safe-area-inset-bottom)))]">
+        {/* Covers the iOS status bar (translucent in the installed app) so the
+            page never scrolls underneath the clock and notch */}
+        <div
+          aria-hidden
+          className="fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-background"
+        />
         <SettingsProvider>
           <a
             href="#main"
@@ -108,6 +118,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <InstallPrompt />
           </Suspense>
           <SearchShortcut />
+          <Toaster />
         </SettingsProvider>
       </body>
     </html>

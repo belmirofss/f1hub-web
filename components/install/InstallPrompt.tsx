@@ -118,7 +118,7 @@ const Dialog = ({
         if (event.target === event.currentTarget) onClose();
       }}
       className={cn(
-        "inset-x-0 m-0 mt-auto h-fit max-h-[calc(100dvh-24px)] w-full max-w-none overflow-y-auto overscroll-contain text-text backdrop:bg-black/60",
+        "inset-x-0 m-0 mt-auto h-fit max-h-[calc(100dvh-24px-env(safe-area-inset-top))] w-full max-w-none overflow-y-auto overscroll-contain text-text backdrop:bg-black/60",
         className,
       )}
     >
@@ -158,7 +158,7 @@ const CloseButton = ({ onClose }: { onClose: () => void }) => (
 // Bottom sheet on phones, a centred card when opened from Settings on a
 // larger screen
 const sheetClasses =
-  "rounded-t-[20px] border-t border-line bg-surface px-5 pt-2.5 pb-[max(28px,calc(env(safe-area-inset-bottom)+16px))] md:m-auto md:max-w-[420px] md:rounded-[20px] md:border md:pb-6";
+  "rounded-t-[20px] border-t border-line bg-surface pt-2.5 pr-[max(20px,env(safe-area-inset-right))] pl-[max(20px,env(safe-area-inset-left))] pb-[max(28px,calc(env(safe-area-inset-bottom)+16px))] md:m-auto md:max-w-[420px] md:rounded-[20px] md:border md:pb-6";
 
 const Handle = () => (
   <span
@@ -312,7 +312,7 @@ const IosCard = ({
     <Dialog
       labelledBy={titleId}
       onClose={onClose}
-      className="bg-transparent px-3 pb-[max(14px,env(safe-area-inset-bottom))] md:m-auto md:max-w-[420px] md:pb-3"
+      className="bg-transparent pr-[max(12px,env(safe-area-inset-right))] pb-[max(14px,env(safe-area-inset-bottom))] pl-[max(12px,env(safe-area-inset-left))] md:m-auto md:max-w-[420px] md:pb-3"
     >
       <div className="flex flex-col gap-3.5 rounded-[18px] border border-line bg-surface px-4 pt-4 pb-[18px] shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
         <div className="flex items-center gap-3">

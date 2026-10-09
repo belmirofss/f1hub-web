@@ -24,7 +24,8 @@ const desktopTitle =
 // The app's screen header. Tab pages: big title with the meta on its
 // baseline. Detail pages: Back + meta on one row and the title under it.
 // Desktop has the browser's back button, so there the meta sits above the
-// title and the actions move to its right.
+// title and the actions move to its right. The installed app has no browser
+// bar, so it keeps Back at every width.
 export const PageHeader = ({
   title,
   meta,
@@ -57,8 +58,11 @@ export const PageHeader = ({
   return (
     <header className={cn("flex flex-col gap-3 pt-2 lg:pt-6", className)}>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 [grid-template-areas:'meta_actions'_'title_title'] lg:items-end lg:gap-y-1.5 lg:[grid-template-areas:'meta_meta'_'title_actions']">
-        <div className="-ml-2.5 flex min-h-11 min-w-0 items-center [grid-area:meta] lg:ml-0 lg:min-h-0">
-          <BackButton fallbackHref={back} className="lg:hidden" />
+        <div className="-ml-2.5 flex min-h-11 min-w-0 items-center [grid-area:meta] lg:ml-0 lg:min-h-0 standalone:-ml-2.5">
+          <BackButton
+            fallbackHref={back}
+            className="lg:hidden standalone:flex"
+          />
           {meta && (
             <p className="truncate font-mono text-xs tracking-[1px] text-muted">
               {meta}

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { Download, Share } from "lucide-react";
 import { useInstallPrompt } from "@/components/install/useInstallPrompt";
 import { Label } from "@/components/ui/Label";
 import { Segmented } from "@/components/ui/Segmented";
+import { showToast } from "@/components/ui/Toast";
 import { ACCENT_OPTIONS } from "@/lib/settings";
+import { share } from "@/lib/share";
 import { useSettings } from "./SettingsProvider";
 import { SettingsRow } from "./SettingsRow";
 
@@ -74,45 +75,26 @@ export const ClockSetting = () => {
 const SHARE_TEXT = "Formula 1 calendar, results and standings";
 
 // The system share sheet where there is one, otherwise the link is copied
+// and a toast says so
 export const ShareRow = () => {
-  const [status, setStatus] = useState<string>();
-
-  useEffect(() => {
-    if (!status) return;
-    const timer = setTimeout(() => setStatus(undefined), 3000);
-    return () => clearTimeout(timer);
-  }, [status]);
-
-  const share = async () => {
+  const onClick = async () => {
     const url = `${window.location.origin}/`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: "F1HUB", text: SHARE_TEXT, url });
-        return;
-      } catch (error) {
-        // Closing the share sheet isn't a failure
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setStatus("Link copied");
-    } catch {
-      setStatus("Couldn't copy the link");
-    }
+    const result = await share({
+      title: "F1HUB",
+      text: SHARE_TEXT,
+      url,
+      copy: url,
+    });
+    if (result === "copied") showToast("Link copied");
+    else if (result === "failed") showToast("Couldn't copy the link");
   };
 
   return (
     <SettingsRow
       as="button"
-      onClick={share}
+      onClick={onClick}
       icon={<Share aria-hidden size={18} strokeWidth={2} />}
       label="Share F1HUB"
-      value={<span aria-live="polite">{status}</span>}
     />
   );
 };

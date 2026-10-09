@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { EXTERNAL_LINK } from "@/lib/links";
 
 type Props = {
   icon: ReactNode;
@@ -43,8 +44,10 @@ export const SettingsRow = ({
 
   if (as === "a") {
     return (
-      <a href={href} className={classes}>
+      // Every link row goes to another site
+      <a href={href} {...EXTERNAL_LINK} className={classes}>
         {content}
+        <span className="sr-only"> (opens in a new tab)</span>
       </a>
     );
   }
