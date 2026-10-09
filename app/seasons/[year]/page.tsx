@@ -27,6 +27,7 @@ export const generateMetadata = async ({
       ? `${summary}. Points, wins and form for every driver.`
       : `The ${year} Formula 1 drivers' standings: points, wins and last-5 form for every driver.`,
     path: seasonHref(year),
+    image: `${seasonHref(year)}/opengraph-image`,
   });
 };
 

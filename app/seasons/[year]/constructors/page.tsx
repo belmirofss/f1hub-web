@@ -31,6 +31,8 @@ export const generateMetadata = async ({
       title: `${year} F1 season: constructors`,
       description: `The constructors' championship started in ${FIRST_CONSTRUCTORS_SEASON}, so the ${year} Formula 1 season has no team standings.`,
       path,
+      // No team standings to draw, so the drivers' card
+      image: `${seasonHref(year)}/opengraph-image`,
       noindex: true,
     });
   }
@@ -41,6 +43,7 @@ export const generateMetadata = async ({
       ? `${summary}. Points, wins and each team's drivers.`
       : `The ${year} Formula 1 constructors' standings: points, wins and each team's drivers.`,
     path,
+    image: `${path}/opengraph-image`,
   });
 };
 

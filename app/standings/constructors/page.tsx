@@ -25,6 +25,7 @@ export const generateMetadata = async (): Promise<Metadata> => {
       ? `${summary}. Points, wins, gaps and last-5 form.`
       : "The Formula 1 constructors' championship: points, wins, gaps to the leader and each team's form over the last five races.",
     path: "/standings/constructors",
+    image: "/standings/constructors/opengraph-image",
   });
 };
 

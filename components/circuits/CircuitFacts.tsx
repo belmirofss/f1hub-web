@@ -1,17 +1,7 @@
 import type { RaceResults } from "@/lib/api/types";
-import { getCircuitLayout } from "@/lib/domain/circuits";
+import { getCircuitFacts } from "@/lib/domain/circuits";
 
-// The scheduled distance. A race cut short by rain or the time limit
-// (Singapore 2022 ran 59 of 62 laps) shouldn't set it, so the longer of the
-// last two races counts.
-const getLaps = (races: RaceResults[]) =>
-  Math.max(
-    0,
-    ...races.slice(-2).map((race) => Number(race.Results?.[0]?.laps ?? 0)),
-  );
-
-// Small tiles: km/lap, laps, race km, corners, first GP and races held. The
-// layout numbers only exist for circuits on recent calendars.
+// Small tiles: km/lap, laps, race km, corners, first GP and races held
 export const CircuitFacts = ({
   circuitId,
   races,
@@ -20,20 +10,7 @@ export const CircuitFacts = ({
   // Every race held here, oldest first
   races: RaceResults[];
 }) => {
-  const layout = getCircuitLayout(circuitId);
-  const laps = getLaps(races);
-  const facts = [
-    layout && { label: "Km / lap", value: layout.length.toFixed(3) },
-    laps > 0 && { label: "Laps", value: laps },
-    layout &&
-      laps > 0 && {
-        label: "Km race",
-        value: (layout.length * laps).toFixed(1),
-      },
-    layout && { label: "Corners", value: layout.corners },
-    races[0] && { label: "First GP", value: races[0].season },
-    { label: "Races held", value: races.length },
-  ].filter((fact) => !!fact);
+  const facts = getCircuitFacts(circuitId, races);
 
   return (
     <dl className="flex flex-wrap gap-2">

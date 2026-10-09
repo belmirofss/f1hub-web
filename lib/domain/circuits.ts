@@ -76,6 +76,35 @@ const CIRCUIT_LAYOUTS: Record<string, { length: number; corners: number }> = {
 export const getCircuitLayout = (circuitId: string) =>
   CIRCUIT_LAYOUTS[circuitId];
 
+// The scheduled distance. A race cut short by rain or the time limit
+// (Singapore 2022 ran 59 of 62 laps) shouldn't set it, so the longer of the
+// last two races counts.
+const getLaps = (races: RaceResults[]) =>
+  Math.max(
+    0,
+    ...races.slice(-2).map((race) => Number(race.Results?.[0]?.laps ?? 0)),
+  );
+
+// km/lap, laps, race km, corners, first GP and races held, from every race
+// held at the circuit (oldest first). The layout numbers only exist for
+// circuits on recent calendars.
+export const getCircuitFacts = (circuitId: string, races: RaceResults[]) => {
+  const layout = getCircuitLayout(circuitId);
+  const laps = getLaps(races);
+  return [
+    layout && { label: "Km / lap", value: layout.length.toFixed(3) },
+    laps > 0 && { label: "Laps", value: laps },
+    layout &&
+      laps > 0 && {
+        label: "Km race",
+        value: (layout.length * laps).toFixed(1),
+      },
+    layout && { label: "Corners", value: layout.corners },
+    races[0] && { label: "First GP", value: races[0].season },
+    { label: "Races held", value: races.length },
+  ].filter((fact) => !!fact);
+};
+
 // The drivers who won at a circuit, most wins first
 export const getWinsByDriver = (races: RaceResults[]) => {
   const byDriver = new Map<string, { driver: Driver; wins: number }>();

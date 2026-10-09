@@ -17,6 +17,7 @@ export const generateMetadata = async ({
       champion ? `, the year ${champion.driver} won the title` : ""
     }: qualifying, race, points and podium head-to-heads with the average qualifying gap.`,
     path: `${seasonHref(year)}/teammates`,
+    image: `${seasonHref(year)}/opengraph-image`,
   });
 };
 

@@ -34,6 +34,7 @@ export const generateMetadata = async ({
       ? `${describeWin(podium.winner)}. ${where}: ${describeTabs(tabs)}.`
       : `${where}. Session times in your time zone, the weather forecast, then results and analysis.`,
     path: href,
+    image: `${href}/opengraph-image`,
   });
 };
 
