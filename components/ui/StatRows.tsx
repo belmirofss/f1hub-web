@@ -6,6 +6,8 @@ export type Stat = {
   labelClassName?: string;
   who: string;
   value?: string;
+  // Hides the row at some widths: "lg:hidden"
+  className?: string;
 };
 
 // Pole / fastest lap / top gainer / retirements, one per row
@@ -18,7 +20,10 @@ export const StatRows = ({
 }) => (
   <dl className={cn("flex flex-col divide-y divide-line", className)}>
     {stats.map((stat) => (
-      <div key={stat.label} className="flex min-h-11 items-center gap-2.5">
+      <div
+        key={stat.label}
+        className={cn("flex min-h-11 items-center gap-2.5", stat.className)}
+      >
         <dt
           className={cn(
             "w-[92px] shrink-0 font-mono text-[10px] font-medium tracking-[0.14em] text-muted uppercase",

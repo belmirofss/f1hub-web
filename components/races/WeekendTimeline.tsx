@@ -40,7 +40,7 @@ export const WeekendTimeline = ({
         <Label>Weekend at a glance</Label>
       </h2>
       <div aria-hidden className="relative mt-1 h-[76px]">
-        <span className="absolute inset-x-0 top-[30px] h-1 rounded-[2px] bg-line" />
+        <span className="absolute inset-x-0 top-[30px] h-1 bg-line" />
         {span && (
           <>
             {Array.from({ length: span.days - 1 }, (_, index) => (

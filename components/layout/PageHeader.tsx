@@ -15,6 +15,8 @@ type Props = {
   // Under the title: weekend tabs, view switches
   children?: ReactNode;
   className?: string;
+  // A smaller title where the content needs the room: "lg:text-5xl"
+  titleClassName?: string;
 };
 
 // The app's screen header. Tab pages: big title with the meta on its
@@ -29,6 +31,7 @@ export const PageHeader = ({
   actions,
   children,
   className,
+  titleClassName,
 }: Props) => {
   if (!back) {
     return (
@@ -70,7 +73,14 @@ export const PageHeader = ({
             {actions}
           </div>
         )}
-        <h1 className="page-title break-words [grid-area:title]">{title}</h1>
+        <h1
+          className={cn(
+            "page-title break-words [grid-area:title]",
+            titleClassName,
+          )}
+        >
+          {title}
+        </h1>
       </div>
       {children}
     </header>

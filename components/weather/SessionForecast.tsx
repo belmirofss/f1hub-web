@@ -69,7 +69,7 @@ const Detail = ({
                 <span aria-hidden className="flex h-12 w-full items-end">
                   <span
                     className={cn(
-                      "w-full rounded-t-[3px]",
+                      "w-full",
                       h.rainChance >= 50 ? "bg-rain" : "bg-line-dashed",
                     )}
                     style={{ height: Math.max(3, h.rainChance * 0.46) }}
