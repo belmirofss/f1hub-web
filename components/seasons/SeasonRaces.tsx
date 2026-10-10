@@ -27,10 +27,10 @@ export const SeasonRaces = async ({ year }: { year: string }) => {
   );
 
   return (
-    // Edge to edge on phones and tablets, a card on desktop
+    // A ruled list, edge to edge on phones and tablets
     <ol
       aria-label={`${year} races`}
-      className="-mx-4 border-t border-line md:-mx-6 lg:mx-0 lg:overflow-hidden lg:rounded-lg lg:border lg:border-line lg:bg-surface lg:[&>li:last-child>a]:border-b-0"
+      className="-mx-4 border-t-2 border-text md:-mx-6 lg:mx-0"
     >
       {races.map((race) => {
         const winner = winnerByRound.get(race.round);
@@ -39,7 +39,7 @@ export const SeasonRaces = async ({ year }: { year: string }) => {
           <li key={race.round}>
             <Link
               href={raceHref(race, races)}
-              className="flex min-h-[54px] items-center gap-2.5 border-b border-line-soft px-4 transition-colors hover:bg-surface md:px-6 lg:px-5 lg:hover:bg-surface-raised"
+              className="flex min-h-[54px] items-center gap-2.5 border-b border-line-soft px-4 transition-colors hover:bg-surface md:px-6 lg:px-2"
             >
               <span className="w-6 shrink-0 font-mono text-xs text-muted">
                 <span className="sr-only">Round </span>

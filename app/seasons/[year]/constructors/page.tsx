@@ -12,13 +12,9 @@ import {
 } from "@/components/standings/StandingsTable";
 import { SilentBoundary } from "@/components/ui/CardBoundary";
 import { EmptyState } from "@/components/ui/States";
-import { seasonHref } from "@/lib/domain/routes";
+import { FIRST_CONSTRUCTORS_SEASON, seasonHref } from "@/lib/domain/routes";
 import { pageMetadata } from "@/lib/metadata";
-import {
-  describeStandings,
-  FIRST_CONSTRUCTORS_SEASON,
-  getSeasonInfo,
-} from "@/lib/season";
+import { describeStandings, getSeasonInfo } from "@/lib/season";
 
 export const generateMetadata = async ({
   params,

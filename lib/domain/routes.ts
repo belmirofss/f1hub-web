@@ -40,6 +40,9 @@ export const seasonHref = (season: string | number) => `/seasons/${season}`;
 
 export const FIRST_SEASON = 1950;
 
+// The constructors' championship started in 1958
+export const FIRST_CONSTRUCTORS_SEASON = 1958;
+
 // Four digits, 1950 or later. The upper bound needs the clock or the API, so
 // pages check the API's seasons and Proxy (proxy.ts) the clock.
 export const isSeasonYear = (year: string) =>
