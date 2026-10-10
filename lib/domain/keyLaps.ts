@@ -60,8 +60,10 @@ const reasonOf = (message: string) => {
   return reason ? sentence(reason) : undefined;
 };
 
-// Lap 1 incidents the stewards looked at. The same incident comes back as
-// NOTED, UNDER INVESTIGATION, then a decision, so each is kept once.
+// Lap 1 incidents the stewards looked at. Race control posts them a minute
+// or two later, so a turn 1 crash is often logged on lap 2. The same
+// incident comes back as NOTED, UNDER INVESTIGATION, then a decision, so
+// each is kept once.
 const startIncidents = (
   messages: RaceControlMessage[],
   names: Map<number, string>,
@@ -69,7 +71,7 @@ const startIncidents = (
   const seen = new Set<string>();
   const laps: KeyLap[] = [];
   for (const m of messages) {
-    if (m.lap_number !== 1 || !m.message.includes("INCIDENT")) continue;
+    if ((m.lap_number ?? 1) > 2 || !m.message.includes("INCIDENT")) continue;
     const cars = carNames(m.message, names);
     const key = cars.join();
     if (!cars.length || seen.has(key)) continue;
@@ -230,6 +232,10 @@ export const getKeyLaps = ({
   const race = messages
     .filter((m) => Date.parse(m.date) >= from)
     .sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+  // Flags and safety cars stop at the chequered flag (a race can end under
+  // red, posted after it). Penalties handed out after the race still count.
+  const end = race.findIndex((m) => m.flag === "CHEQUERED");
+  const running = end < 0 ? race : race.slice(0, end);
   const nameOf = shortNames(results);
   // OpenF1 knows drivers by car number, which the results carry too
   const names = new Map(
@@ -238,9 +244,9 @@ export const getKeyLaps = ({
   const total = Number(results[0]?.laps) || Infinity;
 
   return [
-    ...startIncidents(race, names),
-    ...safetyCars(race),
-    ...redFlags(race),
+    ...startIncidents(running, names),
+    ...safetyCars(running),
+    ...redFlags(running),
     ...penalties(race, names),
     ...retirements(results, total, nameOf),
     ...fastestLap(results, nameOf),
