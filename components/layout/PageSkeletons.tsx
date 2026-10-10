@@ -4,7 +4,7 @@ import {
   LoadingRegion,
   Skeleton,
 } from "@/components/ui/Skeleton";
-import { cn } from "@/lib/cn";
+import { StatRailSkeleton } from "@/components/ui/StatRail";
 
 // Placeholders for loading.tsx, shaped like a PageHeader plus content
 
@@ -30,10 +30,8 @@ export const TabPageSkeleton = () => (
   </LoadingRegion>
 );
 
-// Pass "min-h-svh" for long pages (driver, team) whose data can take a
-// moment: the footer stays below the fold instead of jumping down later
-export const DetailPageSkeleton = ({ className }: { className?: string }) => (
-  <LoadingRegion className={cn("flex flex-col gap-3.5 lg:gap-5", className)}>
+export const DetailPageSkeleton = () => (
+  <LoadingRegion className="flex flex-col gap-3.5 lg:gap-5">
     <div className="flex flex-col gap-1 pt-2 lg:gap-1.5 lg:pt-6">
       <div className="flex min-h-11 items-center gap-3 lg:min-h-0">
         <Skeleton className="size-6 lg:hidden" />
@@ -51,5 +49,17 @@ export const DetailPageSkeleton = ({ className }: { className?: string }) => (
 export const ContentSkeleton = ({ rows }: { rows?: number }) => (
   <LoadingRegion>
     <Body rows={rows} />
+  </LoadingRegion>
+);
+
+// Driver and team pages: the PosterHero block and its stat rail, then the
+// columns. Tall enough that the footer stays below the fold.
+export const PosterPageSkeleton = () => (
+  <LoadingRegion className="flex min-h-svh flex-col gap-3.5 lg:gap-5">
+    <div className="flex flex-col">
+      <Skeleton className="-mx-4 h-[380px] md:-mx-6 lg:mx-0 lg:mt-6 lg:h-[400px]" />
+      <StatRailSkeleton />
+    </div>
+    <Body />
   </LoadingRegion>
 );

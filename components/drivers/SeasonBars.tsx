@@ -57,7 +57,7 @@ export const SeasonBars = async ({
               </span>
               <span
                 className={cn(
-                  "w-full rounded-t-[4px] transition-opacity group-hover:opacity-80",
+                  "w-full transition-opacity group-hover:opacity-80",
                   position === 1
                     ? "bg-accent"
                     : position <= 3

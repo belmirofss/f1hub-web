@@ -6,20 +6,24 @@ import { getConstructorSeasonPositions } from "@/lib/api/jolpica";
 import { cn } from "@/lib/cn";
 import { ordinal, shortYear } from "@/lib/domain/drivers";
 import { seasonHref } from "@/lib/domain/routes";
+import type { TeamHero } from "@/lib/domain/teams";
 
 const COUNT = 6;
 
 // Constructors' championship position in the team's last six seasons, title
-// years in the accent. Each tile opens that season's constructors' table.
+// years in the hero's colour block. Each tile opens that season's
+// constructors' table.
 export const PositionHistory = async ({
   constructorId,
   seasons,
   titles,
+  hero,
 }: {
   constructorId: string;
   // Every season the team raced, oldest first
   seasons: string[];
   titles: string[];
+  hero: TeamHero;
 }) => {
   const positions = await getConstructorSeasonPositions(
     constructorId,
@@ -42,19 +46,19 @@ export const PositionHistory = async ({
                 href={`${seasonHref(season)}/constructors`}
                 aria-label={`${season}: ${position ? ordinal(position) : "not ranked"}${won ? ", champions" : ""}`}
                 className={cn(
-                  "flex flex-1 flex-col items-center gap-1.5 rounded-md py-2.5 font-mono transition-[filter] hover:brightness-125",
-                  won ? "bg-accent text-on-accent" : "bg-surface-raised",
+                  "flex flex-1 flex-col items-center gap-1.5 py-2.5 font-mono transition-[filter] hover:brightness-110",
+                  !won && "bg-surface-raised",
                 )}
+                style={
+                  won
+                    ? { backgroundColor: hero.background, color: hero.text }
+                    : undefined
+                }
               >
                 <span className="text-base font-bold">
                   {position ? `P${position}` : "–"}
                 </span>
-                <span
-                  className={cn(
-                    "text-[10px]",
-                    won ? "text-on-accent" : "text-muted",
-                  )}
-                >
+                <span className={cn("text-[10px]", !won && "text-muted")}>
                   {shortYear(season)}
                 </span>
               </Link>
