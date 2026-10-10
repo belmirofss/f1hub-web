@@ -47,6 +47,20 @@
   --color-loss: #1f4fd1;
   --color-rain: #1a5f96;
 
+  /* The start-light gantry on Home: black pods, lamps red when lit */
+  --color-gantry: #050608;
+  --color-gantry-ink: #9a9aa3;
+  --color-lamp: #ff2b1f;
+  --color-lamp-off: #1b1d22;
+
+  /* A live session's lamps */
+  --animate-lamp-flash: lamp-flash 1.2s steps(1, end) infinite;
+  @keyframes lamp-flash {
+    50% {
+      opacity: 0.2;
+    }
+  }
+
   /* Square cards and inputs. Pills (filter chips, segmented controls) use
      rounded-full. */
   --radius-sm: 0px;

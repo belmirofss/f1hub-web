@@ -1,5 +1,6 @@
 // Ported from the app's src/helpers/circuits.ts.
 import type { Driver, RaceResults } from "@/lib/api/types";
+import { lapTimeToMs } from "./results";
 
 // The API has no time zone for circuits, so map the ones on recent calendars.
 const CIRCUIT_TIMEZONES: Record<string, string> = {
@@ -117,3 +118,13 @@ export const getWinsByDriver = (races: RaceResults[]) => {
   });
   return [...byDriver.values()].sort((a, b) => b.wins - a.wins);
 };
+
+// The quickest race lap ever set at a circuit, from each race's fastest lap
+export const getLapRecord = (fastestLaps: RaceResults[]) =>
+  fastestLaps
+    .flatMap((race) => {
+      const result = race.Results?.[0];
+      const ms = lapTimeToMs(result?.FastestLap?.Time.time);
+      return result && ms ? [{ race, result, ms }] : [];
+    })
+    .sort((a, b) => a.ms - b.ms)[0];

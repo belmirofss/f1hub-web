@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 import { getTeamColor } from "@/lib/domain/teams";
 
 // One block per round, coloured by the winning team, with the next race in
-// the accent and the rest outlined. Desktop's aside only.
+// the accent and the rest outlined, then the wins per team
 export const SeasonStripCard = async () => {
   // Request time, so the build doesn't depend on the APIs
   await io();
@@ -35,7 +35,7 @@ export const SeasonStripCard = async () => {
   const legend = [...wins.values()].sort((x, y) => y.count - x.count);
 
   return (
-    <Card as="section" aria-labelledby="season-strip" className="lg:p-5">
+    <Card as="section" aria-labelledby="season-strip">
       <div className="flex items-center justify-between gap-3">
         <h2 id="season-strip">
           <Label>{races[0].season} so far</Label>
@@ -54,7 +54,7 @@ export const SeasonStripCard = async () => {
               key={race.round}
               title={`R${race.round} ${race.raceName}${team ? ` · ${team.name}` : next ? " · next" : ""}`}
               className={cn(
-                "h-[22px] flex-1 rounded-[3px]",
+                "h-[30px] flex-1",
                 !team && !next && "border border-line-dashed",
                 next && "bg-accent",
               )}
@@ -77,7 +77,7 @@ export const SeasonStripCard = async () => {
           {legend.map(({ team, count }) => (
             <li
               key={team.constructorId}
-              className="flex items-center gap-[5px] font-mono text-[10px] text-muted"
+              className="flex items-center gap-[5px] font-mono text-[11px] text-muted"
             >
               <span
                 aria-hidden
@@ -95,5 +95,8 @@ export const SeasonStripCard = async () => {
 };
 
 export const SeasonStripCardSkeleton = () => (
-  <CardSkeleton lines={2} className="min-h-[130px] lg:p-5" />
+  <CardSkeleton
+    lines={2}
+    className="min-h-[111px] md:min-h-[132px] lg:min-h-[111px]"
+  />
 );
