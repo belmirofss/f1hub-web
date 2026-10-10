@@ -77,6 +77,19 @@ const CIRCUIT_LAYOUTS: Record<string, { length: number; corners: number }> = {
 export const getCircuitLayout = (circuitId: string) =>
   CIRCUIT_LAYOUTS[circuitId];
 
+// Races that run under floodlights, for the calendar's Night races filter.
+// Abu Dhabi starts at dusk and finishes in the dark, so it counts.
+const NIGHT_RACES = new Set([
+  "bahrain",
+  "jeddah",
+  "marina_bay",
+  "vegas",
+  "losail",
+  "yas_marina",
+]);
+
+export const isNightRace = (circuitId: string) => NIGHT_RACES.has(circuitId);
+
 // The scheduled distance. A race cut short by rain or the time limit
 // (Singapore 2022 ran 59 of 62 laps) shouldn't set it, so the longer of the
 // last two races counts.

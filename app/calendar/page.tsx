@@ -2,10 +2,17 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Calendar, CalendarSkeleton } from "@/components/calendar/Calendar";
 import { getSeasonSchedule, getSeasonWinners } from "@/lib/api/jolpica";
+import { parseCalendarQuery } from "@/lib/domain/calendar";
 import { isSprintWeekend } from "@/lib/domain/sessions";
 import { orFallback, pageMetadata, plural } from "@/lib/metadata";
 
-export const generateMetadata = async (): Promise<Metadata> => {
+export const generateMetadata = async ({
+  searchParams,
+}: PageProps<"/calendar">): Promise<Metadata> => {
+  // Both views share the canonical /calendar; only the shared link keeps
+  // ?view=timeline
+  const { view } = parseCalendarQuery(await searchParams);
+  const query = view === "timeline" ? "?view=timeline" : undefined;
   const [races, winners] = await Promise.all([
     orFallback(getSeasonSchedule("current")),
     orFallback(getSeasonWinners("current")),
@@ -18,6 +25,7 @@ export const generateMetadata = async (): Promise<Metadata> => {
       description:
         "Every round of the Formula 1 season: dates in your time zone, sprint weekends and the winner of each race.",
       path: "/calendar",
+      query,
     });
   }
 
@@ -38,13 +46,20 @@ export const generateMetadata = async (): Promise<Metadata> => {
       sprints ? `, ${plural(sprints, "sprint weekend")}` : ""
     }.${progress} Session times in your time zone and the winner of each race.`,
     path: "/calendar",
+    query,
   });
 };
 
-export default function CalendarPage() {
+export default async function CalendarPage({
+  searchParams,
+}: PageProps<"/calendar">) {
+  const query = parseCalendarQuery(await searchParams);
   return (
-    <Suspense fallback={<CalendarSkeleton />}>
-      <Calendar />
+    <Suspense
+      key={query.view}
+      fallback={<CalendarSkeleton view={query.view} />}
+    >
+      <Calendar query={query} />
     </Suspense>
   );
 }

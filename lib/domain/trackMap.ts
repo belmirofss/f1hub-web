@@ -33,7 +33,7 @@ const distanceToSegment = (p: Point, a: Point, b: Point) => {
 
 // Ramer–Douglas–Peucker: keeps the points that change the line's shape by
 // more than the tolerance. Straights shrink to two points, corners stay.
-const simplify = (points: Point[]): Point[] => {
+const simplifyWith = (points: Point[], tolerance: number): Point[] => {
   if (points.length < 3) return points;
   const first = points[0];
   const last = points[points.length - 1];
@@ -46,16 +46,75 @@ const simplify = (points: Point[]): Point[] => {
       index = i;
     }
   }
-  if (farthest <= TOLERANCE) return [first, last];
+  if (farthest <= tolerance) return [first, last];
   return [
-    ...simplify(points.slice(0, index + 1)).slice(0, -1),
-    ...simplify(points.slice(index)),
+    ...simplifyWith(points.slice(0, index + 1), tolerance).slice(0, -1),
+    ...simplifyWith(points.slice(index), tolerance),
   ];
 };
+
+const simplify = (points: Point[]) => simplifyWith(points, TOLERANCE);
 
 const round = (n: number) => Math.round(n * 10) / 10;
 const toPolyline = (points: Point[]) =>
   points.map((p) => `${round(p.x)},${round(p.y)}`).join(" ");
+
+// A small closed outline for thumbnails like the calendar's posters: one
+// path, no sectors, whole-number coordinates. `d` starts at the start line.
+export type TrackOutline = {
+  width: number;
+  height: number;
+  d: string;
+  // The start line, where `d` begins. The placeholder has none.
+  start?: { x: number; y: number };
+};
+
+// The outline's longer side, and how far a dropped point may sit from it.
+// A thumbnail is ~110px wide, so a unit is about a pixel and 24 outlines
+// stay around 10 KB.
+const OUTLINE_SIZE = 100;
+const OUTLINE_TOLERANCE = 1.2;
+
+const parsePolyline = (points: string) =>
+  points
+    .split(" ")
+    .filter(Boolean)
+    .map((pair) => {
+      const [x, y] = pair.split(",").map(Number);
+      return { x, y };
+    });
+
+// "M12 40 30 8…Z": after the move, plain pairs are lines
+const toPath = (points: Point[]) =>
+  `M${points.map((p) => `${Math.round(p.x)} ${Math.round(p.y)}`).join(" ")}Z`;
+
+// Shrinks a cached track map to a thumbnail outline
+export const buildOutline = (map: TrackMap): TrackOutline => {
+  const scale = OUTLINE_SIZE / Math.max(map.width, map.height);
+  // The sectors overlap by a point where they join, and the last one ends
+  // back at the start, which the path's Z draws anyway
+  const points = map.sectors
+    .flatMap((sector, index) =>
+      parsePolyline(sector).slice(index === 0 ? 0 : 1),
+    )
+    .slice(0, -1)
+    .map((p) => ({ x: p.x * scale, y: p.y * scale }));
+  const simplified = simplifyWith(points, OUTLINE_TOLERANCE);
+  return {
+    width: Math.round(map.width * scale),
+    height: Math.round(map.height * scale),
+    d: toPath(simplified),
+    start: { x: Math.round(points[0].x), y: Math.round(points[0].y) },
+  };
+};
+
+// For circuits OpenF1 has no lap of yet (new venues): a plain rounded loop,
+// so the poster keeps its shape
+export const PLACEHOLDER_OUTLINE: TrackOutline = {
+  width: 100,
+  height: 60,
+  d: "M22 8H78C90 8 94 18 94 30S90 52 78 52H22C10 52 6 42 6 30S10 8 22 8Z",
+};
 
 // Fits one lap of car positions into the viewBox and splits it by sector
 export const buildTrackMap = (points: TrackPoint[]): TrackMap | null => {
