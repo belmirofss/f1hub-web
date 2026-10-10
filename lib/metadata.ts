@@ -31,6 +31,9 @@ type PageMetadata = {
   description: string;
   // "/races/2026/singapore-grand-prix", without the query string
   path: string;
+  // "?view=timeline": a view of the same page. The shared link keeps it,
+  // the canonical URL doesn't, so search engines see one page.
+  query?: string;
   // The opengraph-image route that draws the page's card, like
   // "/drivers/max_verstappen/opengraph-image". The default card otherwise.
   image?: string;
@@ -53,6 +56,7 @@ export const pageMetadata = ({
   title,
   description,
   path,
+  query = "",
   image = DEFAULT_IMAGE,
   noindex,
 }: PageMetadata): Metadata => {
@@ -65,7 +69,7 @@ export const pageMetadata = ({
       type: "website",
       siteName: SITE_NAME,
       locale: "en_US",
-      url: path,
+      url: `${path}${query}`,
       title,
       description,
       images,

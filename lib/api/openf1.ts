@@ -1,7 +1,12 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { HOUR } from "@/lib/domain/time";
-import { buildTrackMap, type TrackMap } from "@/lib/domain/trackMap";
+import {
+  buildOutline,
+  buildTrackMap,
+  type TrackMap,
+  type TrackOutline,
+} from "@/lib/domain/trackMap";
 import { CACHE_LIFE, type CacheTier } from "./cacheTiers";
 import { ApiError, fetchJson } from "./fetcher";
 import type {
@@ -174,3 +179,22 @@ async function loadTrackMap(
 // who went the distance, like the winner.
 export const getTrackMap = (session: SessionRef, driverNumber: number) =>
   loadTrackMap(session.session_key, session.date_end, driverNumber);
+
+// The same map shrunk to a thumbnail outline, for lists of many circuits
+// like the calendar. A finished session's outline never changes, so it stays
+// for the `past` tier's 30 days.
+async function loadTrackOutline(
+  sessionKey: number,
+  dateEnd: string,
+  driverNumber: number,
+): Promise<TrackOutline | null> {
+  "use cache";
+  const tier = tierFor(dateEnd) === "session" ? "past" : "current";
+  cacheLife(CACHE_LIFE[tier]);
+  cacheTag("openf1");
+  const map = await loadTrackMap(sessionKey, dateEnd, driverNumber);
+  return map && buildOutline(map);
+}
+
+export const getTrackOutline = (session: SessionRef, driverNumber: number) =>
+  loadTrackOutline(session.session_key, session.date_end, driverNumber);
