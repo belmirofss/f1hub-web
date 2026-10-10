@@ -3,7 +3,7 @@ import Link from "next/link";
 import { io } from "next/cache";
 import type { LucideProps } from "lucide-react";
 import { ChartLine, Disc, Mic } from "lucide-react";
-import { Card, InlineLink, TeamBar } from "@/components/ui/Card";
+import { Card, InlineLink } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { StatRows, type Stat } from "@/components/ui/StatRows";
@@ -18,8 +18,10 @@ import {
   getGridPosition,
   getTopGainer,
 } from "@/lib/domain/results";
+import { cn } from "@/lib/cn";
+import { ordinal } from "@/lib/domain/drivers";
 import { driverHref, raceHref } from "@/lib/domain/routes";
-import { getDriverName, getTeamColor } from "@/lib/domain/teams";
+import { getDriverCode, getDriverName, getTeamColor } from "@/lib/domain/teams";
 
 const Shortcut = ({
   href,
@@ -32,12 +34,16 @@ const Shortcut = ({
 }) => (
   <Link
     href={href}
-    className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-md bg-surface-raised px-2 text-[13px] font-bold whitespace-nowrap transition-colors hover:bg-line lg:flex-none lg:gap-2 lg:px-3.5"
+    className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-md bg-surface-raised px-2 text-[13px] font-bold whitespace-nowrap transition-colors hover:bg-line"
   >
     <Icon aria-hidden size={16} strokeWidth={2} />
     {label}
   </Link>
 );
+
+// P2, P1, P3 from left to right, the winner's block the tallest. The list
+// stays in finishing order for screen readers.
+const PODIUM_STEPS = ["order-2 h-[74px]", "order-1 h-[52px]", "order-3 h-10"];
 
 export const LastRaceCard = async () => {
   // Request time, so the build doesn't depend on the APIs
@@ -82,55 +88,60 @@ export const LastRaceCard = async () => {
     });
   }
 
+  const podium = results.slice(0, 3);
+
   return (
-    <Card
-      as="section"
-      aria-labelledby="last-race"
-      className="lg:gap-3.5 lg:p-5"
-    >
+    <Card as="section" aria-labelledby="last-race">
       <div className="flex items-center justify-between gap-3">
         <h2 id="last-race">
-          <Label>Last race · {race.Circuit.Location.locality}</Label>
+          <Label>
+            Last race · R{race.round} {race.Circuit.Location.locality}
+          </Label>
         </h2>
-        <InlineLink href={href}>
-          <span className="lg:hidden">Results</span>
-          <span className="max-lg:hidden">Full results</span>
-        </InlineLink>
+        <InlineLink href={href}>Full results</InlineLink>
       </div>
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:gap-5">
-        <Link
-          href={driverHref(winner.Driver.driverId)}
-          className="group flex items-center gap-3 lg:flex-[1_1_260px]"
-        >
-          <TeamBar
-            color={getTeamColor(winner.Constructor.constructorId)}
-            className="h-11! lg:h-[52px]!"
-          />
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="text-xs text-muted">{race.raceName} winner</span>
-            <span className="text-xl font-bold group-hover:underline lg:text-2xl">
-              {getDriverName(winner.Driver)}
-            </span>
-            {winner.Time?.time && (
-              <span className="font-mono text-xs text-soft max-lg:hidden">
-                {winner.Time.time}
-              </span>
-            )}
-          </span>
+      <Link
+        href={driverHref(winner.Driver.driverId)}
+        className="group flex flex-col gap-1"
+      >
+        <span className="display-title text-[30px] leading-none group-hover:underline">
+          {getDriverName(winner.Driver)}
+        </span>
+        <span className="text-sm text-soft">
+          Won the {race.raceName}
           {winner.Time?.time && (
-            <span className="font-mono text-[13px] lg:hidden">
-              {winner.Time.time}
-            </span>
+            <>
+              {" · "}
+              <span className="font-mono text-[13px]">{winner.Time.time}</span>
+            </>
           )}
-        </Link>
-        {stats.length > 0 && (
-          <StatRows
-            stats={stats}
-            className="border-t border-line lg:min-w-0 lg:flex-[2_1_320px] lg:border-t-0"
-          />
-        )}
-      </div>
+        </span>
+      </Link>
+
+      {podium.length === 3 && (
+        <ol aria-label="Podium" className="flex h-[74px] items-end gap-1.5">
+          {podium.map((result, index) => (
+            <li
+              key={result.Driver.driverId}
+              className={cn(
+                "flex flex-1 items-center justify-center border-t-[3px] bg-surface-raised text-[13px] font-bold",
+                PODIUM_STEPS[index],
+              )}
+              style={{
+                borderTopColor: getTeamColor(result.Constructor.constructorId),
+              }}
+            >
+              <span className="sr-only">
+                {ordinal(index + 1)}: {getDriverName(result.Driver)}
+              </span>
+              <span aria-hidden>{getDriverCode(result.Driver)}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+
+      {stats.length > 0 && <StatRows stats={stats} />}
 
       <nav aria-label="Race analysis" className="flex flex-wrap gap-2">
         <Shortcut
@@ -154,5 +165,8 @@ export const LastRaceCard = async () => {
 };
 
 export const LastRaceCardSkeleton = () => (
-  <CardSkeleton lines={5} className="min-h-[330px] lg:min-h-[260px] lg:p-5" />
+  <CardSkeleton
+    lines={8}
+    className="min-h-[395px] md:min-h-[415px] lg:min-h-[395px]"
+  />
 );

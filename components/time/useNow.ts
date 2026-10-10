@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import { clockNow } from "@/lib/clock";
 
 const noSubscribe = () => () => {};
 
@@ -33,7 +34,7 @@ export const useNow = (interval = 1000) => {
   return useSyncExternalStore<number | null>(
     subscribe,
     () => {
-      const now = Date.now();
+      const now = clockNow();
       return now - (now % interval);
     },
     () => null,

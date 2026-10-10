@@ -2,7 +2,7 @@ import { Timer } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
 import type { RaceResults } from "@/lib/api/types";
-import { lapTimeToMs } from "@/lib/domain/results";
+import { getLapRecord } from "@/lib/domain/circuits";
 import { getDriverName } from "@/lib/domain/teams";
 
 // The quickest race lap ever set here, from each race's fastest lap
@@ -11,13 +11,7 @@ export const FastestLapCard = ({
 }: {
   fastestLaps: RaceResults[];
 }) => {
-  const fastest = fastestLaps
-    .flatMap((race) => {
-      const result = race.Results?.[0];
-      const ms = lapTimeToMs(result?.FastestLap?.Time.time);
-      return result && ms ? [{ race, result, ms }] : [];
-    })
-    .sort((a, b) => a.ms - b.ms)[0];
+  const fastest = getLapRecord(fastestLaps);
   if (!fastest) return null;
 
   return (

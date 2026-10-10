@@ -2,7 +2,7 @@
 // (moment objects in the app).
 import type { Race, RaceResults, Result, SessionTime } from "@/lib/api/types";
 import { getCircuitTimezone } from "./circuits";
-import { HOUR, formatShortDate, toDate } from "./time";
+import { HOUR, formatShortDate, startOfDay, toDate } from "./time";
 
 export type SessionKey =
   "fp1" | "fp2" | "fp3" | "sprintQualifying" | "sprint" | "qualifying" | "race";
@@ -71,6 +71,67 @@ export const getSessions = (race: Race): Session[] =>
   }).sort((a, b) => a.start.getTime() - b.start.getTime());
 
 export const getRaceStart = (race: Race) => toDate(race.date, race.time);
+
+// Scheduled length of each session, for the weekend timeline and to tell
+// when one is live. Red flags can run them over; this is the plan.
+const SESSION_MINUTES: Record<SessionKey, number> = {
+  fp1: 60,
+  fp2: 60,
+  fp3: 60,
+  sprintQualifying: 45,
+  sprint: 60,
+  qualifying: 60,
+  race: 120,
+};
+
+export const getSessionEnd = (session: Pick<Session, "key" | "start">) =>
+  session.start.getTime() + SESSION_MINUTES[session.key] * 60000;
+
+// The weekend Home is about: the first race whose race hasn't finished. Once
+// the chequered flag is out it moves on to the next one.
+export const findWeekendRace = (races: Race[], now: number) =>
+  races.find(
+    (race) => getRaceStart(race).getTime() + SESSION_MINUTES.race * 60000 > now,
+  );
+
+export type WeekendState = {
+  // Sessions over by now
+  done: number;
+  // Index of the session running now, or of the next one to start
+  live?: number;
+  next?: number;
+};
+
+// Where a weekend is at `now`, given its sessions in order
+export const getWeekendState = (
+  sessions: { start: number; end: number }[],
+  now: number,
+): WeekendState => {
+  const done = sessions.filter((session) => session.end <= now).length;
+  const live = sessions.findIndex(
+    (session) => session.start <= now && now < session.end,
+  );
+  const next = sessions.findIndex((session) => session.start > now);
+  return {
+    done,
+    live: live === -1 ? undefined : live,
+    next: next === -1 ? undefined : next,
+  };
+};
+
+const DAY = 24 * HOUR;
+
+// The weekend's days in a time zone (the viewer's when left out), from
+// midnight before the first session to midnight after the last
+export const getWeekendSpan = (starts: number[], timeZone?: string) => {
+  const first = startOfDay(starts[0], timeZone);
+  // Past midday of the next day whatever the DST change, then back to midnight
+  const end = startOfDay(
+    startOfDay(starts[starts.length - 1], timeZone) + 36 * HOUR,
+    timeZone,
+  );
+  return { first, end, days: Math.round((end - first) / DAY) };
+};
 
 // "11 OCT", the race day at the track, so the server can render it. Without
 // a start time only the UTC date is known.
