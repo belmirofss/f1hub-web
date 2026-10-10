@@ -59,7 +59,7 @@ const Summary = ({ summary }: { summary: RadioSummary }) => (
     ].map((stat) => (
       <div
         key={stat.label}
-        className="flex min-w-0 flex-col-reverse justify-end gap-0.5 rounded-[10px] border border-line bg-surface px-2.5 py-2.5"
+        className="flex min-w-0 flex-col-reverse justify-end gap-0.5 border-t-2 border-text pt-2"
       >
         <dt className="font-mono text-[10px] font-medium tracking-[1px] text-muted uppercase">
           {stat.label}
@@ -102,8 +102,8 @@ const RadioRow = memo(function RadioRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-2.5 rounded-lg border bg-surface py-2 pr-2 pl-3",
-        playing ? "border-line-dashed" : "border-line",
+        "flex items-center gap-2.5 border-b border-line py-2 pr-1 pl-2 transition-colors",
+        playing && "bg-surface",
       )}
     >
       <TeamBar color={item.color} height={30} />
@@ -121,10 +121,10 @@ const RadioRow = memo(function RadioRow({
         <div className="flex h-3 items-center gap-2">
           <div
             aria-hidden
-            className="h-1 min-w-0 flex-1 overflow-hidden rounded-[2px] bg-light-off"
+            className="h-1 min-w-0 flex-1 overflow-hidden bg-light-off"
           >
             <div
-              className="h-full rounded-[2px] bg-accent transition-[width] duration-250 ease-linear"
+              className="h-full bg-accent transition-[width] duration-250 ease-linear"
               style={{ width: `${progress * 100}%` }}
             />
           </div>
@@ -177,11 +177,11 @@ const RadioRow = memo(function RadioRow({
 
 const ControlRow = memo(function ControlRow({ item }: { item: ControlItem }) {
   return (
-    <div className="flex gap-2.5 rounded-lg border border-dashed border-line-dashed px-3 py-2.5">
+    <div className="flex gap-2.5 border-b border-dashed border-line-dashed py-2.5 pl-2">
       <span
         aria-hidden
         className={cn(
-          "mt-0.5 size-3.5 shrink-0 rounded-[3px]",
+          "mt-0.5 size-3.5 shrink-0",
           item.flagClassName ?? "border border-subtle",
         )}
       />

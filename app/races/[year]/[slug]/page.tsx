@@ -2,12 +2,14 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { io } from "next/cache";
 import { ContentSkeleton } from "@/components/layout/PageSkeletons";
+import { KeyLaps, KeyLapsSkeleton } from "@/components/races/KeyLaps";
 import { RaceResults } from "@/components/races/RaceResults";
 import { Schedule } from "@/components/races/Schedule";
 import { EmptyState } from "@/components/ui/States";
 import { getQualifying, getRaceResults } from "@/lib/api/jolpica";
+import { getRaceSession, getStints } from "@/lib/api/openf1";
 import type { Race } from "@/lib/api/types";
-import { pageMetadata } from "@/lib/metadata";
+import { orFallback, pageMetadata } from "@/lib/metadata";
 import {
   describeTabs,
   describeWeekend,
@@ -41,21 +43,34 @@ export const generateMetadata = async ({
 const Results = async ({ race, href }: { race: Race; href: string }) => {
   // Request time, so the build doesn't fetch every race's results
   await io();
-  const [raceResults, qualifying] = await Promise.all([
+  const [raceResults, qualifying, session] = await Promise.all([
     getRaceResults(race.season, race.round),
     getQualifying(race.season, race.round),
+    // OpenF1 (2023+) is an extra: without it the table has no stints
+    orFallback(getRaceSession(race.season, race.date)),
   ]);
-  if (!raceResults?.Results?.length) {
+  const results = raceResults?.Results;
+  if (!results?.length) {
     return <EmptyState>No results yet.</EmptyState>;
   }
+  const stints = session && (await orFallback(getStints(session)));
 
   return (
     <RaceResults
       race={race}
       kind="race"
-      results={raceResults.Results}
+      results={results}
       pole={qualifying?.QualifyingResults?.[0]}
-      analysisHref={`${href}/analysis`}
+      stints={stints ?? undefined}
+      aside={
+        <Suspense fallback={<KeyLapsSkeleton />}>
+          <KeyLaps
+            session={session}
+            results={results}
+            radioHref={`${href}/radio`}
+          />
+        </Suspense>
+      }
     />
   );
 };

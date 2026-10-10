@@ -139,3 +139,28 @@ export const groupQualifying = (
   ];
   return groups.filter((group) => group.results.length > 0);
 };
+
+// Pole, fastest lap and top gainer: the race's headline numbers. Without
+// qualifying times (sprints, races before 1994) pole is the front of the grid.
+export const getRaceHeadlines = (
+  results: Result[],
+  pole?: QualifyingResult,
+) => {
+  const fastest = getFastestLap(results);
+  const gainer = getTopGainer(results);
+  const poleDriver =
+    pole?.Driver ?? results.find((r) => r.grid === "1")?.Driver;
+
+  return {
+    pole: poleDriver && {
+      driver: poleDriver,
+      time: pole && getBestQualifyingTime(pole),
+    },
+    fastest: fastest?.FastestLap && {
+      driver: fastest.Driver,
+      time: fastest.FastestLap.Time.time,
+      lap: fastest.FastestLap.lap,
+    },
+    gainer: gainer && gainer.gained > 0 ? gainer : undefined,
+  };
+};

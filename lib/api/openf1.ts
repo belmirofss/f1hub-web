@@ -62,28 +62,37 @@ const cacheFor = (tier: CacheTier) => {
   cacheTag("openf1");
 };
 
-async function loadRaceSessions(year: number): Promise<OpenF1Session[]> {
+type SessionName = "Race" | "Sprint";
+
+async function loadSessions(
+  year: number,
+  name: SessionName,
+): Promise<OpenF1Session[]> {
   "use cache";
   // Sessions get added through the season, so only past years keep long
   const tier = year < new Date().getUTCFullYear() ? "session" : "current";
   cacheFor(tier);
-  return openF1<OpenF1Session>(
-    "sessions",
-    { year, session_name: "Race" },
-    tier,
-  );
+  return openF1<OpenF1Session>("sessions", { year, session_name: name }, tier);
 }
 
-// OpenF1's Grand Prix session for a race, matched by its date ("2026-10-04")
-export const getRaceSession = async (
+const findSession = async (
   season: number | string,
   date: string,
+  name: SessionName,
 ): Promise<OpenF1Session | null> => {
   const year = Number(season);
   if (!(year >= OPENF1_FIRST_SEASON)) return null;
-  const sessions = await loadRaceSessions(year);
+  const sessions = await loadSessions(year, name);
   return sessions.find((s) => s.date_start.slice(0, 10) === date) ?? null;
 };
+
+// OpenF1's Grand Prix session for a race, matched by its date ("2026-10-04")
+export const getRaceSession = (season: number | string, date: string) =>
+  findSession(season, date, "Race");
+
+// The sprint, matched by the sprint's own date
+export const getSprintSession = (season: number | string, date: string) =>
+  findSession(season, date, "Sprint");
 
 // What the session functions need from getRaceSession's result
 export type SessionRef = Pick<OpenF1Session, "session_key" | "date_end">;

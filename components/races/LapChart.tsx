@@ -75,7 +75,7 @@ export const LapChart = ({
   const ordered = [...drivers].sort((a, b) => +isOn(a) - +isOn(b));
 
   return (
-    <Card as="section" aria-label="Lap chart" className="lg:p-5">
+    <Card as="section" aria-label="Lap chart">
       <div className="flex justify-between">
         <Label>Lap chart · top {drivers.length}</Label>
         <Label>{laps} laps</Label>
