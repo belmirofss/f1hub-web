@@ -14,11 +14,10 @@ import type {
   Standings,
 } from "@/lib/api/types";
 import { formatPoints } from "@/lib/domain/drivers";
-import { isSeasonYear } from "@/lib/domain/routes";
+import { FIRST_CONSTRUCTORS_SEASON, isSeasonYear } from "@/lib/domain/routes";
 import { getDriverName, getTeamColor } from "@/lib/domain/teams";
 import { orFallback } from "@/lib/metadata";
 import { OG_COLORS, OgFrame, OgLabel, OgRow, OgTitle, ogImage } from "@/lib/og";
-import { FIRST_CONSTRUCTORS_SEASON } from "@/lib/season";
 
 // The top 5 of a championship, for the Standings and Season cards
 

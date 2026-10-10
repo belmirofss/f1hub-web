@@ -1,0 +1,32 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
+      "name": "prod",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "start", "-p", "3123"],
+      "port": 3123
+    },
+    {
+      "name": "prod-env",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "start", "-p", "3124"],
+      "port": 3124,
+      "env": { "VERCEL_ENV": "production" }
+    },
+    {
+      "name": "prod-auto",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "start"],
+      "port": 3125,
+      "autoPort": true
+    }
+  ]
+}

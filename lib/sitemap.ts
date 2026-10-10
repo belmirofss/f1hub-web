@@ -12,12 +12,12 @@ import type { RaceBase } from "@/lib/api/types";
 import {
   circuitHref,
   driverHref,
+  FIRST_CONSTRUCTORS_SEASON,
   raceHref,
   seasonHref,
   teamHref,
 } from "@/lib/domain/routes";
 import { SITE_URL } from "@/lib/metadata";
-import { FIRST_CONSTRUCTORS_SEASON } from "@/lib/season";
 
 // The sitemaps behind /sitemap.xml, one per kind of page. Each is built from
 // the cached full lists, so the races come from one paged list instead of a

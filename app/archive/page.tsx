@@ -6,27 +6,43 @@ import {
   Archive,
   ArchiveMeta,
   ArchiveSkeleton,
+  getTitles,
 } from "@/components/archive/Archive";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { IconButton } from "@/components/ui/Card";
-import { getChampions } from "@/lib/api/jolpica";
-import { FIRST_SEASON } from "@/lib/domain/routes";
+import { parseArchiveView } from "@/lib/domain/archive";
 import { pageMetadata } from "@/lib/metadata";
 
-export const generateMetadata = async (): Promise<Metadata> => {
-  // Request time, like the list, so the build doesn't depend on the APIs
+export const generateMetadata = async ({
+  searchParams,
+}: PageProps<"/archive">): Promise<Metadata> => {
+  // Both championships share the canonical /archive; only the shared link
+  // keeps ?view=constructors
+  const view = parseArchiveView(await searchParams);
+  // Request time, like the grid, so the build doesn't depend on the APIs
   await io();
-  const champions = await getChampions();
-  const first = champions[0];
-  const latest = champions.at(-1)!;
+  const titles = await getTitles(view);
+  const first = titles[0];
+  const latest = titles.at(-1)!;
+  if (view === "constructors") {
+    return pageMetadata({
+      title: `F1 archive: every constructors' champion since ${first.season}`,
+      description: `${titles.length} Formula 1 constructors' titles, from ${first.name} in ${first.season} to ${latest.name} in ${latest.season}, on one grid in each team's colours. Open a season for its final standings and race winners.`,
+      path: "/archive",
+      query: "?view=constructors",
+    });
+  }
   return pageMetadata({
-    title: `F1 archive: every season and champion since ${FIRST_SEASON}`,
-    description: `${champions.length} Formula 1 seasons with each drivers' champion and team, from ${first.driver} in ${first.season} to ${latest.driver} in ${latest.season}. Open a season for its final standings and race winners.`,
+    title: `F1 archive: every season and champion since ${first.season}`,
+    description: `${titles.length} Formula 1 seasons with each drivers' champion and team, from ${first.name} in ${first.season} to ${latest.name} in ${latest.season}, on one grid in each team's colours. Open a season for its final standings and race winners.`,
     path: "/archive",
   });
 };
 
-export default function ArchivePage() {
+export default async function ArchivePage({
+  searchParams,
+}: PageProps<"/archive">) {
+  const view = parseArchiveView(await searchParams);
   return (
     <>
       <PageHeader
@@ -47,8 +63,8 @@ export default function ArchivePage() {
           </IconButton>
         }
       />
-      <Suspense fallback={<ArchiveSkeleton />}>
-        <Archive />
+      <Suspense key={view} fallback={<ArchiveSkeleton />}>
+        <Archive view={view} />
       </Suspense>
     </>
   );

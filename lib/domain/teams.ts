@@ -31,18 +31,31 @@ const TEAM_COLORS: Record<string, string> = {
   honda: "#E8E8E8",
   benetton: "#2BB673",
   jordan: "#F2D21B",
-  tyrrell: "#1F4E9C",
-  lotus: "#2E6B3A",
-  team_lotus: "#2E6B3A",
-  brabham: "#2B5BA8",
   ligier: "#3A7BD5",
+  // Historical champions. Several raced in British green, so each gets its
+  // own shade or a colour from its livery that sets it apart in the
+  // archive's grid: Lotus yellow, BRM olive, Vanwall's darker green.
+  maserati: "#2D5DA8",
+  vanwall: "#0E3B2E",
+  cooper: "#1F6E43",
+  brm: "#4A5A3A",
+  lotus: "#D9B300",
+  team_lotus: "#D9B300",
+  brabham: "#2F6F9F",
+  matra: "#5B7FD6",
+  tyrrell: "#1C2F6B",
 };
+
+// "lotus-climax", "cooper-climax" and "brabham-repco" are the chassis and
+// engine of one team, so they take the chassis's colour
+const knownColor = (constructorId: string): string | undefined =>
+  TEAM_COLORS[constructorId] ?? TEAM_COLORS[constructorId.split("-")[0]];
 
 const FALLBACK_COLORS = ["#8E8E96", "#A6A6AE", "#7A7A84", "#B4B4BC"];
 
 export const getTeamColor = (constructorId?: string) => {
   if (!constructorId) return FALLBACK_COLORS[0];
-  const known = TEAM_COLORS[constructorId];
+  const known = knownColor(constructorId);
   if (known) return known;
   const hash = [...constructorId].reduce((sum, c) => sum + c.charCodeAt(0), 0);
   return FALLBACK_COLORS[hash % FALLBACK_COLORS.length];
@@ -76,11 +89,12 @@ const INK_HERO: TeamHero = {
   team: false,
 };
 
-// The colour block a driver or team page takes: the team colour (or its
-// darker shade above) with ink or white text. Teams without a known colour,
-// like most of the 1950s, get a neutral ink block.
+// The colour block a driver or team page, a champion card or an archive
+// cell takes: the team colour (or its darker shade above) with ink or white
+// text. Teams without a known colour, like most privateers of the 1950s, get
+// a neutral ink block.
 export const getTeamHero = (constructorId?: string): TeamHero => {
-  const color = constructorId && TEAM_COLORS[constructorId];
+  const color = constructorId && knownColor(constructorId);
   if (!color) return INK_HERO;
   let background = HERO_COLORS[constructorId] ?? color;
   // A colour added later without a shade still gets readable text
