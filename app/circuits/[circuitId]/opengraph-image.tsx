@@ -96,10 +96,15 @@ export default async function Image({
   const map = await orFallback(loadMap(races));
   // One row of up to four tiles: the race distance stays on the page, and
   // the laps too when the layout numbers fill the row
-  const facts = getCircuitFacts(circuitId, races).filter(
-    (fact, _, all) =>
-      fact.label !== "Km race" && (fact.label !== "Laps" || all.length < 6),
-  );
+  const facts = getCircuitFacts(circuitId, races)
+    .filter(
+      (fact, _, all) =>
+        fact.key !== "distance" && (fact.key !== "laps" || all.length < 6),
+    )
+    .map(({ label, value, unit }) => ({
+      label: unit ? `${label} · ${unit}` : label,
+      value,
+    }));
   const { Location } = circuit;
 
   return ogImage(

@@ -2,27 +2,26 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CircuitFacts } from "@/components/circuits/CircuitFacts";
-import { FastestLapCard } from "@/components/circuits/FastestLapCard";
+import { LapRecord } from "@/components/circuits/LapRecord";
 import { MostWins } from "@/components/circuits/MostWins";
 import {
   RecentWinners,
   RecentWinnersSkeleton,
 } from "@/components/circuits/RecentWinners";
+import { SeasonWeekendLink } from "@/components/circuits/SeasonWeekendLink";
 import {
   TrackMapCard,
   TrackMapSkeleton,
 } from "@/components/circuits/TrackMapCard";
-import { Columns } from "@/components/layout/Columns";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { ContentSkeleton } from "@/components/layout/PageSkeletons";
+import { TrackHeroSkeleton } from "@/components/layout/PageSkeletons";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { InlineLink } from "@/components/ui/Card";
 import { Slot } from "@/components/ui/Slot";
-import { EmptyState } from "@/components/ui/States";
 import { getCircuit, getCircuitHistory } from "@/lib/api/jolpica";
 import { OPENF1_FIRST_SEASON } from "@/lib/api/openf1";
 import type { Circuit } from "@/lib/api/types";
-import { getWinsByDriver } from "@/lib/domain/circuits";
+import { getCircuitTags, getWinsByDriver } from "@/lib/domain/circuits";
 import { circuitHref } from "@/lib/domain/routes";
 import { getDriverName } from "@/lib/domain/teams";
 import { orFallback, pageMetadata, plural } from "@/lib/metadata";
@@ -94,55 +93,88 @@ export default async function CircuitPage({
           ]),
         ]}
       />
-      <PageHeader
-        back="/calendar"
-        meta={`CIRCUIT · ${circuit.Location.country.toUpperCase()}`}
-        title={circuit.circuitName}
-      />
-      <Suspense fallback={<ContentSkeleton />}>
+      <Suspense fallback={<TrackHeroSkeleton />}>
         <CircuitContent circuit={circuit} />
       </Suspense>
     </>
   );
 }
 
-// Everything that needs the races held here
+// Everything that needs the races held here: the "since" year in the
+// header, the map, the facts and the winners. "Track Hero": the map takes
+// the page and the rest sits in a panel beside it, or under it on phones.
+// Circuits OpenF1 never covered get the panel full width and no map box.
 const CircuitContent = async ({ circuit }: { circuit: Circuit }) => {
-  const { circuitId, circuitName } = circuit;
+  const { circuitId, circuitName, Location } = circuit;
   const { races, fastestLaps } = await getCircuitHistory(circuitId);
   // The map comes from the latest race OpenF1 covers
   const mapRace = races.findLast(
     (race) => Number(race.season) >= OPENF1_FIRST_SEASON,
   );
+  const tags = getCircuitTags(circuitId);
 
   return (
-    <Columns
-      asideLabel="Winners"
-      aside={
-        <>
-          <Slot label="Recent winners" fallback={<RecentWinnersSkeleton />}>
-            <RecentWinners races={races} />
+    <>
+      <PageHeader
+        back="/calendar"
+        meta={[
+          "CIRCUIT",
+          Location.country.toUpperCase(),
+          races[0] && `SINCE ${races[0].season}`,
+        ]
+          .filter(Boolean)
+          .join(" · ")}
+        title={circuitName}
+      >
+        {tags.length > 0 && (
+          <ul aria-label="About the circuit" className="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <li
+                key={tag}
+                className="rounded-full bg-surface-raised px-3 py-1.5 text-[13px] font-semibold"
+              >
+                {tag}
+              </li>
+            ))}
+          </ul>
+        )}
+      </PageHeader>
+      {/* Two columns while there's a map (or its skeleton) to sit beside */}
+      <div className="grid items-start gap-6 lg:gap-10 lg:has-[[data-track-map]]:grid-cols-[minmax(0,1fr)_330px]">
+        {mapRace && (
+          <Slot fallback={<TrackMapSkeleton />}>
+            <TrackMapCard race={mapRace} circuitName={circuitName} />
           </Slot>
-          <MostWins races={races} />
+        )}
+        <aside
+          aria-label="Facts and winners"
+          className="@container flex min-w-0 flex-col gap-6 lg:bg-surface lg:p-6"
+        >
+          <CircuitFacts circuitId={circuitId} races={races} />
+          {/* One column in the side panel, three when it runs full width */}
+          <div className="grid items-start gap-6 @3xl:grid-cols-3">
+            <LapRecord fastestLaps={fastestLaps} />
+            <Slot label="Recent winners" fallback={<RecentWinnersSkeleton />}>
+              <RecentWinners races={races} />
+            </Slot>
+            <MostWins races={races} />
+            {!races.length && (
+              <p className="text-muted">
+                No Grand Prix has been held here yet.
+              </p>
+            )}
+            <Slot fallback={null}>
+              <SeasonWeekendLink circuitId={circuitId} />
+            </Slot>
+          </div>
           <InlineLink
             href={circuit.url.replace(/^http:/, "https:")}
             className="self-start"
           >
             Circuit on Wikipedia
           </InlineLink>
-        </>
-      }
-    >
-      {mapRace && (
-        <Slot fallback={<TrackMapSkeleton />}>
-          <TrackMapCard race={mapRace} circuitName={circuitName} />
-        </Slot>
-      )}
-      <CircuitFacts circuitId={circuitId} races={races} />
-      <FastestLapCard fastestLaps={fastestLaps} />
-      {!races.length && (
-        <EmptyState>No Grand Prix has been held here yet.</EmptyState>
-      )}
-    </Columns>
+        </aside>
+      </div>
+    </>
   );
 };

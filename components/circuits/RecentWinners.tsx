@@ -7,9 +7,9 @@ import type { RaceResults } from "@/lib/api/types";
 import { raceHref } from "@/lib/domain/routes";
 import { getDriverName, getTeamColor } from "@/lib/domain/teams";
 
-const COUNT = 6;
+const COUNT = 5;
 
-// The last six winners here, newest first, each linking to its race weekend
+// The last five winners here, newest first, each linking to its race weekend
 export const RecentWinners = async ({ races }: { races: RaceResults[] }) => {
   const recent = races.slice(-COUNT).reverse();
   if (!recent.length) return null;
@@ -26,12 +26,9 @@ export const RecentWinners = async ({ races }: { races: RaceResults[] }) => {
 
   return (
     <Card as="section" aria-labelledby="recent-winners" className="gap-0 pb-1">
-      <div className="flex justify-between pb-2">
-        <h2 id="recent-winners">
-          <Label>Recent winners</Label>
-        </h2>
-        <Label aria-hidden>Team</Label>
-      </div>
+      <h2 id="recent-winners" className="pb-2">
+        <Label>Recent winners</Label>
+      </h2>
       <ol>
         {recent.map((race) => {
           const winner = race.Results?.[0];
@@ -45,20 +42,21 @@ export const RecentWinners = async ({ races }: { races: RaceResults[] }) => {
                 href={raceHref(race, schedules.get(race.season) ?? [])}
                 className="group flex min-h-11 items-center gap-2.5"
               >
-                <span className="w-10 shrink-0 font-mono text-[13px] font-bold text-muted">
-                  {race.season}
-                  <span className="sr-only"> {race.raceName}:</span>
-                </span>
                 <TeamBar
                   color={getTeamColor(winner.Constructor.constructorId)}
-                  height={24}
+                  height={20}
                 />
-                <span className="min-w-0 flex-1 truncate text-[15px] font-bold group-hover:underline">
-                  {getDriverName(winner.Driver)}
+                <span className="min-w-0 flex-1 truncate">
+                  <span className="sr-only">{race.raceName}: </span>
+                  <span className="text-[15px] font-bold group-hover:underline">
+                    {getDriverName(winner.Driver)}
+                  </span>
+                  <span className="text-[13px] text-muted">
+                    <span className="sr-only">,</span> {winner.Constructor.name}
+                  </span>
                 </span>
-                <span className="shrink-0 text-[13px] text-muted">
-                  <span className="sr-only">, </span>
-                  {winner.Constructor.name}
+                <span className="shrink-0 font-mono text-xs text-muted">
+                  {race.season}
                 </span>
               </Link>
             </li>
@@ -70,5 +68,5 @@ export const RecentWinners = async ({ races }: { races: RaceResults[] }) => {
 };
 
 export const RecentWinnersSkeleton = () => (
-  <CardSkeleton lines={6} className="min-h-[310px]" />
+  <CardSkeleton lines={5} className="min-h-[260px]" />
 );
