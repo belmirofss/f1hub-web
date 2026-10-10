@@ -36,7 +36,7 @@ export const CircuitGlanceCard = async () => {
   const { races, fastestLaps } = await getCircuitHistory(circuitId);
   const map = await loadOutline(races);
   const facts = getCircuitFacts(circuitId, races).filter((fact) =>
-    ["Laps", "Km / lap", "Corners"].includes(fact.label),
+    ["laps", "length", "turns"].includes(fact.key),
   );
   const record = getLapRecord(fastestLaps);
   const winners = races.slice(-3).reverse();
@@ -90,7 +90,12 @@ export const CircuitGlanceCard = async () => {
               <dt className="font-mono text-[10px] tracking-[0.1em] text-muted uppercase">
                 {fact.label}
               </dt>
-              <dd className="font-mono text-base font-bold">{fact.value}</dd>
+              <dd className="font-mono text-base font-bold">
+                {fact.value}
+                {fact.unit && (
+                  <span className="text-xs font-medium"> {fact.unit}</span>
+                )}
+              </dd>
             </div>
           ))}
         </dl>

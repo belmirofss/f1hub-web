@@ -84,6 +84,24 @@ const parsePolyline = (points: string) =>
       return { x, y };
     });
 
+// A short line across the track at the start, square to the direction the
+// cars set off in, `length` long in viewBox units
+export const getStartLine = (map: TrackMap, length: number) => {
+  const [start, ...rest] = parsePolyline(map.sectors[0]);
+  const next = rest.find((p) => p.x !== start.x || p.y !== start.y);
+  if (!start || !next) return null;
+  const distance = Math.hypot(next.x - start.x, next.y - start.y);
+  // Half the length along the normal, either side of the start
+  const nx = ((start.y - next.y) / distance) * (length / 2);
+  const ny = ((next.x - start.x) / distance) * (length / 2);
+  return {
+    x1: round(start.x - nx),
+    y1: round(start.y - ny),
+    x2: round(start.x + nx),
+    y2: round(start.y + ny),
+  };
+};
+
 // "M12 40 30 8…Z": after the move, plain pairs are lines
 const toPath = (points: Point[]) =>
   `M${points.map((p) => `${Math.round(p.x)} ${Math.round(p.y)}`).join(" ")}Z`;

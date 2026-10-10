@@ -63,3 +63,30 @@ export const PosterPageSkeleton = () => (
     <Body />
   </LoadingRegion>
 );
+
+// Circuit page: the header with its tags, then the map beside the side
+// panel (under it on phones)
+export const TrackHeroSkeleton = () => (
+  <LoadingRegion className="flex min-h-svh flex-col gap-3.5 lg:gap-5">
+    <div className="flex flex-col gap-1 pt-2 lg:gap-1.5 lg:pt-6">
+      <div className="flex min-h-11 items-center gap-3 lg:min-h-0">
+        <Skeleton className="size-6 lg:hidden" />
+        <Skeleton className="h-3 w-48" />
+      </div>
+      <Skeleton className="h-[34px] w-3/5 lg:h-[54px]" />
+      <Skeleton className="mt-2 h-8 w-64 rounded-full" />
+    </div>
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_330px] lg:gap-10">
+      <Skeleton className="aspect-[8/5] max-h-[420px] w-full lg:max-h-[500px]" />
+      <div className="flex flex-col gap-6 lg:bg-surface lg:p-6">
+        <div className="grid grid-cols-3 gap-x-3 gap-y-4 lg:grid-cols-2">
+          {Array.from({ length: 6 }, (_, index) => (
+            <Skeleton key={index} className="h-11" />
+          ))}
+        </div>
+        <Skeleton className="h-[100px]" />
+        <ListSkeleton rows={5} />
+      </div>
+    </div>
+  </LoadingRegion>
+);
