@@ -1,7 +1,7 @@
 // Ported from the app's src/helpers/teams.ts. The driver arguments are
 // structural so this doesn't depend on the API types (#5).
 
-import { readableOn } from "@/lib/color";
+import { contrastRatio, readableOn, textOn } from "@/lib/color";
 
 // Approximate team colours keyed by the API's constructorId.
 const TEAM_COLORS: Record<string, string> = {
@@ -33,6 +33,7 @@ const TEAM_COLORS: Record<string, string> = {
   jordan: "#F2D21B",
   tyrrell: "#1F4E9C",
   lotus: "#2E6B3A",
+  team_lotus: "#2E6B3A",
   brabham: "#2B5BA8",
   ligier: "#3A7BD5",
 };
@@ -52,6 +53,41 @@ export const getTeamColor = (constructorId?: string) => {
 // contrast. Only for short codes: names are never set in team colour.
 export const getTeamTextColor = (constructorId?: string) =>
   readableOn(getTeamColor(constructorId), "#E6DFD0");
+
+// Darker shades for the hero block, where the team colour is a mid tone that
+// neither ink nor white text reaches 4.5:1 on. Red Bull's #3671C6 just
+// passes with white, but the car's navy reads better as a whole block.
+const HERO_COLORS: Record<string, string> = {
+  red_bull: "#1E41A0",
+  ligier: "#2C64B8",
+};
+
+export type TeamHero = {
+  background: string;
+  // Ink or white, whichever reads on the background
+  text: string;
+  // False for the neutral ink block of teams without a colour of their own
+  team: boolean;
+};
+
+const INK_HERO: TeamHero = {
+  background: "#1a1814",
+  text: "#f1ece2",
+  team: false,
+};
+
+// The colour block a driver or team page takes: the team colour (or its
+// darker shade above) with ink or white text. Teams without a known colour,
+// like most of the 1950s, get a neutral ink block.
+export const getTeamHero = (constructorId?: string): TeamHero => {
+  const color = constructorId && TEAM_COLORS[constructorId];
+  if (!color) return INK_HERO;
+  let background = HERO_COLORS[constructorId] ?? color;
+  // A colour added later without a shade still gets readable text
+  if (contrastRatio(background, textOn(background)) < 4.5)
+    background = readableOn(background, "#ffffff");
+  return { background, text: textOn(background), team: true };
+};
 
 export const getDriverCode = (driver: { code?: string; familyName: string }) =>
   driver.code ?? driver.familyName.replace(/\s/g, "").slice(0, 3).toUpperCase();

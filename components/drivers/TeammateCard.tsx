@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import { Label } from "@/components/ui/Label";
-import { StatGrid } from "@/components/ui/StatGrid";
 import {
   getCurrentSeason,
   getDriverStandings,
@@ -12,9 +10,10 @@ import { formatPoints } from "@/lib/domain/drivers";
 import { getTeammatePairs, type Score } from "@/lib/domain/headToHead";
 import { seasonHref } from "@/lib/domain/routes";
 
-// The head-to-head with the driver's teammate in their latest season, linking
-// to that team's full battle. Shares its data with the Teammates pages.
-export const TeammateCard = async ({
+// The head-to-head with the driver's teammate in their latest season as
+// three cards (qualifying, race, points), each linking to that team's full
+// battle. Shares its data with the Teammates pages.
+export const TeammateCards = async ({
   driverId,
   season,
 }: {
@@ -43,32 +42,43 @@ export const TeammateCard = async ({
     Number(season) === current
       ? "/standings/teammates"
       : `${seasonHref(season)}/teammates`;
+  const href = `${page}?team=${pair.team.constructorId}`;
+  const cards = [
+    { label: "Quali", name: "Qualifying", value: score(pair.qualifying) },
+    { label: "Race", name: "Race", value: score(pair.race) },
+    {
+      label: "Points",
+      name: "Points",
+      value: score(pair.points, formatPoints),
+    },
+  ];
 
   return (
-    // Not a LinkCard: its chevron column would squeeze "320–236"
-    <Link
-      href={`${page}?team=${pair.team.constructorId}`}
-      aria-label={`Teammate battle against ${teammate.givenName} ${teammate.familyName} in ${season}: qualifying ${score(pair.qualifying)}, race ${score(pair.race)}, points ${score(pair.points, formatPoints)}`}
-      className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4 transition-colors hover:bg-surface-raised"
-    >
-      <span className="flex items-center justify-between gap-3">
+    <section aria-labelledby="teammate" className="flex flex-col gap-2">
+      <h2 id="teammate">
         <Label>
           VS teammate · {teammate.familyName} · {season}
         </Label>
-        <ChevronRight
-          aria-hidden
-          size={16}
-          strokeWidth={2}
-          className="shrink-0 text-muted"
-        />
-      </span>
-      <StatGrid
-        stats={[
-          { label: "Quali", value: score(pair.qualifying) },
-          { label: "Race", value: score(pair.race) },
-          { label: "Points", value: score(pair.points, formatPoints) },
-        ]}
-      />
-    </Link>
+      </h2>
+      <ul className="grid grid-cols-3 gap-2.5 lg:gap-3.5">
+        {cards.map((card) => (
+          <li key={card.label} className="flex min-w-0">
+            <Link
+              href={href}
+              aria-label={`${card.name} against ${teammate.givenName} ${teammate.familyName}: ${card.value}. Open the teammate battle`}
+              className="flex min-w-0 flex-1 flex-col gap-1 border-t-2 border-text pt-2.5 pb-2 transition-colors hover:bg-surface lg:px-1"
+            >
+              <Label aria-hidden>{card.label}</Label>
+              <span
+                aria-hidden
+                className="truncate big-number text-[22px] leading-7 lg:text-[30px] lg:leading-9"
+              >
+                {card.value}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 };
