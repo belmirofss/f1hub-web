@@ -1,6 +1,6 @@
 # F1HUB Web: build plan
 
-The web version of [F1HUB](https://github.com/belmirofss/f1hub) (React Native / Expo). Same features, same "Pit Wall" look, built for the browser: server-rendered for SEO, responsive from phone to desktop, and installable as a PWA. When someone opens it on a phone, the site suggests installing it.
+The web version of [F1HUB](https://github.com/belmirofss/f1hub) (React Native / Expo). Same features in the "Programme" look (a printed race-day programme: paper, ink, vermilion, Big Shoulders headlines), built for the browser: server-rendered for SEO, responsive from phone to desktop, and installable as a PWA. When someone opens it on a phone, the site suggests installing it.
 
 - **Stack:** Next.js (App Router, latest stable) · TypeScript (strict) · Tailwind CSS v4
 - **Hosting:** Vercel, default `*.vercel.app` domain (no custom domain)
@@ -107,7 +107,7 @@ public/       sw.js · icons/
 
 - `generateMetadata` on every route: a unique title and description (for example *"Singapore Grand Prix 2026: schedule, results and analysis | F1HUB"*), canonical URL and Open Graph / Twitter tags.
 - `metadataBase` comes from `VERCEL_PROJECT_PRODUCTION_URL` (the `*.vercel.app` address), with no hard-coded domain.
-- Dynamic OG images (`next/og`) for home, race, driver, team, circuit and standings, in the Pit Wall style.
+- Dynamic OG images (`next/og`) for home, race, driver, team, circuit and standings, in the Programme style. Satori needs static TTFs, so Big Shoulders, Instrument Sans and JetBrains Mono are bundled in `assets/fonts` with their OFL licences.
 - `sitemap.ts` split with `generateSitemaps` (seasons, races, drivers, teams, circuits). `robots.ts` disallows `/search`, `/settings` and `/api`, and returns `noindex` on preview deployments (`VERCEL_ENV !== "production"`).
 - JSON-LD: `WebSite` + `SearchAction`, `SportsEvent` (race, with start time and circuit location), `Person` (driver), `SportsTeam` (team), `Place` (circuit) and `BreadcrumbList`.
 - Semantic HTML: one `h1` per page, real `<table>`s for standings and results, and `<time>` elements.
@@ -117,7 +117,7 @@ public/       sw.js · icons/
 
 ## 4. PWA
 
-- `app/manifest.ts`: name, short name, `display: standalone`, `theme_color`/`background_color` `#0B0B0D`, start URL `/`, 192/512 icons and a maskable icon (generated from the app's 1024px `icon.png` / `adaptive-icon.png`), app shortcuts (Calendar, Standings), and screenshots for the richer Android install UI.
+- `app/manifest.ts`: name, short name, `display: standalone`, `theme_color`/`background_color` the paper `#F1ECE2`, start URL `/`, 192/512 icons and a maskable icon (generated from `brand/icon.png` / `adaptive-icon.png`: the wordmark on paper), app shortcuts (Calendar, Standings), and screenshots for the richer Android install UI.
 - `apple-touch-icon` and `appleWebApp` metadata for iOS.
 - A hand-written `public/sw.js` (no build plugin), registered from a client component in production only:
   - precaches the offline page and app-shell assets;
