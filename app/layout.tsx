@@ -29,11 +29,15 @@ import "./globals.css";
 
 // Headlines. Google Fonts now ships Big Shoulders Display as the variable
 // Big Shoulders family: its optical size axis gives the display cut at
-// headline sizes.
+// headline sizes. next/font only has fallback metrics for the old "Big
+// Shoulders Display" name, so the size-adjusted fallback is declared by hand
+// in globals.css.
 const shoulders = Big_Shoulders({
   variable: "--font-shoulders",
   axes: ["opsz"],
   subsets: ["latin"],
+  adjustFontFallback: false,
+  fallback: ["Big Shoulders Fallback"],
 });
 
 const instrument = Instrument_Sans({

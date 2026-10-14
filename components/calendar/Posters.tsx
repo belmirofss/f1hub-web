@@ -46,7 +46,8 @@ export const SprintBadge = ({ className }: { className?: string }) => (
   </span>
 );
 
-// The round number, big and faint behind the poster
+// The round number, big and faint behind the poster. Drawn as generated
+// content: it's decoration, and contrast checkers would read it as faint text.
 const Numeral = ({
   round,
   className,
@@ -56,13 +57,12 @@ const Numeral = ({
 }) => (
   <span
     aria-hidden
+    data-round={round}
     className={cn(
-      "absolute font-display leading-none font-black select-none",
+      "absolute font-display leading-none font-black select-none before:content-[attr(data-round)]",
       className,
     )}
-  >
-    {round}
-  </span>
+  />
 );
 
 // A finished round on paper with the winner's team band at the foot, or a

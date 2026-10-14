@@ -4,6 +4,7 @@ import { useNow } from "@/components/time/useNow";
 import { cn } from "@/lib/cn";
 import { getWeekendState } from "@/lib/domain/sessions";
 import { splitDuration } from "@/lib/domain/time";
+import { plural } from "@/lib/metadata";
 
 export type CountdownSession = {
   name: string; // "Sprint"
@@ -53,16 +54,24 @@ export const SessionCountdown = ({
     days > 0
       ? `${days}D ${pad(hours)}:${pad(minutes)}`
       : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  const spoken =
+    days > 0
+      ? `${plural(days, "day")}, ${plural(hours, "hour")}`
+      : `${plural(hours, "hour")}, ${plural(minutes, "minute")}`;
 
+  // No aria-label: it would replace the time for some screen readers
   return (
     <span
       role="timer"
       aria-live="off"
-      aria-label={`Countdown to ${session.name}`}
       className={cn("flex flex-col", className)}
     >
       <span className="text-xs font-bold uppercase">{session.name} in</span>
-      <span className="font-mono text-[28px] leading-none font-bold tabular-nums lg:text-[40px]">
+      <span className="sr-only"> {spoken}</span>
+      <span
+        aria-hidden
+        className="font-mono text-[28px] leading-none font-bold tabular-nums lg:text-[40px]"
+      >
         {time}
       </span>
     </span>
