@@ -39,7 +39,9 @@ export const PageHeader = ({
         className={cn("flex flex-col gap-3 pt-[18px] lg:pt-6", className)}
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-baseline justify-between gap-3 lg:flex-none lg:flex-col lg:items-start lg:gap-0.5">
+          {/* The meta drops under the title where both don't fit: "AFTER
+              R18 · 6 TO GO" beside "STANDINGS" at 360px */}
+          <div className="flex min-w-0 flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-1 lg:flex-none lg:flex-col lg:flex-nowrap lg:items-start lg:gap-0.5">
             <h1 className="page-title break-words">{title}</h1>
             {meta && (
               <p className="shrink-0 font-mono text-xs tracking-[0.14em] text-muted">

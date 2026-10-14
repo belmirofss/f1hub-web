@@ -15,6 +15,7 @@ import {
   splitDuration,
   startOfDay,
 } from "@/lib/domain/time";
+import { plural } from "@/lib/metadata";
 
 // The hero's moving parts: the start lights, the "NEXT · SPRINT" line, the
 // countdown and the weekend timeline. They follow the clock in the browser,
@@ -145,24 +146,24 @@ export const WeekendCountdown = (props: Props) => {
   const [first, second] =
     days > 0
       ? [
-          { value: days, unit: "DAYS" },
-          { value: hours, unit: "HRS" },
+          { value: days, unit: "DAYS", word: "day" },
+          { value: hours, unit: "HRS", word: "hour" },
         ]
       : [
-          { value: hours, unit: "HRS" },
-          { value: minutes, unit: "MIN" },
+          { value: hours, unit: "HRS", word: "hour" },
+          { value: minutes, unit: "MIN", word: "minute" },
         ];
 
   return (
+    // No aria-label: it would replace the time for some screen readers
     <div
       role="timer"
       aria-live="off"
-      aria-label={`Countdown to ${session.name}`}
       className="flex items-end gap-1 lg:gap-1.5"
     >
       <span className="sr-only">
-        {first.value} {first.unit.toLowerCase()}, {second.value}{" "}
-        {second.unit.toLowerCase()}
+        {session.name} in {plural(first.value, first.word)},{" "}
+        {plural(second.value, second.word)}
       </span>
       <span aria-hidden className="contents">
         <Digits {...first} />

@@ -99,10 +99,12 @@ const TimelineFilters = ({ query }: { query: CalendarQuery }) => {
 };
 
 const NEXT_BUTTON =
-  "fixed right-[calc(16px+env(safe-area-inset-right))] bottom-[calc(80px+max(12px,env(safe-area-inset-bottom)))] z-10 flex min-h-11 items-center gap-2 rounded-[22px] bg-accent px-4 text-sm font-bold text-on-accent shadow-[0_6px_18px_rgba(26,24,20,0.2)] transition-[filter] hover:brightness-110 md:right-[calc(24px+env(safe-area-inset-right))] md:bottom-6";
+  "sticky bottom-[calc(80px+max(12px,env(safe-area-inset-bottom)))] z-10 flex min-h-11 items-center gap-2 self-end rounded-[22px] bg-accent px-4 text-sm font-bold text-on-accent shadow-[0_6px_18px_rgba(26,24,20,0.2)] transition-[filter] hover:brightness-110 md:bottom-6";
 
 // Floats above the tab bar on phones and in the corner on bigger screens.
-// On the posters it glides to the next round; on the timeline it picks it.
+// Sticky rather than fixed, so it comes to rest at the end of the calendar
+// instead of covering the footer's links. On the posters it glides to the
+// next round; on the timeline it picks it.
 const NextRaceButton = ({
   race,
   query,

@@ -200,7 +200,7 @@ const VerticalStrip = ({ rounds, filter, selected }: StripProps) => {
               style={{ paddingTop: Math.max(4, (gap - 7) * 2) }}
             >
               {weeks >= 2 && (
-                <span className="pb-1.5 text-[11px] text-muted">
+                <span className="pb-1.5 text-xs text-muted">
                   {weeks} weeks since the last race
                 </span>
               )}
@@ -220,7 +220,7 @@ const VerticalStrip = ({ rounds, filter, selected }: StripProps) => {
                     (isNext ? "var(--color-text)" : "var(--color-line)"),
                 }}
               >
-                <span className="font-mono text-[11px]">
+                <span className="font-mono text-xs">
                   <span className="sr-only">Round </span>R{race.round}
                 </span>
                 <span className="flex min-w-0 items-center gap-1.5">
@@ -233,7 +233,7 @@ const VerticalStrip = ({ rounds, filter, selected }: StripProps) => {
                   {winner && color ? (
                     <span
                       title={getDriverName(winner.Driver)}
-                      className="px-1.5 py-0.5 font-mono text-[11px] font-bold"
+                      className="px-1.5 py-0.5 font-mono text-xs font-bold"
                       style={{ backgroundColor: color, color: textOn(color) }}
                     >
                       <span className="sr-only">Winner: </span>
@@ -241,12 +241,12 @@ const VerticalStrip = ({ rounds, filter, selected }: StripProps) => {
                     </span>
                   ) : (
                     isNext && (
-                      <span className="bg-on-accent px-1.5 py-0.5 font-mono text-[11px] font-bold text-accent-ink">
+                      <span className="bg-on-accent px-1.5 py-0.5 font-mono text-xs font-bold text-accent-ink">
                         NEXT
                       </span>
                     )
                   )}
-                  <span className="font-mono text-[11px]">
+                  <span className="font-mono text-xs">
                     {formatRaceDay(race)}
                   </span>
                 </span>
