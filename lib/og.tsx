@@ -4,8 +4,10 @@ import { join } from "node:path";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import { ImageResponse } from "next/og";
 import { CACHE_LIFE, type CacheTier } from "@/lib/api/cacheTiers";
+import type { TeamHero } from "@/lib/domain/teams";
 
-// Social cards (opengraph-image / twitter-image) in the Pit Wall style. Each
+// Social cards (opengraph-image / twitter-image) in the Programme style:
+// paper, ink, Big Shoulders headlines, mono labels and hairline rules. Each
 // route renders at request time from the cached API data and sends the PNG
 // with the same cache tier as its page, so the CDN keeps it as long as the
 // data behind it stays fresh.
@@ -13,42 +15,45 @@ import { CACHE_LIFE, type CacheTier } from "@/lib/api/cacheTiers";
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
 
-// Satori reads TTF, not the woff2 that next/font serves, so the fonts ship
-// in assets/fonts. They don't depend on the request, so they load once.
+// Satori reads static TTF, not the variable woff2 that next/font serves, so
+// the fonts ship in assets/fonts. They don't depend on the request, so they
+// load once.
 const font = (file: string) =>
   readFile(join(process.cwd(), "assets/fonts", file));
 
-const [regular, semiBold, bold, black, jetbrains] = await Promise.all([
-  font("TitilliumWeb-Regular.ttf"),
-  font("TitilliumWeb-SemiBold.ttf"),
-  font("TitilliumWeb-Bold.ttf"),
-  font("TitilliumWeb-Black.ttf"),
-  font("JetBrainsMono-Bold.ttf"),
-]);
+const [shoulders, regular, semiBold, bold, monoMedium, monoBold] =
+  await Promise.all([
+    font("BigShoulders-Black.ttf"),
+    font("InstrumentSans-Regular.ttf"),
+    font("InstrumentSans-SemiBold.ttf"),
+    font("InstrumentSans-Bold.ttf"),
+    font("JetBrainsMono-Medium.ttf"),
+    font("JetBrainsMono-Bold.ttf"),
+  ]);
 
 const FONTS = [
-  { name: "Titillium", data: regular, weight: 400, style: "normal" },
-  { name: "Titillium", data: semiBold, weight: 600, style: "normal" },
-  { name: "Titillium", data: bold, weight: 700, style: "normal" },
-  { name: "Titillium", data: black, weight: 900, style: "normal" },
-  { name: "Mono", data: jetbrains, weight: 700, style: "normal" },
+  { name: "Display", data: shoulders, weight: 900, style: "normal" },
+  { name: "Sans", data: regular, weight: 400, style: "normal" },
+  { name: "Sans", data: semiBold, weight: 600, style: "normal" },
+  { name: "Sans", data: bold, weight: 700, style: "normal" },
+  { name: "Mono", data: monoMedium, weight: 500, style: "normal" },
+  { name: "Mono", data: monoBold, weight: 700, style: "normal" },
 ] as const;
 
-// The design tokens from globals.css. Social cards can't know the viewer's
-// accent setting, so they use the default red.
+// The design tokens from globals.css
 export const OG_COLORS = {
-  background: "#0B0B0D",
-  surface: "#141417",
-  raised: "#1C1C21",
-  line: "#2A2A30",
-  text: "#F4F4F5",
-  soft: "#C9C9D0",
-  muted: "#9A9AA3",
-  lightOff: "#26262C",
-  accent: "#FF1E00",
-  sprint: "#FFD400",
-  purple: "#B48CFF",
-  rain: "#6FB7FF",
+  background: "#F1ECE2",
+  surface: "#FAF7F1",
+  raised: "#E6DFD0",
+  line: "#D3C9B5",
+  text: "#1A1814",
+  soft: "#3B372F",
+  muted: "#655E51",
+  accent: "#D83A1E",
+  onAccent: "#FFFFFF",
+  accentInk: "#B32E17",
+  second: "#1F4FD1",
+  sprintInk: "#7A5900",
 };
 
 const cacheControl = (tier: CacheTier) => {
@@ -63,31 +68,45 @@ export const ogImage = (element: ReactElement, tier: CacheTier) =>
     headers: { "Cache-Control": cacheControl(tier) },
   });
 
-const mono: CSSProperties = {
+export const ogMono: CSSProperties = {
   fontFamily: "Mono",
   fontWeight: 700,
-  textTransform: "uppercase",
 };
 
-// "F1HUB" in the slanted black weight, HUB in the accent
-export const OgWordmark = ({ size = 48 }: { size?: number }) => (
+const display: CSSProperties = {
+  fontFamily: "Display",
+  fontWeight: 900,
+  textTransform: "uppercase",
+  letterSpacing: "0.005em",
+};
+
+// "F1HUB" in the slanted display face, HUB in vermilion. On a team colour
+// the whole mark takes the block's text colour, since vermilion could vanish
+// into a red livery.
+export const OgWordmark = ({
+  size = 44,
+  color,
+}: {
+  size?: number;
+  color?: string;
+}) => (
   <div
     style={{
+      ...display,
       display: "flex",
       fontSize: size,
-      fontWeight: 900,
-      letterSpacing: -1,
+      lineHeight: 1,
       transform: "skewX(-10deg)",
     }}
   >
-    F1<span style={{ color: OG_COLORS.accent }}>HUB</span>
+    F1<span style={{ color: color ?? OG_COLORS.accentInk }}>HUB</span>
   </div>
 );
 
-// The mono kicker above titles and stats: "DRIVER · 2026"
+// The mono caps label above titles and stats: "DRIVER · 2026"
 export const OgLabel = ({
   children,
-  size = 22,
+  size = 20,
   color = OG_COLORS.muted,
 }: {
   children: ReactNode;
@@ -96,10 +115,12 @@ export const OgLabel = ({
 }) => (
   <div
     style={{
-      ...mono,
+      fontFamily: "Mono",
+      fontWeight: 500,
       display: "flex",
       fontSize: size,
-      letterSpacing: 2,
+      letterSpacing: size * 0.14,
+      textTransform: "uppercase",
       color,
     }}
   >
@@ -107,14 +128,16 @@ export const OgLabel = ({
   </div>
 );
 
-// The page title in the slanted black weight. Long names step down a size
-// so they stay on one or two lines.
+// The page title: tall condensed caps. Long names step down a size so they
+// stay on one or two lines.
 export const OgTitle = ({
   children,
-  size = 84,
+  size = 110,
+  color,
 }: {
   children: string;
   size?: number;
+  color?: string;
 }) => {
   const fontSize =
     children.length > 26
@@ -125,14 +148,12 @@ export const OgTitle = ({
   return (
     <div
       style={{
+        ...display,
         display: "flex",
         flexShrink: 0,
         fontSize,
-        lineHeight: 1.05,
-        fontWeight: 900,
-        textTransform: "uppercase",
-        transform: "skewX(-6deg)",
-        marginLeft: 6,
+        lineHeight: 0.9,
+        color,
       }}
     >
       {children}
@@ -143,62 +164,66 @@ export const OgTitle = ({
 export const OgTeamBar = ({
   color,
   height,
-  width = 10,
+  width = 6,
 }: {
   color: string;
   height: number;
   width?: number;
-}) => (
-  <div
-    style={{
-      width,
-      height,
-      borderRadius: width / 2,
-      background: color,
-      flexShrink: 0,
-    }}
-  />
-);
+}) => <div style={{ width, height, background: color, flexShrink: 0 }} />;
 
 export type OgStat = { label: string; value: string | number };
 
-// A row of stat tiles, like the app's StatGrid
+// A row of numbers like the app's StatRail: a heavy ink rule over each
+// group, the label and then the value in the display face. A label may wrap;
+// the values stay level at the bottom.
 export const OgStats = ({
   label,
   stats,
+  size = 60,
 }: {
   label?: string;
   stats: OgStat[];
+  // The values' size; smaller where four share a narrow column
+  size?: number;
 }) => (
-  <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 12 }}>
-    {label && <OgLabel size={18}>{label}</OgLabel>}
-    <div style={{ display: "flex", width: "100%", gap: 12 }}>
-      {stats.map((stat) => (
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      flex: 1,
+      gap: 12,
+      paddingTop: 14,
+      borderTop: `3px solid ${OG_COLORS.text}`,
+    }}
+  >
+    {label && <OgLabel size={16}>{label}</OgLabel>}
+    <div style={{ display: "flex", width: "100%" }}>
+      {stats.map((stat, index) => (
         <div
           key={stat.label}
           style={{
             display: "flex",
             flexDirection: "column",
+            justifyContent: "space-between",
             flexGrow: 1,
             flexBasis: 0,
-            gap: 2,
-            padding: "14px 16px",
-            borderRadius: 12,
-            border: `1px solid ${OG_COLORS.line}`,
-            background: OG_COLORS.surface,
+            minWidth: 0,
+            gap: 6,
+            paddingLeft: index ? 18 : 0,
+            borderLeft: index ? `1px solid ${OG_COLORS.line}` : "none",
           }}
         >
+          <OgLabel size={14}>{stat.label}</OgLabel>
           <div
             style={{
-              ...mono,
+              ...display,
               display: "flex",
-              fontSize: 38,
-              textTransform: "none",
+              fontSize: size,
+              lineHeight: 1,
             }}
           >
             {stat.value}
           </div>
-          <OgLabel size={14}>{stat.label}</OgLabel>
         </div>
       ))}
     </div>
@@ -206,7 +231,9 @@ export const OgStats = ({
 );
 
 // One line of a standings table or podium: position, team bar, the name
-// beside a detail, and a value on the right. Compact rows fit five.
+// beside a detail, and a value on the right, over a hairline. The winner's
+// position is a vermilion square, like a win in the form chips. Compact
+// rows fit five.
 export const OgRow = ({
   position,
   color,
@@ -229,30 +256,31 @@ export const OgRow = ({
       display: "flex",
       alignItems: "center",
       gap: 20,
-      height: compact ? 58 : 72,
-      padding: "0 24px",
-      borderRadius: 12,
-      background: highlight ? OG_COLORS.raised : OG_COLORS.surface,
-      border: `1px solid ${OG_COLORS.line}`,
+      height: compact ? 66 : 76,
+      borderBottom: `1px solid ${OG_COLORS.line}`,
     }}
   >
     <div
       style={{
-        ...mono,
+        ...ogMono,
         display: "flex",
-        width: 52,
-        fontSize: 26,
-        color: highlight ? OG_COLORS.accent : OG_COLORS.text,
+        alignItems: "center",
+        justifyContent: "center",
+        width: 64,
+        height: 44,
+        fontSize: 24,
+        background: highlight ? OG_COLORS.accent : "transparent",
+        color: highlight ? OG_COLORS.onAccent : OG_COLORS.text,
       }}
     >
       {position}
     </div>
-    <OgTeamBar color={color} height={compact ? 32 : 40} width={7} />
-    <div style={{ display: "flex", flex: 1, alignItems: "baseline", gap: 14 }}>
+    <OgTeamBar color={color} height={compact ? 34 : 42} />
+    <div style={{ display: "flex", flex: 1, alignItems: "baseline", gap: 16 }}>
       <div
         style={{
           display: "flex",
-          fontSize: compact ? 28 : 32,
+          fontSize: compact ? 30 : 34,
           fontWeight: 700,
         }}
       >
@@ -265,21 +293,49 @@ export const OgRow = ({
       )}
     </div>
     {value && (
-      <div style={{ ...mono, display: "flex", fontSize: 26 }}>{value}</div>
+      <div style={{ ...ogMono, display: "flex", fontSize: 26 }}>{value}</div>
     )}
   </div>
 );
 
-// The card: an accent strip along the top, the wordmark beside the kicker,
-// then the content
+// The rows of a list under a heavy ink rule
+export const OgRows = ({ children }: { children: ReactNode }) => (
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      flexShrink: 0,
+      borderTop: `3px solid ${OG_COLORS.text}`,
+    }}
+  >
+    {children}
+  </div>
+);
+
+// The wordmark beside the kicker. In a poster block both take the block's
+// text colour, apart from HUB on the ink block.
+const header = (kicker?: string, hero?: TeamHero) => (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+    }}
+  >
+    <OgWordmark color={hero && (hero.team ? hero.text : OG_COLORS.accent)} />
+    {kicker && (
+      <OgLabel color={hero?.text ?? OG_COLORS.muted}>{kicker}</OgLabel>
+    )}
+  </div>
+);
+
+// The card: a vermilion strip along the top, the wordmark beside the
+// kicker, then the content on paper
 export const OgFrame = ({
   kicker,
-  accent = OG_COLORS.accent,
   children,
 }: {
   kicker?: string;
-  // The strip's colour: the team's on driver and team cards
-  accent?: string;
   children: ReactNode;
 }) => (
   <div
@@ -290,29 +346,22 @@ export const OgFrame = ({
       height: "100%",
       background: OG_COLORS.background,
       color: OG_COLORS.text,
-      fontFamily: "Titillium",
+      fontFamily: "Sans",
     }}
   >
-    <div style={{ display: "flex", height: 10, background: accent }} />
+    <div
+      style={{ display: "flex", height: 12, background: OG_COLORS.accent }}
+    />
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         flex: 1,
-        padding: "40px 64px 52px",
+        padding: "36px 64px 52px",
         gap: 28,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <OgWordmark />
-        {kicker && <OgLabel>{kicker}</OgLabel>}
-      </div>
+      {header(kicker)}
       <div
         style={{
           display: "flex",
@@ -323,6 +372,109 @@ export const OgFrame = ({
       >
         {children}
       </div>
+    </div>
+  </div>
+);
+
+// Headline sizes by length, like the page's PosterHero: "Verstappen" fills
+// the block, "Brabham-Alfa Romeo" comes down to stay on one line
+const posterSize = (text: string) =>
+  text.length > 14 ? 100 : text.length > 10 ? 124 : 150;
+
+// The driver and team cards, like the Livery Poster header of their pages:
+// a block in the team colour with the wordmark, the kicker and a huge name,
+// a faint number behind it, then the content on paper underneath
+export const OgPosterFrame = ({
+  hero,
+  kicker,
+  overline,
+  headline,
+  meta,
+  number,
+  children,
+}: {
+  hero: TeamHero;
+  kicker: string;
+  // Above the headline: the driver's given name
+  overline?: string;
+  headline: string;
+  // Under the headline: "NLD · RED BULL · 4× WORLD CHAMPION"
+  meta: string;
+  // The car number, drawn faintly behind the name
+  number?: string;
+  children: ReactNode;
+}) => (
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      width: "100%",
+      height: "100%",
+      background: OG_COLORS.background,
+      color: OG_COLORS.text,
+      fontFamily: "Sans",
+    }}
+  >
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        height: 380,
+        padding: "36px 64px 32px",
+        overflow: "hidden",
+        background: hero.background,
+        color: hero.text,
+      }}
+    >
+      {number && (
+        <div
+          style={{
+            ...display,
+            position: "absolute",
+            top: -110,
+            right: 40,
+            fontSize: 560,
+            lineHeight: 1,
+            opacity: 0.2,
+          }}
+        >
+          {number}
+        </div>
+      )}
+      {header(kicker, hero)}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {overline && (
+          <div style={{ display: "flex", fontSize: 34, fontWeight: 600 }}>
+            {overline}
+          </div>
+        )}
+        <div
+          style={{
+            ...display,
+            display: "flex",
+            fontSize: posterSize(headline),
+            lineHeight: 0.85,
+          }}
+        >
+          {headline}
+        </div>
+        <OgLabel size={20} color={hero.text}>
+          {meta}
+        </OgLabel>
+      </div>
+    </div>
+    <div
+      style={{
+        display: "flex",
+        flex: 1,
+        alignItems: "flex-end",
+        gap: 40,
+        padding: "0 64px 44px",
+      }}
+    >
+      {children}
     </div>
   </div>
 );

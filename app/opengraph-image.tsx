@@ -19,6 +19,7 @@ import {
   OgLabel,
   OgTitle,
   ogImage,
+  ogMono,
 } from "@/lib/og";
 import { getRequestTime } from "@/lib/requestTime";
 
@@ -57,22 +58,18 @@ const NextRace = ({ race, now }: { race: Race; now: number }) => {
     <div
       style={{
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-end",
         gap: 40,
-        padding: "32px 40px",
-        borderRadius: 16,
-        border: `1px solid ${OG_COLORS.line}`,
-        background: OG_COLORS.surface,
+        paddingTop: 18,
+        borderTop: `3px solid ${OG_COLORS.text}`,
       }}
     >
       <div
-        style={{ display: "flex", flexDirection: "column", flex: 1, gap: 6 }}
+        style={{ display: "flex", flexDirection: "column", flex: 1, gap: 8 }}
       >
-        <OgLabel color={OG_COLORS.accent}>{meta}</OgLabel>
-        <div style={{ display: "flex", fontSize: 52, fontWeight: 700 }}>
-          {race.raceName}
-        </div>
-        <div style={{ display: "flex", fontSize: 28, color: OG_COLORS.muted }}>
+        <OgLabel color={OG_COLORS.accentInk}>{meta}</OgLabel>
+        <OgTitle size={64}>{race.raceName}</OgTitle>
+        <div style={{ display: "flex", fontSize: 26, color: OG_COLORS.soft }}>
           {`${race.Circuit.circuitName} · ${Location.locality}`}
         </div>
       </div>
@@ -81,22 +78,23 @@ const NextRace = ({ race, now }: { race: Race; now: number }) => {
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
-          gap: 6,
+          gap: 10,
         }}
       >
-        <OgLabel>Weekend</OgLabel>
+        <div style={{ ...ogMono, display: "flex", fontSize: 40 }}>
+          {formatDateRange(getWeekendStart(race), start, zone)}
+        </div>
         <div
           style={{
             display: "flex",
-            fontFamily: "Mono",
-            fontSize: 44,
+            padding: "8px 14px",
+            background: OG_COLORS.accent,
           }}
         >
-          {formatDateRange(getWeekendStart(race), start, zone)}
+          <OgLabel size={20} color={OG_COLORS.onAccent}>
+            {countdown(start.getTime(), now)}
+          </OgLabel>
         </div>
-        <OgLabel size={20} color={OG_COLORS.text}>
-          {countdown(start.getTime(), now)}
-        </OgLabel>
       </div>
     </div>
   );
@@ -123,8 +121,8 @@ export default async function Image() {
           gap: 8,
         }}
       >
-        <OgTitle size={76}>Calendar, standings and results</OgTitle>
-        <div style={{ display: "flex", fontSize: 30, color: OG_COLORS.muted }}>
+        <OgTitle size={124}>Calendar, standings and results</OgTitle>
+        <div style={{ display: "flex", fontSize: 30, color: OG_COLORS.soft }}>
           Live standings, lap charts, tyre strategy and team radio
         </div>
       </div>

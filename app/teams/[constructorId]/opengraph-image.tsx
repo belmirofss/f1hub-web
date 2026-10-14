@@ -8,25 +8,24 @@ import {
   getCurrentSeason,
   getDriverStandings,
 } from "@/lib/api/jolpica";
+import { getCountryCode3ByNationality } from "@/lib/domain/countries";
 import { formatPoints } from "@/lib/domain/drivers";
-import { getDriverName, getTeamColor } from "@/lib/domain/teams";
+import { getDriverName, getTeamColor, getTeamHero } from "@/lib/domain/teams";
 import { orFallback } from "@/lib/metadata";
 import {
-  OG_COLORS,
   OG_CONTENT_TYPE,
   OG_SIZE,
-  OgFrame,
   OgLabel,
+  OgPosterFrame,
   OgRow,
+  OgRows,
   OgStats,
-  OgTeamBar,
-  OgTitle,
   ogImage,
   type OgStat,
 } from "@/lib/og";
 
-// The team's card: the name beside its colour, titles and all-time stats,
-// and the drivers of its latest season
+// The team's card: the Livery Poster block in its colour, then the all-time
+// stats and the drivers of its latest season
 
 export const alt = "Team card: titles, wins and current drivers";
 export const size = OG_SIZE;
@@ -62,69 +61,55 @@ export default async function Image({
     .slice(0, 2);
 
   const titles = titleSeasons.length;
-  const color = getTeamColor(constructorId);
   const stats: OgStat[] = [
     { label: "Titles", value: titles },
     ...(wins != null ? [{ label: "Wins", value: wins }] : []),
     ...(seasons ? [{ label: "Seasons", value: seasons.length }] : []),
   ];
 
+  const meta = [
+    getCountryCode3ByNationality(team.nationality),
+    seasons?.[0] && `Since ${seasons[0]}`,
+    titles > 0 && `${titles > 1 ? `${titles}× ` : ""}Constructors' champion`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return ogImage(
-    <OgFrame kicker={latest ? `Team · ${latest}` : "Team"} accent={color}>
-      <div style={{ display: "flex", alignItems: "stretch", gap: 28 }}>
-        <OgTeamBar color={color} height={150} width={12} />
+    <OgPosterFrame
+      hero={getTeamHero(constructorId)}
+      kicker={latest ? `Team · ${latest}` : "Team"}
+      headline={team.name}
+      meta={meta}
+    >
+      <div style={{ display: "flex", width: 440 }}>
+        <OgStats label="All time" stats={stats} />
+      </div>
+      {drivers.length > 0 && (
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
-            gap: 8,
+            flex: 1,
+            gap: 12,
           }}
         >
-          <OgTitle size={96}>{team.name}</OgTitle>
-          <div style={{ display: "flex", gap: 24 }}>
-            <OgLabel>
-              {[team.nationality, seasons?.[0] && `since ${seasons[0]}`]
-                .filter(Boolean)
-                .join(" · ")}
-            </OgLabel>
-            {titles > 0 && (
-              <OgLabel color={OG_COLORS.sprint}>
-                {`${titles > 1 ? `${titles}× ` : ""}Constructors' champion`}
-              </OgLabel>
-            )}
-          </div>
-        </div>
-      </div>
-      <div
-        style={{ display: "flex", flex: 1, alignItems: "flex-end", gap: 28 }}
-      >
-        <div style={{ display: "flex", width: 400 }}>
-          <OgStats label="All time" stats={stats} />
-        </div>
-        {drivers.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              flex: 1,
-              gap: 12,
-            }}
-          >
-            <OgLabel size={18}>{`Drivers · ${latest}`}</OgLabel>
+          <OgLabel size={16}>{`Drivers · ${latest}`}</OgLabel>
+          <OgRows>
             {drivers.map((standing) => (
               <OgRow
                 key={standing.Driver.driverId}
+                compact
                 position={standing.position ? `P${standing.position}` : "–"}
-                color={color}
+                color={getTeamColor(constructorId)}
                 name={getDriverName(standing.Driver)}
                 value={`${formatPoints(Number(standing.points))} pts`}
               />
             ))}
-          </div>
-        )}
-      </div>
-    </OgFrame>,
+          </OgRows>
+        </div>
+      )}
+    </OgPosterFrame>,
     latest && Number(latest) === current ? "current" : "lists",
   );
 }
