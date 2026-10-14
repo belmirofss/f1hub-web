@@ -80,6 +80,31 @@
   color-scheme: light;
 }
 
+/* Arial Bold sized to Big Shoulders, so headlines keep their width and
+   wrapping while the font loads (no layout shift). Headlines are uppercase
+   and 800 or 900, where Big Shoulders is 66.5% and 69.4% as wide as Arial
+   Bold (measured in Chrome); ascent and descent are its 98.4% and 21.3%
+   over that. */
+@font-face {
+  font-family: "Big Shoulders Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 100 850;
+  size-adjust: 66.5%;
+  ascent-override: 147.97%;
+  descent-override: 32.03%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Big Shoulders Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 851 900;
+  size-adjust: 69.4%;
+  ascent-override: 141.79%;
+  descent-override: 30.69%;
+  line-gap-override: 0%;
+}
+
 /* The installed app (home screen or desktop window) */
 @custom-variant standalone (@media (display-mode: standalone));
 
