@@ -1,5 +1,5 @@
-import { DetailPageSkeleton } from "@/components/layout/PageSkeletons";
+import { SettingsSkeleton } from "@/components/layout/PageSkeletons";
 
 export default function Loading() {
-  return <DetailPageSkeleton />;
+  return <SettingsSkeleton />;
 }

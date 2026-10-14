@@ -8,7 +8,7 @@ import {
 } from "@/lib/api/openf1";
 import type { RaceResults } from "@/lib/api/types";
 import { getCircuitFacts } from "@/lib/domain/circuits";
-import type { TrackMap } from "@/lib/domain/trackMap";
+import { getStartLine, type TrackMap } from "@/lib/domain/trackMap";
 import { orFallback } from "@/lib/metadata";
 import {
   OG_COLORS,
@@ -27,8 +27,9 @@ export const alt = "Circuit card: track outline and facts";
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
-const MAP_BOX = 400;
-const SECTOR_COLORS = [OG_COLORS.rain, OG_COLORS.sprint, OG_COLORS.purple];
+const MAP_BOX = 460;
+// The page's three inks: vermilion, royal blue, ink
+const SECTOR_COLORS = [OG_COLORS.accent, OG_COLORS.second, OG_COLORS.text];
 
 // The same drawing as the Track map card, from the winner's lap of the latest
 // race OpenF1 covers
@@ -42,6 +43,7 @@ const loadMap = async (races: RaceResults[]) => {
 
 const TrackOutline = ({ map }: { map: TrackMap }) => {
   const scale = MAP_BOX / Math.max(map.width, map.height);
+  const start = getStartLine(map, 18);
   const line = {
     fill: "none",
     strokeLinejoin: "round",
@@ -53,29 +55,20 @@ const TrackOutline = ({ map }: { map: TrackMap }) => {
       height={map.height * scale}
       viewBox={`0 0 ${map.width} ${map.height}`}
     >
-      <polyline
-        {...line}
-        points={map.sectors.join(" ")}
-        strokeWidth={12}
-        stroke={OG_COLORS.lightOff}
-      />
       {map.sectors.map((points, index) => (
         <polyline
           key={index}
           {...line}
           points={points}
-          strokeWidth={4}
+          strokeWidth={6}
           stroke={SECTOR_COLORS[index]}
         />
       ))}
-      <circle
-        cx={map.start.x}
-        cy={map.start.y}
-        r={6}
-        strokeWidth={2.5}
-        fill={OG_COLORS.background}
-        stroke={OG_COLORS.text}
-      />
+      {/* Paper under the ink line, so it shows where it crosses sector 3 */}
+      {start && (
+        <line {...start} strokeWidth={7} stroke={OG_COLORS.background} />
+      )}
+      {start && <line {...start} strokeWidth={3} stroke={OG_COLORS.text} />}
     </svg>
   );
 };
@@ -109,7 +102,7 @@ export default async function Image({
 
   return ogImage(
     <OgFrame kicker={`Circuit · ${Location.country}`}>
-      <div style={{ display: "flex", flex: 1, gap: 48 }}>
+      <div style={{ display: "flex", flex: 1, gap: 40 }}>
         <div
           style={{
             display: "flex",
@@ -126,15 +119,15 @@ export default async function Image({
               gap: 8,
             }}
           >
-            <OgTitle size={map ? 72 : 84}>{circuit.circuitName}</OgTitle>
+            <OgTitle size={map ? 96 : 110}>{circuit.circuitName}</OgTitle>
             <div
-              style={{ display: "flex", fontSize: 30, color: OG_COLORS.muted }}
+              style={{ display: "flex", fontSize: 30, color: OG_COLORS.soft }}
             >
               {`${Location.locality}, ${Location.country}`}
             </div>
           </div>
           <div style={{ display: "flex" }}>
-            <OgStats stats={facts} />
+            <OgStats stats={facts} size={map ? 48 : 60} />
           </div>
         </div>
         {map && (

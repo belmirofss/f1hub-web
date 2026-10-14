@@ -17,7 +17,15 @@ import { formatPoints } from "@/lib/domain/drivers";
 import { FIRST_CONSTRUCTORS_SEASON, isSeasonYear } from "@/lib/domain/routes";
 import { getDriverName, getTeamColor } from "@/lib/domain/teams";
 import { orFallback } from "@/lib/metadata";
-import { OG_COLORS, OgFrame, OgLabel, OgRow, OgTitle, ogImage } from "@/lib/og";
+import {
+  OG_COLORS,
+  OgFrame,
+  OgLabel,
+  OgRow,
+  OgRows,
+  OgTitle,
+  ogImage,
+} from "@/lib/og";
 
 // The top 5 of a championship, for the Standings and Season cards
 
@@ -70,18 +78,11 @@ export const standingsImage = async (
 
   return ogImage(
     <OgFrame kicker={kicker}>
-      <OgTitle size={56}>
+      <OgTitle size={96}>
         {`${year ?? ""} ${type === "drivers" ? "Drivers'" : "Constructors'"} standings`.trim()}
       </OgTitle>
       {rows.length ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            flexShrink: 0,
-            gap: 8,
-          }}
-        >
+        <OgRows>
           {rows.map((row, index) => (
             <OgRow
               key={row.id}
@@ -94,7 +95,7 @@ export const standingsImage = async (
               highlight={index === 0}
             />
           ))}
-        </div>
+        </OgRows>
       ) : (
         <OgLabel size={26} color={OG_COLORS.text}>
           {type === "constructors" && year && year < FIRST_CONSTRUCTORS_SEASON

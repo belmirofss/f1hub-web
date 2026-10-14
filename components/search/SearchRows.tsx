@@ -30,7 +30,7 @@ const Badge = ({ item, large }: { item: SearchItem; large?: boolean }) => {
     <span
       aria-hidden
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-raised font-mono font-bold",
+        "relative flex shrink-0 items-center justify-center overflow-hidden bg-surface-raised font-mono font-bold",
         large ? "size-11" : "size-9",
         item.type === "driver" ? "text-xs" : "text-[11px]",
       )}
@@ -93,7 +93,10 @@ export const ResultRow = ({ item, first, onOpen }: RowProps) => (
 
 // Enter in the field opens this one
 export const TopHit = ({ item, onOpen }: Omit<RowProps, "first">) => (
-  <section aria-labelledby="top-hit" className="flex flex-col gap-1.5">
+  <section
+    aria-labelledby="top-hit"
+    className="flex flex-col gap-1.5 border-t-2 border-text pt-3"
+  >
     <h2 id="top-hit">
       <Label>Top hit</Label>
     </h2>
@@ -101,12 +104,12 @@ export const TopHit = ({ item, onOpen }: Omit<RowProps, "first">) => (
       href={item.href}
       onClick={() => onOpen(item)}
       aria-label={describe(item)}
-      className="flex flex-col gap-2.5 rounded-lg border border-line bg-surface p-3 transition-colors hover:border-line-dashed hover:bg-surface-raised"
+      className="flex flex-col gap-2.5 py-2 transition-colors hover:bg-surface"
     >
       <span className="flex items-center gap-3">
         <Badge item={item} large />
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-[22px] leading-7 font-black">
+          <span className="truncate display-title text-[30px]">
             {item.title}
           </span>
           {!!item.subtitle && (
@@ -116,7 +119,7 @@ export const TopHit = ({ item, onOpen }: Omit<RowProps, "first">) => (
           )}
         </span>
       </span>
-      <span className="flex justify-between border-t border-dashed border-line-dashed pt-2">
+      <span className="flex justify-between border-t border-line pt-2">
         <Label>Opens {OPENS[item.type]}</Label>
         <span className="font-mono text-[11px] font-bold tracking-[1px] text-accent-ink">
           GO →
@@ -147,12 +150,12 @@ export const FilterChip = ({
     className={cn(
       "flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3 font-mono text-xs font-bold whitespace-nowrap transition-colors",
       on
-        ? "border-line-dashed bg-surface-raised text-text"
-        : "border-line text-muted hover:text-text",
+        ? "border-text bg-text text-background"
+        : "border-line text-muted hover:border-text hover:text-text",
     )}
   >
     {label}
-    <span className={cn("font-medium", on ? "text-muted" : "text-faint")}>
+    <span className={cn("font-medium", on ? "text-light-off" : "text-faint")}>
       {count}
     </span>
   </button>

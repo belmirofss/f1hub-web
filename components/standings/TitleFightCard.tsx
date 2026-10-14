@@ -56,11 +56,11 @@ export const ReachBar = ({
 }) => (
   <span
     aria-hidden
-    className="relative block h-2.5 min-w-0 flex-1 rounded-[3px] bg-surface-raised"
+    className="relative block h-2.5 min-w-0 flex-1 bg-surface-raised"
   >
-    <span className="absolute inset-0 rounded-[3px] border border-dashed border-line-dashed" />
+    <span className="absolute inset-0 border border-dashed border-line-dashed" />
     <span
-      className="absolute inset-y-0 left-0 rounded-[3px]"
+      className="absolute inset-y-0 left-0"
       style={{
         width: `${(contender.points / scaleMax) * 100}%`,
         backgroundColor: contenderColor(contender),
@@ -90,11 +90,7 @@ export const TitleFightCompact = ({
   const scaleMax = leaderPoints + left.points;
 
   return (
-    <Card
-      as="section"
-      aria-labelledby="title-fight"
-      className="border-line-dashed"
-    >
+    <Card as="section" aria-labelledby="title-fight">
       <div className="flex items-center justify-between gap-3">
         <h2 id="title-fight">
           <Label className="text-accent-ink">
@@ -165,13 +161,13 @@ const headline = (count: number) =>
 const Legend = () => (
   <ul className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-[11px] text-muted">
     <li className="flex items-center gap-1.5">
-      <span aria-hidden className="h-2 w-3 rounded-[2px] bg-muted" />
+      <span aria-hidden className="h-2 w-3 bg-muted" />
       Points now
     </li>
     <li className="flex items-center gap-1.5">
       <span
         aria-hidden
-        className="h-2 w-3 rounded-[2px] border border-dashed border-line-dashed"
+        className="h-2 w-3 border border-dashed border-line-dashed"
       />
       Still possible
     </li>
@@ -193,11 +189,7 @@ export const TitleFightFull = ({ fight }: { fight: TitleFight }) => {
   const scaleMax = leaderPoints + left.points;
 
   return (
-    <Card
-      as="section"
-      aria-labelledby="title-fight"
-      className="gap-3.5 border-line-dashed"
-    >
+    <Card as="section" aria-labelledby="title-fight" className="gap-3.5">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <Label className="text-accent-ink">Title fight</Label>
         <Label>
@@ -205,7 +197,7 @@ export const TitleFightFull = ({ fight }: { fight: TitleFight }) => {
           {left.points} pts
         </Label>
       </div>
-      <h2 id="title-fight" className="text-xl leading-6 font-bold">
+      <h2 id="title-fight" className="display-title text-[30px]">
         {headline(fight.contenders.length)}
       </h2>
       <ul className="flex flex-col gap-3.5">

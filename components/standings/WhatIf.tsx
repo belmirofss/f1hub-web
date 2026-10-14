@@ -34,7 +34,7 @@ const StepButton = ({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-line bg-surface-raised transition-colors hover:bg-line active:bg-line disabled:cursor-default disabled:opacity-35 disabled:hover:bg-surface-raised"
+      className="flex size-11 shrink-0 cursor-pointer items-center justify-center border border-line bg-surface-raised transition-colors hover:bg-line active:bg-line disabled:cursor-default disabled:opacity-35 disabled:hover:bg-surface-raised"
     >
       <Icon aria-hidden size={18} strokeWidth={2} />
     </button>
@@ -134,7 +134,7 @@ export const WhatIf = ({
       <p
         aria-live="polite"
         className={cn(
-          "flex items-center gap-2.5 rounded-[10px] p-3 text-[15px] font-bold",
+          "flex items-center gap-2.5 p-3 text-[15px] font-bold",
           champion
             ? "bg-accent text-on-accent"
             : clash

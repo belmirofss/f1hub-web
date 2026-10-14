@@ -68,8 +68,8 @@ const Name = ({
       align === "left" ? "items-start" : "items-end text-right",
     )}
   >
-    <span className="text-[13px] text-muted">{driver.givenName}</span>
-    <span className="max-w-full -skew-x-6 truncate text-[22px] leading-[26px] font-black uppercase">
+    <span className="text-[13px] text-soft">{driver.givenName}</span>
+    <span className="max-w-full truncate display-title text-[32px]">
       {driver.familyName}
     </span>
   </Link>
@@ -92,7 +92,9 @@ const PairCard = ({ pair }: { pair: TeammatePair }) => {
       </div>
       <div className="flex items-center">
         <Name driver={pair.a} align="left" />
-        <span className="px-2.5 font-mono text-xs text-faint">VS</span>
+        <span className="self-end px-2.5 pb-1 font-mono text-xs text-muted">
+          VS
+        </span>
         <Name driver={pair.b} align="right" />
       </div>
       <dl className="contents">
@@ -119,7 +121,7 @@ const PairCard = ({ pair }: { pair: TeammatePair }) => {
         ))}
       </dl>
       {faster && gap !== undefined && (
-        <div className="flex items-center gap-2.5 rounded-[10px] bg-surface-raised p-3">
+        <div className="flex items-center gap-2.5 border-t border-line pt-3">
           <Timer
             aria-hidden
             size={18}
@@ -181,7 +183,7 @@ export const TeammateBattles = ({ pairs }: { pairs: TeammatePair[] }) => {
       }
     >
       <section aria-labelledby="teams-heading" className="flex flex-col">
-        <div className="flex gap-2.5 border-b border-line pb-1.5">
+        <div className="flex gap-2.5 border-t-2 border-b border-text border-b-line pt-3 pb-1.5">
           <h2 id="teams-heading" className="flex-1">
             <Label>Team</Label>
           </h2>

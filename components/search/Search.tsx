@@ -66,7 +66,7 @@ export const SearchField = ({
 }) => (
   <div className="flex items-center gap-1 lg:pt-6">
     <BackButton fallbackHref="/" className="-ml-2.5 lg:hidden" />
-    <label className="flex min-h-[46px] min-w-0 flex-1 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-muted focus-within:border-accent">
+    <label className="flex min-h-[46px] min-w-0 flex-1 items-center gap-2 border border-line bg-surface px-3 text-muted focus-within:border-text">
       <SearchIcon aria-hidden size={18} strokeWidth={2} className="shrink-0" />
       <span className="sr-only">
         Search drivers, teams, circuits, races and seasons
@@ -114,7 +114,10 @@ const Group = ({
   action?: ReactNode;
   onOpen: (item: SearchItem) => void;
 }) => (
-  <section aria-label={label} className="flex flex-col gap-1.5">
+  <section
+    aria-label={label}
+    className="flex flex-col gap-1.5 border-t-2 border-text pt-3"
+  >
     <div className="flex items-center justify-between">
       <h2>
         <Label>{label}</Label>
@@ -356,7 +359,7 @@ export const Search = () => {
 };
 
 const Kbd = ({ children }: { children: string }) => (
-  <kbd className="rounded-sm border border-line px-1.5 font-mono text-[11px] text-soft">
+  <kbd className="border border-line px-1.5 font-mono text-[11px] text-soft">
     {children}
   </kbd>
 );
