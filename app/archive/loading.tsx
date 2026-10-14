@@ -1,5 +1,11 @@
-import { TabPageSkeleton } from "@/components/layout/PageSkeletons";
+import { ArchiveSkeleton } from "@/components/archive/Archive";
+import { TabHeaderSkeleton } from "@/components/layout/PageSkeletons";
 
 export default function Loading() {
-  return <TabPageSkeleton />;
+  return (
+    <>
+      <TabHeaderSkeleton />
+      <ArchiveSkeleton />
+    </>
+  );
 }

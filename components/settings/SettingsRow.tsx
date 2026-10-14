@@ -40,7 +40,7 @@ export const SettingsRow = ({
     </>
   );
   const classes =
-    "flex min-h-[52px] w-full items-center gap-3 border-b border-line-soft px-3.5 text-left transition-colors last:border-b-0 enabled:cursor-pointer [&:not(:disabled)]:hover:bg-surface-raised";
+    "flex min-h-[52px] w-full items-center gap-3 border-b border-line px-1 text-left transition-colors enabled:cursor-pointer [&:not(:disabled)]:hover:bg-surface";
 
   if (as === "a") {
     return (

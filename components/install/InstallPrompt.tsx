@@ -12,6 +12,11 @@ import {
   SquarePlus,
   X,
 } from "lucide-react";
+import { AppMark } from "@/components/layout/Wordmark";
+import {
+  primaryButton,
+  secondaryButton,
+} from "@/components/layout/StatusScreen";
 import { cn } from "@/lib/cn";
 import type { IosBrowser } from "@/lib/install";
 import {
@@ -118,7 +123,7 @@ const Dialog = ({
         if (event.target === event.currentTarget) onClose();
       }}
       className={cn(
-        "inset-x-0 m-0 mt-auto h-fit max-h-[calc(100dvh-24px-env(safe-area-inset-top))] w-full max-w-none overflow-y-auto overscroll-contain text-text backdrop:bg-black/60",
+        "inset-x-0 m-0 mt-auto h-fit max-h-[calc(100dvh-24px-env(safe-area-inset-top))] w-full max-w-none overflow-y-auto overscroll-contain text-text backdrop:bg-text/50",
         className,
       )}
     >
@@ -127,38 +132,24 @@ const Dialog = ({
   );
 };
 
-// The app icon, as drawn on the Settings page
-const AppMark = ({ size }: { size: "md" | "lg" }) => (
-  <span
-    aria-hidden
-    className={cn(
-      "flex shrink-0 items-center justify-center border border-line bg-background",
-      size === "lg"
-        ? "size-14 rounded-[14px] text-base"
-        : "size-12 rounded-xl text-sm",
-    )}
-  >
-    <span className="-skew-x-[10deg] font-black">
-      F1<span className="text-accent-ink">H</span>
-    </span>
-  </span>
-);
-
 const CloseButton = ({ onClose }: { onClose: () => void }) => (
   <button
     type="button"
     onClick={onClose}
     aria-label="Close"
-    className="-mr-2 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-raised hover:text-text"
+    className="-mr-2 flex size-11 shrink-0 cursor-pointer items-center justify-center text-muted transition-colors hover:bg-surface-raised hover:text-text"
   >
     <X aria-hidden size={20} strokeWidth={2} />
   </button>
 );
 
 // Bottom sheet on phones, a centred card when opened from Settings on a
-// larger screen
+// larger screen. A heavy ink rule on top, like a Card.
 const sheetClasses =
-  "rounded-t-[20px] border-t border-line bg-surface pt-2.5 pr-[max(20px,env(safe-area-inset-right))] pl-[max(20px,env(safe-area-inset-left))] pb-[max(28px,calc(env(safe-area-inset-bottom)+16px))] md:m-auto md:max-w-[420px] md:rounded-[20px] md:border md:pb-6";
+  "border-t-2 border-text bg-surface pt-2.5 pr-[max(20px,env(safe-area-inset-right))] pl-[max(20px,env(safe-area-inset-left))] pb-[max(28px,calc(env(safe-area-inset-bottom)+16px))] md:m-auto md:max-w-[420px] md:border-x md:border-b md:border-x-line md:border-b-line md:pb-6";
+
+// The sheets' headline, in the display face
+const title = "display-title text-[34px]";
 
 const Handle = () => (
   <span
@@ -189,7 +180,7 @@ const AndroidSheet = ({
         <div className="flex items-center gap-3.5">
           <AppMark size="lg" />
           <div className="min-w-0 flex-1">
-            <h2 id={titleId} className="text-[22px] leading-[26px] font-bold">
+            <h2 id={titleId} className={title}>
               Install F1HUB
             </h2>
             <p className="truncate text-[13px] text-muted">
@@ -205,7 +196,7 @@ const AndroidSheet = ({
         <ul className="flex flex-col gap-3">
           {BENEFITS.map(({ icon: Icon, text }) => (
             <li key={text} className="flex items-center gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-surface-raised text-accent-ink">
+              <span className="flex size-9 shrink-0 items-center justify-center bg-surface-raised text-accent-ink">
                 <Icon aria-hidden size={18} strokeWidth={2} />
               </span>
               <span className="text-sm font-semibold">{text}</span>
@@ -216,14 +207,14 @@ const AndroidSheet = ({
           <button
             type="button"
             onClick={onClose}
-            className="min-h-12 flex-1 cursor-pointer rounded-[10px] border border-line font-bold transition-colors hover:bg-surface-raised"
+            className={cn(secondaryButton, "min-h-12 flex-1 font-bold")}
           >
             Not now
           </button>
           <button
             type="button"
             onClick={onInstall}
-            className="flex min-h-12 flex-2 cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-accent font-bold text-on-accent transition-opacity hover:opacity-90"
+            className={cn(primaryButton, "min-h-12 flex-2 gap-2")}
           >
             <Download aria-hidden size={18} strokeWidth={2} />
             Install
@@ -251,7 +242,7 @@ const Key = ({
 }) => (
   <span
     className={cn(
-      "inline-flex items-center gap-1 rounded-sm border border-line bg-background px-2 py-0.5 align-middle text-[13px] leading-[18px] font-bold whitespace-nowrap",
+      "inline-flex items-center gap-1 border border-line bg-background px-2 py-0.5 align-middle text-[13px] leading-[18px] font-bold whitespace-nowrap",
       className,
     )}
   >
@@ -314,10 +305,10 @@ const IosCard = ({
       onClose={onClose}
       className="bg-transparent pr-[max(12px,env(safe-area-inset-right))] pb-[max(14px,env(safe-area-inset-bottom))] pl-[max(12px,env(safe-area-inset-left))] md:m-auto md:max-w-[420px] md:pb-3"
     >
-      <div className="flex flex-col gap-3.5 rounded-[18px] border border-line bg-surface px-4 pt-4 pb-[18px] shadow-[0_20px_40px_rgba(26,24,20,0.2)]">
+      <div className="flex flex-col gap-3.5 border border-t-2 border-line border-t-text bg-surface px-4 pt-4 pb-[18px]">
         <div className="flex items-center gap-3">
           <AppMark size="md" />
-          <h2 id={titleId} className="flex-1 text-xl leading-6 font-bold">
+          <h2 id={titleId} className="flex-1 display-title text-[28px]">
             Add F1HUB to your Home Screen
           </h2>
           <CloseButton onClose={onClose} />
@@ -325,15 +316,15 @@ const IosCard = ({
         <p className="text-sm leading-5 text-soft">
           {name} can install F1HUB as an app. It takes three taps:
         </p>
-        <ol className="flex flex-col gap-2">
+        <ol className="flex flex-col border-t border-line">
           {steps.map((step, index) => (
             <li
               key={index}
-              className="flex items-center gap-3 rounded-[10px] bg-surface-raised p-3"
+              className="flex items-center gap-3 border-b border-line py-3"
             >
               <span
                 aria-hidden
-                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent font-mono text-xs font-bold text-on-accent"
+                className="flex size-6 shrink-0 items-center justify-center bg-accent font-mono text-xs font-bold text-on-accent"
               >
                 {index + 1}
               </span>
@@ -344,7 +335,7 @@ const IosCard = ({
         <button
           type="button"
           onClick={onClose}
-          className="min-h-12 cursor-pointer rounded-[10px] border border-line font-bold transition-colors hover:bg-surface-raised"
+          className={cn(secondaryButton, "min-h-12 font-bold")}
         >
           Maybe later
         </button>
@@ -354,7 +345,7 @@ const IosCard = ({
           aria-hidden
           className="flex flex-col items-center gap-0.5 pt-4 text-accent-ink md:hidden"
         >
-          <span className="rounded-full bg-background px-2 py-0.5 font-mono text-[10px] tracking-[1px]">
+          <span className="bg-background px-2 py-0.5 font-mono text-[10px] tracking-[1px]">
             {browser === "safari" ? "SAFARI TOOLBAR" : "TOOLBAR"}
           </span>
           <ArrowDown
@@ -384,10 +375,7 @@ const MenuHint = ({
         <Handle />
         <div className="flex items-center gap-3.5">
           <AppMark size="lg" />
-          <h2
-            id={titleId}
-            className="flex-1 text-[22px] leading-[26px] font-bold"
-          >
+          <h2 id={titleId} className={cn(title, "flex-1")}>
             Install F1HUB
           </h2>
           <CloseButton onClose={onClose} />
@@ -396,7 +384,7 @@ const MenuHint = ({
         <button
           type="button"
           onClick={onClose}
-          className="min-h-12 cursor-pointer rounded-[10px] border border-line font-bold transition-colors hover:bg-surface-raised"
+          className={cn(secondaryButton, "min-h-12 font-bold")}
         >
           Got it
         </button>

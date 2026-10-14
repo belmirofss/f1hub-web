@@ -119,7 +119,7 @@ export const StandingsTable = async ({
       aria-labelledby={`${type}-table`}
       className="flex min-w-0 flex-col gap-3"
     >
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto border-t-2 border-text pt-3">
         <table className="w-full border-collapse font-sans">
           <caption id={`${type}-table`} className="sr-only">
             {drivers ? "Drivers'" : "Constructors'"} championship, {list.season}{" "}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Server, Star } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { AppMark } from "@/components/layout/Wordmark";
 import {
   ClockSetting,
   InstallRow,
@@ -25,19 +26,12 @@ export default function SettingsPage() {
       <PageHeader back="/" title="Settings" />
       <div className="flex w-full max-w-xl flex-col gap-[18px] pt-1">
         <div className="flex items-center gap-3.5">
-          <span
-            aria-hidden
-            className="flex size-14 shrink-0 items-center justify-center rounded-lg border border-line bg-surface"
-          >
-            <span className="-skew-x-[10deg] font-black">
-              F1<span className="text-accent-ink">H</span>
-            </span>
-          </span>
+          <AppMark />
           <div>
-            <p className="text-xl font-black">
+            <p className="-skew-x-[10deg] font-display text-[30px] leading-8 font-black">
               F1<span className="text-accent-ink">HUB</span>
             </p>
-            <p className="font-mono text-xs text-muted">
+            <p className="font-mono text-xs tracking-[0.14em] text-muted">
               VERSION {pkg.version} · WEB
             </p>
           </div>
@@ -45,7 +39,7 @@ export default function SettingsPage() {
 
         <ClockSetting />
 
-        <div className="overflow-hidden rounded-lg border border-line bg-surface">
+        <div className="flex flex-col border-t-2 border-text">
           <InstallRow />
           <SettingsRow
             as="a"
