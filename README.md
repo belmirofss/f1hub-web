@@ -2,28 +2,34 @@
 
 The web version of [F1HUB](https://github.com/belmirofss/f1hub): Formula 1 calendar, live-season standings, race weekends, analysis and the full archive, in the browser and installable as an app.
 
+It's styled like a printed race-day programme: warm paper, ink-black type, vermilion and royal blue, tall condensed headlines and hairline rules. A season spine under the header shows every round coloured by its winner's team.
+
 **Live at https://webf1hub.vercel.app**
 
 <p>
-  <img src="docs/screenshots/home-desktop.png" alt="Home: next race countdown and sessions, last race, top 5 and title fight" width="100%">
+  <img src="docs/screenshots/home-desktop.png" alt="Home: the start lights for each session, the next race and a countdown, the weekend timeline and the sessions in your time" width="100%">
+</p>
+<p>
+  <img src="docs/screenshots/calendar-desktop.png" alt="Calendar: a poster for each round with the circuit outline and the winner in the team's colour" width="49%">
+  <img src="docs/screenshots/archive-desktop.png" alt="Archive: every champion since 1950 on a grid in the team colours, with the most titles" width="49%">
 </p>
 <p>
   <img src="docs/screenshots/race-analysis-desktop.png" alt="Race analysis: lap chart, tyre strategy and fastest pit stops" width="49%">
-  <img src="docs/screenshots/driver-desktop.png" alt="Driver page: titles, season and career stats, last 5 races" width="49%">
+  <img src="docs/screenshots/driver-desktop.png" alt="Driver page: a poster in the team colour with the titles, then season and career stats and every race of the season" width="49%">
 </p>
 <p>
   <img src="docs/screenshots/home-mobile.png" alt="Home on a phone" width="32%">
   <img src="docs/screenshots/standings-mobile.png" alt="Standings with the title fight on a phone" width="32%">
-  <img src="docs/screenshots/race-mobile.png" alt="Race results on a phone" width="32%">
+  <img src="docs/screenshots/race-mobile.png" alt="Race results with tyre stints on a phone" width="32%">
 </p>
 
 ## What's in it
 
-- **Home:** next race countdown with weather and every session in your time or track time, the last race, top 5 with recent form, the title fight and the closest teammate battle
-- **Calendar** for the season, coloured by the winning team
+- **Home:** start lights for the weekend's sessions, the next race countdown with weather and every session in your time or track time, the last race, top 5 with recent form, the title fight and the closest teammate battle
+- **Calendar** for the season as a wall of race posters or a timeline, coloured by the winning team
 - **Standings** for drivers, constructors and teammates, with who can still win the title
 - **Race weekends:** schedule and forecast, race, sprint and qualifying results, lap chart, tyre strategy, pit stops, team radio and race control
-- **Archive** of every season since 1950, plus pages for every driver, team and circuit
+- **Archive** of every season since 1950 on one grid of champions, plus pages for every driver, team and circuit
 - **Search** across all of it
 - **Installable app** (PWA) that works offline for pages you've visited, with a 12/24-hour clock in Settings
 
