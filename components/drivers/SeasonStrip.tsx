@@ -20,19 +20,22 @@ type Square = {
   style?: CSSProperties;
 };
 
-// One square per round of the driver's latest season: a win in the team
-// colour, a podium in ink, other finishes on paper, a retirement as an
-// outlined "R", a round they missed as a dash and the rounds still to run
-// empty. Each square opens that race.
+// One square per round of the driver's latest season (a former driver's
+// final one): a win in the team colour, a podium in ink, other finishes on
+// paper, a retirement as an outlined "R", a round they missed as a dash and
+// the rounds still to run empty. Each square opens that race.
 export const SeasonStrip = async ({
   season,
   races,
   hero,
+  final,
 }: {
   season: string;
   // The driver's starts that season
   races: CareerRace[];
   hero: TeamHero;
+  // Their last season, not one still going
+  final?: boolean;
 }) => {
   const [schedule, run] = await Promise.all([
     getSeasonSchedule(season),
@@ -92,7 +95,9 @@ export const SeasonStrip = async ({
   return (
     <Card as="section" aria-labelledby="every-race">
       <h2 id="every-race">
-        <Label>{season} · Every race</Label>
+        <Label>
+          {season} · {final ? "Final season" : "Every race"}
+        </Label>
       </h2>
       <ol className="grid grid-cols-8 gap-[5px] sm:grid-cols-12">
         {schedule.map((race) => {

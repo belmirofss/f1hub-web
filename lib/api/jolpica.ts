@@ -482,6 +482,8 @@ export type Career = {
   podiums: number;
   poles: number;
   seasons: CareerSeason[]; // oldest first
+  // On the current grid (or last season's, before the first race)
+  onGrid: boolean;
 };
 
 // Withdrawn and failed to qualify: in the results, but not a start
@@ -548,7 +550,10 @@ const toCareerEntries = (
 };
 
 // Career totals and the numbers for each season
-const summarizeCareer = ({ races, poles }: CareerEntries): Career => {
+const summarizeCareer = (
+  { races, poles }: CareerEntries,
+  onGrid: boolean,
+): Career => {
   const seasons = new Map<string, CareerSeason>();
   races.forEach((race) => {
     const season = seasons.get(race.season) ?? {
@@ -572,6 +577,7 @@ const summarizeCareer = ({ races, poles }: CareerEntries): Career => {
     podiums: races.filter((r) => isPodium(r.position)).length,
     poles: poles.length,
     seasons: [...seasons.values()],
+    onGrid,
   };
 };
 
@@ -629,23 +635,26 @@ const getCareerTier = async (driverId: string): Promise<CareerTier> => {
 export const getDriverCareer = async (driverId: string) => {
   const tier = await getCareerTier(driverId);
   if (tier === "past")
-    return summarizeCareer(await loadDriverCareer(driverId, tier));
+    return summarizeCareer(await loadDriverCareer(driverId, tier), false);
 
   const current = String(await getCurrentSeason());
   const [history, season] = await Promise.all([
     loadDriverCareer(driverId, tier),
     getDriverSeasonCareer(current, driverId),
   ]);
-  return summarizeCareer({
-    races: [
-      ...history.races.filter((race) => race.season !== current),
-      ...season.races,
-    ],
-    poles: [
-      ...history.poles.filter((key) => !key.startsWith(`${current}-`)),
-      ...season.poles,
-    ],
-  });
+  return summarizeCareer(
+    {
+      races: [
+        ...history.races.filter((race) => race.season !== current),
+        ...season.races,
+      ],
+      poles: [
+        ...history.poles.filter((key) => !key.startsWith(`${current}-`)),
+        ...season.poles,
+      ],
+    },
+    true,
+  );
 };
 
 // Championship position, points and wins in one season, or null when the

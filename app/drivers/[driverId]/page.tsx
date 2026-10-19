@@ -125,9 +125,14 @@ const DriverContent = async ({ driver }: { driver: Driver }) => {
   return (
     <>
       <div className="flex flex-col">
-        <DriverHero driver={driver} team={latest?.team} titles={titles} />
+        <DriverHero driver={driver} career={career} titles={titles} />
         <Slot label="Stats" fallback={<StatRailSkeleton />}>
-          <DriverStats driverId={driverId} career={career} latest={latest} />
+          <DriverStats
+            driverId={driverId}
+            career={career}
+            latest={latest}
+            titles={titles.length}
+          />
         </Slot>
       </div>
       <Columns
@@ -157,6 +162,7 @@ const DriverContent = async ({ driver }: { driver: Driver }) => {
               season={latest.season}
               races={career.races.filter((r) => r.season === latest.season)}
               hero={getTeamHero(latest.team.constructorId)}
+              final={!career.onGrid}
             />
           </Slot>
         )}
@@ -166,7 +172,7 @@ const DriverContent = async ({ driver }: { driver: Driver }) => {
           </Slot>
         )}
         <Slot label="Last 5 races" fallback={<RecentRacesSkeleton />}>
-          <RecentRaces races={career.races} />
+          <RecentRaces races={career.races} final={!career.onGrid} />
         </Slot>
       </Columns>
     </>
