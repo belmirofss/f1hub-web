@@ -170,6 +170,15 @@ export const getMonthLabel = (race: Race, previous?: Race) => {
     : MONTHS[month];
 };
 
+// Round details
+
+// One of the last winners at a round's circuit: "2025 · Lando Norris"
+export type PastWinner = {
+  season: string;
+  driver: string;
+  constructorId: string;
+};
+
 // Month grid
 
 export type MonthCell = {
@@ -290,6 +299,22 @@ export const getMonthSelection = (
   const selected =
     [picked, next].find((row) => row && inMonth.includes(row)) ?? inMonth[0];
   return { months, month, selected, rounds: inMonth.length };
+};
+
+// The round whose details show under the timeline or the month grid, none
+// on the posters. The timeline shows the next round until another is
+// picked, and the finale once the season is over.
+export const getSelectedRound = (
+  rows: RoundState[],
+  query: CalendarQuery,
+): RoundState | undefined => {
+  if (query.view === "month") return getMonthSelection(rows, query).selected;
+  if (query.view === "posters") return undefined;
+  return (
+    rows.find((row) => row.race.round === query.round) ??
+    rows.find((row) => row.isNext) ??
+    rows.at(-1)
+  );
 };
 
 // URLs

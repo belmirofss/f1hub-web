@@ -1,12 +1,16 @@
+import { Suspense, use } from "react";
 import { CalendarPlus } from "lucide-react";
 import { InlineLink, TeamBar } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { LocalTime } from "@/components/time/LocalTime";
-import { getCircuitHistory } from "@/lib/api/jolpica";
 import type { Race } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { formatWeekendDates, getPlaceName } from "@/lib/domain/calendar";
+import {
+  formatWeekendDates,
+  getPlaceName,
+  type PastWinner,
+} from "@/lib/domain/calendar";
 import { isNightRace } from "@/lib/domain/circuits";
 import { raceHref } from "@/lib/domain/routes";
 import {
@@ -18,10 +22,9 @@ import {
   type RoundState,
 } from "@/lib/domain/sessions";
 import { getDriverName, getTeamColor } from "@/lib/domain/teams";
-import { orFallback } from "@/lib/metadata";
 import { ScrollToDetails } from "./ScrollToDetails";
+import { SeasonOutline } from "./SeasonData";
 import { DETAILS_ID } from "./Timeline";
-import { CircuitOutline } from "./TrackOutline";
 
 const DAY = 24 * 3600000;
 
@@ -34,23 +37,63 @@ const roundStatus = ({ race, isPast, isNext }: RoundState, now: number) => {
     : "Next";
 };
 
-// The selected round under the timeline: where and when with the track
-// outline, its sessions in the viewer's time, the last three winners there
-// and an .ics download for the weekend
-export const RoundDetails = async ({
+// The last three winners at the circuit. Extra: the details show without
+// them, and they fill in when they arrive.
+const LastWinners = ({
+  winners: load,
+}: {
+  winners: Promise<PastWinner[] | null>;
+}) => {
+  const winners = use(load);
+  if (!winners?.length) {
+    return (
+      <p className="text-sm text-muted">
+        {winners
+          ? "A new venue: no race here yet."
+          : "Couldn't load the winners."}
+      </p>
+    );
+  }
+  return (
+    <ol className="flex flex-col gap-2.5">
+      {winners.map((past) => (
+        <li
+          key={past.season}
+          className="grid grid-cols-[4px_minmax(0,1fr)_auto] items-center gap-2.5"
+        >
+          <TeamBar color={getTeamColor(past.constructorId)} height={28} />
+          <span className="truncate font-bold">{past.driver}</span>
+          <span className="font-mono text-xs text-muted">{past.season}</span>
+        </li>
+      ))}
+    </ol>
+  );
+};
+
+const LastWinnersSkeleton = () => (
+  <div aria-hidden className="flex flex-col gap-2.5">
+    {Array.from({ length: 3 }, (_, index) => (
+      <Skeleton key={index} className="h-7 w-full" />
+    ))}
+  </div>
+);
+
+// The selected round under the timeline or the month grid: where and when
+// with the track outline, its sessions in the viewer's time, the last three
+// winners there and an .ics download for the weekend
+export const RoundDetails = ({
   row,
   races,
+  winners,
   now,
 }: {
   row: RoundState;
   races: Race[];
+  winners: Promise<PastWinner[] | null>;
   now: number;
 }) => {
   const { race, winner, isPast } = row;
   const { circuitId, circuitName, Location } = race.Circuit;
-  // Extra: the details still show without it
-  const history = await orFallback(getCircuitHistory(circuitId));
-  const winners = (history?.races ?? []).slice(-3).reverse();
   const sessions = getSessions(race);
   const href = raceHref(race, races);
   const facts = [
@@ -82,7 +125,7 @@ export const RoundDetails = async ({
           <br />
           {facts.join(" · ")}
         </p>
-        <CircuitOutline
+        <SeasonOutline
           circuitId={circuitId}
           strokeWidth={5}
           start
@@ -150,37 +193,9 @@ export const RoundDetails = async ({
         <h3>
           <Label>Last winners here</Label>
         </h3>
-        {winners.length ? (
-          <ol className="flex flex-col gap-2.5">
-            {winners.map((past) => {
-              const result = past.Results?.[0];
-              if (!result) return null;
-              return (
-                <li
-                  key={past.season}
-                  className="grid grid-cols-[4px_minmax(0,1fr)_auto] items-center gap-2.5"
-                >
-                  <TeamBar
-                    color={getTeamColor(result.Constructor.constructorId)}
-                    height={28}
-                  />
-                  <span className="truncate font-bold">
-                    {getDriverName(result.Driver)}
-                  </span>
-                  <span className="font-mono text-xs text-muted">
-                    {past.season}
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
-        ) : (
-          <p className="text-sm text-muted">
-            {history
-              ? "A new venue: no race here yet."
-              : "Couldn't load the winners."}
-          </p>
-        )}
+        <Suspense fallback={<LastWinnersSkeleton />}>
+          <LastWinners winners={winners} />
+        </Suspense>
         {!isPast && (
           <a
             href={`${href}/calendar.ics`}

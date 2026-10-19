@@ -24,7 +24,7 @@ import { getTeamColor } from "@/lib/domain/teams";
 import { plural } from "@/lib/metadata";
 import { ScrollToRound } from "./ScrollToRound";
 import { SessionCountdown } from "./SessionCountdown";
-import { CircuitOutline } from "./TrackOutline";
+import { SeasonOutline } from "./SeasonData";
 
 export const roundId = (race: Race) => `r${race.round}`;
 
@@ -115,7 +115,7 @@ const Poster = ({ row, races, className }: PosterProps) => {
           </span>
           {isSprintWeekend(race) && <SprintBadge />}
         </span>
-        <CircuitOutline
+        <SeasonOutline
           circuitId={circuitId}
           dashed={!isPast}
           className={cn(
@@ -190,7 +190,7 @@ const NextPoster = ({ row, races, now }: PosterProps & { now: number }) => {
         <span className="relative text-sm font-semibold lg:text-[15px]">
           {details.join(" · ")}
         </span>
-        <CircuitOutline
+        <SeasonOutline
           circuitId={race.Circuit.circuitId}
           strokeWidth={6}
           className="relative my-1 h-[100px] w-[170px] self-start lg:h-[156px] lg:w-[260px]"

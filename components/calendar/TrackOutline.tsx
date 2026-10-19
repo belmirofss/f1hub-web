@@ -1,9 +1,4 @@
-import { Suspense } from "react";
-import { getCircuitOutline } from "@/lib/circuitOutlines";
-import {
-  PLACEHOLDER_OUTLINE,
-  type TrackOutline as Outline,
-} from "@/lib/domain/trackMap";
+import type { TrackOutline as Outline } from "@/lib/domain/trackMap";
 
 type Props = {
   outline: Outline;
@@ -47,21 +42,4 @@ export const TrackOutline = ({
       />
     )}
   </svg>
-);
-
-type CircuitProps = Omit<Props, "outline"> & { circuitId: string };
-
-const LoadedOutline = async ({ circuitId, ...props }: CircuitProps) => (
-  <TrackOutline outline={await getCircuitOutline(circuitId)} {...props} />
-);
-
-// A circuit's outline, loaded on its own. Once cached it arrives with the
-// page; on a cold cache (two OpenF1 requests per circuit, at 30 a minute)
-// the placeholder loop stands in and each outline streams in when ready.
-export const CircuitOutline = ({ circuitId, ...props }: CircuitProps) => (
-  <Suspense
-    fallback={<TrackOutline outline={PLACEHOLDER_OUTLINE} {...props} />}
-  >
-    <LoadedOutline circuitId={circuitId} {...props} />
-  </Suspense>
 );
