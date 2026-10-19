@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Race } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { textOn } from "@/lib/color";
@@ -19,7 +18,7 @@ import {
   type RoundState,
 } from "@/lib/domain/sessions";
 import { getDriverCode, getDriverName, getTeamColor } from "@/lib/domain/teams";
-import { LinkPending } from "@/components/ui/LinkPending";
+import { ShallowLink } from "@/components/ui/ShallowLink";
 import { PickRoundLink } from "./PickRoundLink";
 import { SprintBadge } from "./Posters";
 
@@ -125,13 +124,12 @@ const HorizontalStrip = ({
               className="absolute -translate-x-1/2"
               style={{ left: percent(round.at), top: 26 + lane * 84 }}
             >
-              <Link
+              <ShallowLink
                 href={calendarHref({
                   view: "timeline",
                   only: filter,
                   round: race.round,
                 })}
-                scroll={false}
                 aria-current={isSelected ? "true" : undefined}
                 title={`R${race.round} ${race.raceName}`}
                 className={cn(
@@ -141,7 +139,6 @@ const HorizontalStrip = ({
                   !matchesFilter(race, filter) && "opacity-30",
                 )}
               >
-                <LinkPending />
                 <span className="sr-only">{describeRound(round)}</span>
                 <span aria-hidden className="font-mono text-[10px]">
                   R{race.round}
@@ -169,7 +166,7 @@ const HorizontalStrip = ({
                     className="absolute top-0 right-0 size-2 bg-sprint"
                   />
                 )}
-              </Link>
+              </ShallowLink>
             </li>
           );
         })}
@@ -255,7 +252,6 @@ const VerticalStrip = ({ rounds, filter, selected }: StripProps) => {
                     {formatRaceDay(race)}
                   </span>
                 </span>
-                <LinkPending />
               </PickRoundLink>
             </div>
           </li>

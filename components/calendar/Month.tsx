@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { LinkPending } from "@/components/ui/LinkPending";
+import { ShallowLink } from "@/components/ui/ShallowLink";
 import type { Race } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { textOn } from "@/lib/color";
@@ -54,9 +53,8 @@ export const MonthNav = ({
       );
     }
     return (
-      <Link
+      <ShallowLink
         href={calendarHref({ view: "month", month: target })}
-        scroll={false}
         aria-label={`${offset < 0 ? "Previous" : "Next"} month: ${formatMonthName(target)}`}
         className={cn(
           NAV_BUTTON,
@@ -64,8 +62,7 @@ export const MonthNav = ({
         )}
       >
         {icon}
-        <LinkPending />
-      </Link>
+      </ShallowLink>
     );
   };
 
@@ -208,14 +205,13 @@ const Day = ({
             </span>
             {/* Every day of the weekend picks the round, but only race day is
                 a stop for the keyboard and screen readers */}
-            <Link
+            <ShallowLink
               href={calendarHref({
                 view: "month",
                 // A day from a month either side opens that month
                 month: inMonth ? month : Number(cell.date.slice(5, 7)),
                 round: row.race.round,
               })}
-              scroll={false}
               aria-current={isSelected && isRaceDay ? "true" : undefined}
               aria-hidden={isRaceDay ? undefined : true}
               tabIndex={isRaceDay ? undefined : -1}
@@ -225,8 +221,7 @@ const Day = ({
               {isRaceDay && (
                 <span className="sr-only">{describeRound(row)}</span>
               )}
-              <LinkPending />
-            </Link>
+            </ShallowLink>
           </>
         )}
       </div>

@@ -4,9 +4,9 @@ import { useEffect, useRef } from "react";
 import { glideTo } from "./JumpLink";
 
 // A #round-details link that picks another round (the next-race button, a
-// round on the phone's timeline) should land on its details. They stream
-// in after the navigation, too late for the router's own scroll to the
-// hash, so this glides there once they're on screen. The hash is then
+// round on the phone's timeline) should land on its details. The URL
+// changes in place, which never scrolls to the hash, so this glides there
+// once they're on screen. The hash is then
 // dropped, so going back and forth through history doesn't scroll again.
 export const ScrollToDetails = () => {
   const ref = useRef<HTMLSpanElement>(null);

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { LinkPending } from "./LinkPending";
 import { onRadioKeyDown } from "./radioKeys";
+import { ShallowLink } from "./ShallowLink";
 
 export type SegmentedOption<T extends string> = {
   value: T;
@@ -18,6 +19,9 @@ type Props<T extends string> = {
   value: T;
   // For options without an href (state toggles like My time | Track)
   onChange?: (value: T) => void;
+  // The hrefs are other states of the page on screen: they change the URL in
+  // place without asking the server (see ShallowLink)
+  shallow?: boolean;
   size?: "regular" | "small";
   // Accessible name for the group: "Standings view", "Time zone"
   label: string;
@@ -31,6 +35,7 @@ export const Segmented = <T extends string>({
   options,
   value,
   onChange,
+  shallow,
   size = "regular",
   label,
   className,
@@ -80,6 +85,19 @@ export const Segmented = <T extends string>({
             >
               {option.label}
             </span>
+          );
+        }
+
+        if (option.href && shallow) {
+          return (
+            <ShallowLink
+              key={option.value}
+              href={option.href}
+              aria-current={selected ? "page" : undefined}
+              className={classes}
+            >
+              {option.label}
+            </ShallowLink>
           );
         }
 
