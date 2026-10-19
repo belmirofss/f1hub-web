@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "outlines": "node --no-warnings scripts/circuit-outlines.mjs"
   },
   "dependencies": {
     "lucide-react": "1.47.0",
