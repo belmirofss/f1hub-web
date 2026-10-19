@@ -19,6 +19,7 @@ import {
 } from "@/lib/domain/sessions";
 import { getDriverName, getTeamColor } from "@/lib/domain/teams";
 import { orFallback } from "@/lib/metadata";
+import { ScrollToDetails } from "./ScrollToDetails";
 import { DETAILS_ID } from "./Timeline";
 import { CircuitOutline } from "./TrackOutline";
 
@@ -61,9 +62,11 @@ export const RoundDetails = async ({
   return (
     <section
       id={DETAILS_ID}
+      data-round={race.round}
       aria-labelledby="round-name"
       className="grid scroll-mt-4 gap-6 border-t-2 border-text pt-5 lg:grid-cols-[240px_minmax(0,1fr)_240px] lg:gap-8"
     >
+      <ScrollToDetails />
       <div className="flex flex-col gap-2">
         <p className="font-mono text-xs tracking-[0.14em] text-accent-ink uppercase">
           Round {race.round} · {roundStatus(row, now)}

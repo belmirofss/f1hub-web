@@ -18,18 +18,28 @@ export class ApiError extends Error {
 
 type Queue = { acquire: () => Promise<void>; release: () => void };
 
-// Lets a few requests run at once and spaces out their starts, so pages that
-// fire many requests together stay under the APIs' rate limits. The queue
-// lives in the server instance's memory, so each instance throttles itself.
-const createQueue = (concurrent: number, gapMs: number): Queue => {
+// Lets a few requests run at once and at most `perWindow` start in any
+// `windowMs`, so pages that fire many requests together stay under the APIs'
+// rate limits. A small burst starts straight away rather than one every
+// windowMs / perWindow: most of these fetches are Data Cache hits that never
+// reach the API, and spacing them out added up to most of a render. The
+// queue lives in the server instance's memory, so each instance throttles
+// itself.
+const createQueue = (
+  concurrent: number,
+  perWindow: number,
+  windowMs: number,
+): Queue => {
   let active = 0;
-  let lastStart = 0;
+  // When the last `perWindow` requests started, oldest first
+  const starts: number[] = [];
   let timer: ReturnType<typeof setTimeout> | undefined;
   const waiting: (() => void)[] = [];
 
   const next = () => {
     if (timer || active >= concurrent || !waiting.length) return;
-    const wait = lastStart + gapMs - Date.now();
+    const wait =
+      starts.length < perWindow ? 0 : starts[0] + windowMs - Date.now();
     if (wait > 0) {
       timer = setTimeout(() => {
         timer = undefined;
@@ -38,7 +48,8 @@ const createQueue = (concurrent: number, gapMs: number): Queue => {
       return;
     }
     active++;
-    lastStart = Date.now();
+    starts.push(Date.now());
+    if (starts.length > perWindow) starts.shift();
     waiting.shift()!();
     next();
   };
@@ -59,9 +70,9 @@ const createQueue = (concurrent: number, gapMs: number): Queue => {
 const QUEUES: Record<string, Queue> = {
   // Jolpica: 4 requests a second, 500 an hour. Starting 3 a second leaves
   // room for network jitter on long runs like a race's 13 pages of laps.
-  "api.jolpi.ca": createQueue(3, 340),
+  "api.jolpi.ca": createQueue(3, 3, 1000),
   // OpenF1 free tier: 3 requests a second, 30 a minute
-  "api.openf1.org": createQueue(1, 400),
+  "api.openf1.org": createQueue(1, 1, 400),
 };
 
 const MAX_RETRIES = 3;

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { LinkPending } from "@/components/ui/LinkPending";
 import type { Race } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { textOn } from "@/lib/color";
@@ -57,9 +58,13 @@ export const MonthNav = ({
         href={calendarHref({ view: "month", month: target })}
         scroll={false}
         aria-label={`${offset < 0 ? "Previous" : "Next"} month: ${formatMonthName(target)}`}
-        className={cn(NAV_BUTTON, "transition-colors hover:border-text")}
+        className={cn(
+          NAV_BUTTON,
+          "relative transition-colors hover:border-text",
+        )}
       >
         {icon}
+        <LinkPending />
       </Link>
     );
   };
@@ -220,6 +225,7 @@ const Day = ({
               {isRaceDay && (
                 <span className="sr-only">{describeRound(row)}</span>
               )}
+              <LinkPending />
             </Link>
           </>
         )}
