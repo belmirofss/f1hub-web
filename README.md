@@ -26,7 +26,7 @@ It's styled like a printed race-day programme: warm paper, ink-black type, vermi
 ## What's in it
 
 - **Home:** start lights for the weekend's sessions, the next race countdown with weather and every session in your time or track time, the last race, top 5 with recent form, the title fight and the closest teammate battle
-- **Calendar** for the season as a wall of race posters or a timeline, coloured by the winning team
+- **Calendar** for the season as a wall of race posters, a timeline or a month-by-month grid, coloured by the winning team
 - **Standings** for drivers, constructors and teammates, with who can still win the title
 - **Race weekends:** schedule and forecast, race, sprint and qualifying results, lap chart, tyre strategy, pit stops, team radio and race control
 - **Archive** of every season since 1950 on one grid of champions, plus pages for every driver, team and circuit

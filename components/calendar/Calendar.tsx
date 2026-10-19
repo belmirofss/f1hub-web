@@ -13,6 +13,7 @@ import {
 import type { Race, RaceResults } from "@/lib/api/types";
 import {
   calendarHref,
+  getMonthSelection,
   type CalendarQuery,
   type CalendarView,
   type PosterFilter,
@@ -21,6 +22,7 @@ import {
 import { getRoundStates, type RoundState } from "@/lib/domain/sessions";
 import { getRequestTime } from "@/lib/requestTime";
 import { JumpLink } from "./JumpLink";
+import { MonthGrid, MonthNav } from "./Month";
 import { Posters, roundId } from "./Posters";
 import { RoundDetails, RoundDetailsSkeleton } from "./RoundDetails";
 import { DETAILS_ID, Timeline } from "./Timeline";
@@ -36,17 +38,28 @@ const loadWinners = async (): Promise<RaceResults[]> => {
   }
 };
 
-const ViewSwitch = ({ view }: { view: CalendarView }) => (
+const ViewSwitch = ({
+  view,
+  className,
+}: {
+  view: CalendarView;
+  className?: string;
+}) => (
   <Segmented<CalendarView>
     label="Calendar view"
     value={view}
-    className="w-full sm:w-auto"
+    className={className}
     options={[
       { value: "posters", label: "Posters", href: calendarHref({}) },
       {
         value: "timeline",
         label: "Timeline",
         href: calendarHref({ view: "timeline" }),
+      },
+      {
+        value: "month",
+        label: "Month",
+        href: calendarHref({ view: "month" }),
       },
     ]}
   />
@@ -104,7 +117,7 @@ const NEXT_BUTTON =
 // Floats above the tab bar on phones and in the corner on bigger screens.
 // Sticky rather than fixed, so it comes to rest at the end of the calendar
 // instead of covering the footer's links. On the posters it glides to the
-// next round; on the timeline it picks it.
+// next round; on the timeline and the month grid it picks it.
 const NextRaceButton = ({
   race,
   query,
@@ -128,7 +141,7 @@ const NextRaceButton = ({
   }
   return (
     <Link
-      href={`${calendarHref({ ...query, round: race.round })}#${DETAILS_ID}`}
+      href={`${calendarHref({ ...query, month: undefined, round: race.round })}#${DETAILS_ID}`}
       className={NEXT_BUTTON}
     >
       {children}
@@ -136,9 +149,10 @@ const NextRaceButton = ({
   );
 };
 
-// The season in two views, picked by the URL so both are server-rendered
-// and shareable: a wall of race posters (the default) or a timeline on a
-// real date axis with the selected round's details under it
+// The season in three views, picked by the URL so all are server-rendered
+// and shareable: a wall of race posters (the default), a timeline on a
+// real date axis or a month-by-month grid, the last two with the selected
+// round's details under them
 export const Calendar = async ({ query }: { query: CalendarQuery }) => {
   const now = await getRequestTime();
   const [season, races, winners] = await Promise.all([
@@ -163,17 +177,29 @@ export const Calendar = async ({ query }: { query: CalendarQuery }) => {
   const next = rows.find((row) => row.isNext);
   // The timeline shows the next round until another is picked, and the
   // finale once the season is over
-  const selected =
+  const picked =
     rows.find((row) => row.race.round === query.round) ?? next ?? rows.at(-1)!;
+  // The month grid keeps to its month, which may have no races at all
+  const month = query.view === "month" ? getMonthSelection(rows, query) : null;
+  const selected = month ? month.selected : picked;
 
   return (
     <>
       <PageHeader
         title="Calendar"
         meta={`${races[0].season} · ${done}/${races.length}`}
-        actions={<ViewSwitch view={query.view} />}
+        // Beside the title from 640px. Narrower, the three views don't fit
+        // next to it, so the switch gets a row of its own under it.
+        actions={<ViewSwitch view={query.view} className="max-sm:hidden" />}
       >
-        {query.view === "posters" ? (
+        <ViewSwitch view={query.view} className="sm:hidden" />
+        {month ? (
+          <MonthNav
+            months={month.months}
+            month={month.month}
+            rounds={month.rounds}
+          />
+        ) : query.view === "posters" ? (
           <PosterFilters rows={rows} show={query.show} />
         ) : (
           <TimelineFilters query={query} />
@@ -183,18 +209,31 @@ export const Calendar = async ({ query }: { query: CalendarQuery }) => {
         <Posters rows={rows} races={races} filter={query.show} now={now} />
       ) : (
         <>
-          <Timeline
-            rows={rows}
-            filter={query.only}
-            selected={selected.race.round}
-            now={now}
-          />
-          <Suspense
-            key={selected.race.round}
-            fallback={<RoundDetailsSkeleton />}
-          >
-            <RoundDetails row={selected} races={races} now={now} />
-          </Suspense>
+          {month ? (
+            <MonthGrid
+              rows={rows}
+              races={races}
+              year={Number(races[0].season)}
+              month={month.month}
+              selected={selected?.race.round}
+              now={now}
+            />
+          ) : (
+            <Timeline
+              rows={rows}
+              filter={query.only}
+              selected={picked.race.round}
+              now={now}
+            />
+          )}
+          {selected && (
+            <Suspense
+              key={selected.race.round}
+              fallback={<RoundDetailsSkeleton />}
+            >
+              <RoundDetails row={selected} races={races} now={now} />
+            </Suspense>
+          )}
         </>
       )}
       {next && <NextRaceButton race={next.race} query={query} />}
@@ -206,7 +245,7 @@ const HeaderSkeleton = () => (
   <div className="flex flex-col gap-3 pt-[18px] lg:pt-6">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <Skeleton className="h-9 w-40 lg:h-[54px] lg:w-72" />
-      <Skeleton className="h-11 w-full rounded-full sm:w-52" />
+      <Skeleton className="h-11 w-full rounded-full sm:w-72" />
     </div>
     <Skeleton className="h-11 w-full rounded-full lg:max-w-md" />
   </div>
@@ -232,9 +271,22 @@ export const TimelineSkeleton = () => (
   </>
 );
 
+export const MonthSkeleton = () => (
+  <>
+    <Skeleton className="h-[372px] md:h-[680px]" />
+    <RoundDetailsSkeleton />
+  </>
+);
+
 export const CalendarSkeleton = ({ view }: { view?: CalendarView }) => (
   <LoadingRegion className="flex flex-col gap-3.5 lg:gap-5">
     <HeaderSkeleton />
-    {view === "timeline" ? <TimelineSkeleton /> : <PostersSkeleton />}
+    {view === "timeline" ? (
+      <TimelineSkeleton />
+    ) : view === "month" ? (
+      <MonthSkeleton />
+    ) : (
+      <PostersSkeleton />
+    )}
   </LoadingRegion>
 );

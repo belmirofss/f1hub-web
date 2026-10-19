@@ -1,9 +1,20 @@
-// Layout maths for the calendar's two views: the posters' summary and the
-// timeline's date axis.
+// Layout maths for the calendar's views: the posters' summary, the
+// timeline's date axis and the month grid.
 import type { Constructor, Race } from "@/lib/api/types";
 import { getCircuitTimezone } from "./circuits";
-import { getWeekendStart, getRaceStart, type RoundState } from "./sessions";
-import { formatDateRange, formatShortDate, toDate } from "./time";
+import {
+  getRaceStart,
+  getSessions,
+  getWeekendStart,
+  type RoundState,
+  type Session,
+} from "./sessions";
+import {
+  formatDateRange,
+  formatIsoDate,
+  formatShortDate,
+  toDate,
+} from "./time";
 
 const DAY = 24 * 3600000;
 
@@ -159,9 +170,131 @@ export const getMonthLabel = (race: Race, previous?: Race) => {
     : MONTHS[month];
 };
 
+// Month grid
+
+export type MonthCell = {
+  // "2026-10-09"
+  date: string;
+  day: number;
+  // Days from the months either side that fill the first and last weeks
+  inMonth: boolean;
+  isToday: boolean;
+  // The round on track that day, with that day's sessions
+  row?: RoundState;
+  sessions: Session[];
+  isRaceDay: boolean;
+};
+
+// The day a session falls on at the track, like the posters' dates.
+// Without a start time only the UTC date is known.
+const sessionDay = (session: Pick<Session, "start" | "hasTime">, race: Race) =>
+  formatIsoDate(
+    session.start,
+    (session.hasTime && getCircuitTimezone(race.Circuit.circuitId)) || "UTC",
+  );
+
+// 10 for "2026-10-09"
+const monthOf = (date: string) => Number(date.slice(5, 7));
+
+// Each round's sessions by the day they fall on
+const getRoundDays = (row: RoundState) => {
+  const days = new Map<string, Session[]>();
+  getSessions(row.race).forEach((session) => {
+    const day = sessionDay(session, row.race);
+    days.set(day, [...(days.get(day) ?? []), session]);
+  });
+  return days;
+};
+
+// The month a round belongs to: its race day's
+export const getRoundMonth = (race: Race) =>
+  monthOf(
+    sessionDay({ start: getRaceStart(race), hasTime: !!race.time }, race),
+  );
+
+// The months the season runs through, 1 to 12, from the opener's first
+// session to the finale's race
+export const getSeasonMonths = (rows: RoundState[]) => {
+  const first = monthOf(
+    [...getRoundDays(rows[0]).keys()][0] ?? rows[0].race.date,
+  );
+  const last = getRoundMonth(rows[rows.length - 1].race);
+  return Array.from({ length: last - first + 1 }, (_, index) => first + index);
+};
+
+// "October"
+export const formatMonthName = (month: number) =>
+  new Date(Date.UTC(2000, month - 1, 1)).toLocaleString("en-US", {
+    month: "long",
+    timeZone: "UTC",
+  });
+
+// A month's weeks, Monday first so a race weekend sits together at the end
+// of its row, with each round's sessions on their days
+export const getMonthLayout = (
+  rows: RoundState[],
+  year: number,
+  month: number,
+  now: number,
+) => {
+  const byDay = new Map<string, { row: RoundState; sessions: Session[] }>();
+  rows.forEach((row) => {
+    getRoundDays(row).forEach((sessions, day) => {
+      byDay.set(day, { row, sessions });
+    });
+  });
+
+  const first = Date.UTC(year, month - 1, 1);
+  const last = Date.UTC(year, month, 0);
+  // getUTCDay() is 0 on Sundays
+  const start = first - ((new Date(first).getUTCDay() + 6) % 7) * DAY;
+  const end = last + ((7 - new Date(last).getUTCDay()) % 7) * DAY;
+  const today = formatIsoDate(now, "UTC");
+
+  const weeks: MonthCell[][] = [];
+  for (let time = start; time <= end; time += DAY) {
+    const date = formatIsoDate(time, "UTC");
+    const entry = byDay.get(date);
+    if (!(((time - start) / DAY) % 7)) weeks.push([]);
+    weeks[weeks.length - 1].push({
+      date,
+      day: new Date(time).getUTCDate(),
+      inMonth: monthOf(date) === month,
+      isToday: date === today,
+      row: entry?.row,
+      sessions: entry?.sessions ?? [],
+      isRaceDay: !!entry?.sessions.some((session) => session.key === "race"),
+    });
+  }
+  return weeks;
+};
+
+// The month the grid shows and the round picked under it. The URL can name
+// both; otherwise it's the next round (the finale once the season is over)
+// and its month. A round outside the month gives way to the next one if
+// that's in it, then to the month's first.
+export const getMonthSelection = (
+  rows: RoundState[],
+  query: Pick<CalendarQuery, "month" | "round">,
+) => {
+  const months = getSeasonMonths(rows);
+  const picked = rows.find((row) => row.race.round === query.round);
+  const next = rows.find((row) => row.isNext);
+  const month =
+    query.month && months.includes(query.month)
+      ? query.month
+      : getRoundMonth((picked ?? next ?? rows[rows.length - 1]).race);
+  const inMonth = rows.filter((row) =>
+    [...getRoundDays(row).keys()].some((day) => monthOf(day) === month),
+  );
+  const selected =
+    [picked, next].find((row) => row && inMonth.includes(row)) ?? inMonth[0];
+  return { months, month, selected, rounds: inMonth.length };
+};
+
 // URLs
 
-export type CalendarView = "posters" | "timeline";
+export type CalendarView = "posters" | "timeline" | "month";
 export type PosterFilter = "around" | "done" | "todo";
 export type TimelineFilter = "all" | "sprints" | "night";
 
@@ -169,8 +302,11 @@ export type CalendarQuery = {
   view: CalendarView;
   show: PosterFilter;
   only: TimelineFilter;
-  // The timeline's selected round. The next one when left out.
+  // The timeline's or the month grid's selected round. The next one when
+  // left out.
   round?: string;
+  // The month grid's month, 1 to 12. The selected round's when left out.
+  month?: number;
 };
 
 // Reads the page's search params, ignoring anything it doesn't know
@@ -184,21 +320,30 @@ export const parseCalendarQuery = (
   const show = value("show");
   const only = value("only");
   const round = value("round");
+  const view = value("view");
+  const month = Number(value("month"));
   return {
-    view: value("view") === "timeline" ? "timeline" : "posters",
+    view: view === "timeline" || view === "month" ? view : "posters",
     show: show === "done" || show === "todo" ? show : "around",
     only: only === "sprints" || only === "night" ? only : "all",
     round: round && /^\d{1,2}$/.test(round) ? round : undefined,
+    month:
+      Number.isInteger(month) && month >= 1 && month <= 12 ? month : undefined,
   };
 };
 
-// "/calendar", "/calendar?show=done", "/calendar?view=timeline&only=night".
+// "/calendar", "/calendar?show=done", "/calendar?view=timeline&only=night",
+// "/calendar?view=month&month=10".
 // Defaults stay out of the URL, and each view only keeps its own params.
 export const calendarHref = (query: Partial<CalendarQuery>) => {
   const params = new URLSearchParams();
   if (query.view === "timeline") {
     params.set("view", "timeline");
     if (query.only && query.only !== "all") params.set("only", query.only);
+    if (query.round) params.set("round", query.round);
+  } else if (query.view === "month") {
+    params.set("view", "month");
+    if (query.month) params.set("month", String(query.month));
     if (query.round) params.set("round", query.round);
   } else if (query.show && query.show !== "around") {
     params.set("show", query.show);

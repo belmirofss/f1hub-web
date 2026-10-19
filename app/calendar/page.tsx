@@ -9,10 +9,10 @@ import { orFallback, pageMetadata, plural } from "@/lib/metadata";
 export const generateMetadata = async ({
   searchParams,
 }: PageProps<"/calendar">): Promise<Metadata> => {
-  // Both views share the canonical /calendar; only the shared link keeps
-  // ?view=timeline
+  // Every view shares the canonical /calendar; only the shared link keeps
+  // ?view=timeline or ?view=month
   const { view } = parseCalendarQuery(await searchParams);
-  const query = view === "timeline" ? "?view=timeline" : undefined;
+  const query = view === "posters" ? undefined : `?view=${view}`;
   const [races, winners] = await Promise.all([
     orFallback(getSeasonSchedule("current")),
     orFallback(getSeasonWinners("current")),
