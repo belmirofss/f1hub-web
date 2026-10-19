@@ -1,5 +1,6 @@
 // Ported from the app's src/helpers/circuits.ts.
 import type { Driver, RaceResults } from "@/lib/api/types";
+import { lapTimeToMs } from "./results";
 
 // The API has no time zone for circuits, so map the ones on recent calendars.
 const CIRCUIT_TIMEZONES: Record<string, string> = {
@@ -76,6 +77,84 @@ const CIRCUIT_LAYOUTS: Record<string, { length: number; corners: number }> = {
 export const getCircuitLayout = (circuitId: string) =>
   CIRCUIT_LAYOUTS[circuitId];
 
+// Races that run under floodlights, for the calendar's Night races filter
+// and the circuit page's tags. Abu Dhabi starts at dusk and finishes in the
+// dark, so it counts.
+const NIGHT_RACES = new Set([
+  "bahrain",
+  "jeddah",
+  "marina_bay",
+  "vegas",
+  "losail",
+  "yas_marina",
+]);
+
+export const isNightRace = (circuitId: string) => NIGHT_RACES.has(circuitId);
+
+// Circuits on public roads closed for the weekend, including the park and
+// island ones (Albert Park, Villeneuve) and Miami's around the stadium
+const STREET_CIRCUITS = new Set([
+  "albert_park",
+  "baku",
+  "jeddah",
+  "madring",
+  "marina_bay",
+  "miami",
+  "monaco",
+  "vegas",
+  "villeneuve",
+]);
+
+// Which way the cars go round. Suzuka's figure of eight goes both ways, and
+// circuits missing here just get no tag.
+const ANTICLOCKWISE = new Set([
+  "americas",
+  "baku",
+  "imola",
+  "interlagos",
+  "istanbul",
+  "jeddah",
+  "marina_bay",
+  "miami",
+  "vegas",
+  "yas_marina",
+  "yeongam",
+]);
+const CLOCKWISE = new Set([
+  "albert_park",
+  "bahrain",
+  "buddh",
+  "catalunya",
+  "hockenheimring",
+  "hungaroring",
+  "losail",
+  "monaco",
+  "monza",
+  "mugello",
+  "nurburgring",
+  "portimao",
+  "red_bull_ring",
+  "ricard",
+  "rodriguez",
+  "sepang",
+  "shanghai",
+  "silverstone",
+  "sochi",
+  "spa",
+  "villeneuve",
+  "zandvoort",
+]);
+
+// The circuit page's tags: "Street circuit", "Night race", "Anticlockwise".
+// Only what we know, so an unlisted circuit has none.
+export const getCircuitTags = (circuitId: string) =>
+  [
+    STREET_CIRCUITS.has(circuitId) && "Street circuit",
+    isNightRace(circuitId) && "Night race",
+    CLOCKWISE.has(circuitId) && "Clockwise",
+    ANTICLOCKWISE.has(circuitId) && "Anticlockwise",
+  ].filter((tag) => typeof tag === "string");
+
 // The scheduled distance. A race cut short by rain or the time limit
 // (Singapore 2022 ran 59 of 62 laps) shouldn't set it, so the longer of the
 // last two races counts.
@@ -85,24 +164,42 @@ const getLaps = (races: RaceResults[]) =>
     ...races.slice(-2).map((race) => Number(race.Results?.[0]?.laps ?? 0)),
   );
 
-// km/lap, laps, race km, corners, first GP and races held, from every race
-// held at the circuit (oldest first). The layout numbers only exist for
-// circuits on recent calendars.
-export const getCircuitFacts = (circuitId: string, races: RaceResults[]) => {
+export type CircuitFact = {
+  key: "length" | "laps" | "distance" | "turns" | "first" | "races";
+  label: string;
+  value: string | number;
+  unit?: string;
+};
+
+// Lap length, laps, race distance, turns, first race and races held, from
+// every race held at the circuit (oldest first). The layout numbers only
+// exist for circuits on recent calendars.
+export const getCircuitFacts = (
+  circuitId: string,
+  races: RaceResults[],
+): CircuitFact[] => {
   const layout = getCircuitLayout(circuitId);
   const laps = getLaps(races);
-  return [
-    layout && { label: "Km / lap", value: layout.length.toFixed(3) },
-    laps > 0 && { label: "Laps", value: laps },
+  const facts: (CircuitFact | false | undefined)[] = [
+    layout && {
+      key: "length",
+      label: "Lap length",
+      value: layout.length.toFixed(3),
+      unit: "km",
+    },
+    laps > 0 && { key: "laps", label: "Laps", value: laps },
     layout &&
       laps > 0 && {
-        label: "Km race",
+        key: "distance",
+        label: "Race distance",
         value: (layout.length * laps).toFixed(1),
+        unit: "km",
       },
-    layout && { label: "Corners", value: layout.corners },
-    races[0] && { label: "First GP", value: races[0].season },
-    { label: "Races held", value: races.length },
-  ].filter((fact) => !!fact);
+    layout && { key: "turns", label: "Turns", value: layout.corners },
+    races[0] && { key: "first", label: "First race", value: races[0].season },
+    { key: "races", label: "Races held", value: races.length },
+  ];
+  return facts.filter((fact) => !!fact);
 };
 
 // The drivers who won at a circuit, most wins first
@@ -117,3 +214,13 @@ export const getWinsByDriver = (races: RaceResults[]) => {
   });
   return [...byDriver.values()].sort((a, b) => b.wins - a.wins);
 };
+
+// The quickest race lap ever set at a circuit, from each race's fastest lap
+export const getLapRecord = (fastestLaps: RaceResults[]) =>
+  fastestLaps
+    .flatMap((race) => {
+      const result = race.Results?.[0];
+      const ms = lapTimeToMs(result?.FastestLap?.Time.time);
+      return result && ms ? [{ race, result, ms }] : [];
+    })
+    .sort((a, b) => a.ms - b.ms)[0];

@@ -45,9 +45,6 @@ export const getSeasonInfo = async (year: string): Promise<SeasonInfo> => {
 export const getRecentSeasonParams = () =>
   CHAMPIONS.slice(-3).map((c) => ({ year: c.season }));
 
-// The constructors' championship started in 1958
-export const FIRST_CONSTRUCTORS_SEASON = 1958;
-
 // For descriptions: "Lando Norris leads the 2026 drivers' championship on 312
 // points, 14 ahead of Oscar Piastri, after round 17 of 24", or "… won the
 // 2025 drivers' championship with McLaren on 423 points, 2 ahead of …" once

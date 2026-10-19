@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/metadata";
 
-const BACKGROUND = "#0B0B0D";
+// The paper: the splash screen and the status bar of the installed app
+const BACKGROUND = "#F1ECE2";
 
 // Shortcuts show in the installed app's long-press / right-click menu
 const shortcutIcons = [

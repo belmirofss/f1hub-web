@@ -1,14 +1,16 @@
-import { Card } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
-import { CardSkeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { getRaceSession, getTrackMap } from "@/lib/api/openf1";
 import type { RaceResults } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
+import { getStartLine } from "@/lib/domain/trackMap";
 
+// Three inks that still tell apart printed in black and white: vermilion is
+// the lightest, royal blue the middle, ink the darkest
 const SECTORS = [
-  { name: "Sector 1", stroke: "stroke-rain", fill: "bg-rain" },
-  { name: "Sector 2", stroke: "stroke-sprint", fill: "bg-sprint" },
-  { name: "Sector 3", stroke: "stroke-purple", fill: "bg-purple" },
+  { name: "Sector 1", stroke: "stroke-accent", fill: "bg-accent" },
+  { name: "Sector 2", stroke: "stroke-second", fill: "bg-second" },
+  { name: "Sector 3", stroke: "stroke-text", fill: "bg-text" },
 ];
 
 const LINE = {
@@ -17,8 +19,15 @@ const LINE = {
   strokeLinecap: "round",
 } as const;
 
+// The map's box: full width on phones, about 800×500 beside the side panel.
+// The skeleton holds the same space. `data-track-map` tells the page there's
+// a map, so the panel moves beside it.
+const box = "flex flex-col gap-3";
+const drawing = "mx-auto block h-auto max-h-[420px] w-full lg:max-h-[500px]";
+
 // The circuit drawn from the winner's fastest lap of a race OpenF1 has data
-// for, coloured by sector. Disappears when OpenF1 has nothing for it.
+// for, coloured by sector, with the start/finish line across it. Disappears
+// when OpenF1 has nothing for it.
 export const TrackMapCard = async ({
   race,
   circuitName,
@@ -31,60 +40,59 @@ export const TrackMapCard = async ({
   if (!winner || !session) return null;
   const map = await getTrackMap(session, Number(winner.number));
   if (!map) return null;
+  const start = getStartLine(map, 18);
 
   return (
-    <Card as="section" aria-labelledby="track-map" className="p-3">
-      <h2 id="track-map" className="pl-1">
-        <Label>Track map · {race.season} layout</Label>
-      </h2>
+    <figure data-track-map className={box}>
       <svg
         viewBox={`0 0 ${map.width} ${map.height}`}
         role="img"
-        aria-label={`${circuitName} outline, split into three sectors`}
-        className="mx-auto block h-auto max-h-[360px] w-full"
+        aria-label={`${circuitName} track map, split into three sectors`}
+        className={drawing}
       >
-        <polyline
-          {...LINE}
-          points={map.sectors.join(" ")}
-          strokeWidth={12}
-          className="stroke-light-off"
-        />
         {map.sectors.map((points, index) => (
           <polyline
             key={SECTORS[index].name}
             {...LINE}
             points={points}
-            strokeWidth={4}
+            strokeWidth={6}
             className={SECTORS[index].stroke}
           />
         ))}
-        <circle
-          cx={map.start.x}
-          cy={map.start.y}
-          r={6}
-          strokeWidth={2.5}
-          className="fill-background stroke-text"
-        />
+        {/* Paper under the ink line, so it shows where it crosses the ink
+            of sector 3 */}
+        {start && (
+          <>
+            <line {...start} strokeWidth={7} className="stroke-background" />
+            <line {...start} strokeWidth={3} className="stroke-text" />
+          </>
+        )}
       </svg>
-      <ul
-        aria-hidden
-        className="flex flex-wrap gap-x-3.5 gap-y-1 pl-1 text-xs text-muted"
-      >
-        {SECTORS.map((sector) => (
-          <li key={sector.name} className="flex items-center gap-1.5">
-            <span className={cn("h-1 w-3.5 rounded-[2px]", sector.fill)} />
-            {sector.name}
+      <figcaption className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2">
+        <Label>Track map · {race.season} layout</Label>
+        <ul
+          aria-hidden
+          className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-soft"
+        >
+          {SECTORS.map((sector) => (
+            <li key={sector.name} className="flex items-center gap-1.5">
+              <span className={cn("h-1.5 w-4", sector.fill)} />
+              {sector.name}
+            </li>
+          ))}
+          <li className="flex items-center gap-1.5">
+            <span className="h-3.5 w-[3px] bg-text" />
+            Start / finish
           </li>
-        ))}
-        <li className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-full border-2 border-text" />
-          Start / finish
-        </li>
-      </ul>
-    </Card>
+        </ul>
+      </figcaption>
+    </figure>
   );
 };
 
 export const TrackMapSkeleton = () => (
-  <CardSkeleton lines={8} className="min-h-[300px]" />
+  <div data-track-map aria-hidden className={box}>
+    <Skeleton className="aspect-[8/5] max-h-[420px] w-full lg:max-h-[500px]" />
+    <Skeleton className="h-3 w-40" />
+  </div>
 );

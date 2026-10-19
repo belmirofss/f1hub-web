@@ -38,13 +38,15 @@ const formatSeconds = (seconds: number) => {
   return `+${seconds.toFixed(3)}`;
 };
 
-// Classified drivers can still have no time (lapped, or retired late in the
-// race), so fall back to laps down, then to the status.
+// Laps down comes first: Jolpica now gives lapped cars a "Lapped" status
+// and a time ("+2.171", when they crossed the line after the winner), which
+// would read as a gap on the lead lap. Classified drivers can also have no
+// time (retired late in the race), so then it's the status.
 export const getGapToLeader = (result: Result, leader?: Result) => {
-  if (result.Time?.time) return result.Time.time;
   if (!isClassified(result)) return getStatusLabel(result);
   const lapsDown = leader ? Number(leader.laps) - Number(result.laps) : 0;
   if (lapsDown > 0) return `+${lapsDown} ${lapsDown === 1 ? "lap" : "laps"}`;
+  if (result.Time?.time) return result.Time.time;
   return result.status;
 };
 
@@ -138,4 +140,29 @@ export const groupQualifying = (
     },
   ];
   return groups.filter((group) => group.results.length > 0);
+};
+
+// Pole, fastest lap and top gainer: the race's headline numbers. Without
+// qualifying times (sprints, races before 1994) pole is the front of the grid.
+export const getRaceHeadlines = (
+  results: Result[],
+  pole?: QualifyingResult,
+) => {
+  const fastest = getFastestLap(results);
+  const gainer = getTopGainer(results);
+  const poleDriver =
+    pole?.Driver ?? results.find((r) => r.grid === "1")?.Driver;
+
+  return {
+    pole: poleDriver && {
+      driver: poleDriver,
+      time: pole && getBestQualifyingTime(pole),
+    },
+    fastest: fastest?.FastestLap && {
+      driver: fastest.Driver,
+      time: fastest.FastestLap.Time.time,
+      lap: fastest.FastestLap.lap,
+    },
+    gainer: gainer && gainer.gained > 0 ? gainer : undefined,
+  };
 };

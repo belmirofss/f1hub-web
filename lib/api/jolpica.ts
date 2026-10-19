@@ -1,7 +1,10 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { CHAMPIONS, type Champion } from "@/lib/data/champions";
-import { CONSTRUCTOR_CHAMPIONS } from "@/lib/data/constructorChampions";
+import {
+  CONSTRUCTOR_CHAMPIONS,
+  type ConstructorChampion,
+} from "@/lib/data/constructorChampions";
 import { isClassified } from "@/lib/domain/results";
 import { findNextRace } from "@/lib/domain/sessions";
 import { getDriverName } from "@/lib/domain/teams";
@@ -812,17 +815,19 @@ async function loadSeasonFinished(
 }
 const isSeasonFinished = bySeason(loadSeasonFinished);
 
+// The top two of the final standings: the champion and the runner-up
 async function loadDriversChampion(year: number): Promise<Champion | null> {
   "use cache";
   cacheFor("past");
   const data = await jolpica<StandingsTable<"DriverStandings", DriverStanding>>(
-    `${year}/driverStandings/1.json`,
+    `${year}/driverStandings.json`,
     "past",
+    { limit: 2 },
   );
   const list = data.MRData.StandingsTable.StandingsLists[0];
-  const leader = list?.DriverStandings[0];
+  const [leader, second] = list?.DriverStandings ?? [];
   const team = leader?.Constructors.at(-1);
-  if (!leader || !team) return null;
+  if (!leader || !second || !team) return null;
   return {
     season: list.season,
     rounds: Number(list.round),
@@ -832,19 +837,32 @@ async function loadDriversChampion(year: number): Promise<Champion | null> {
     team: team.name,
     points: Number(leader.points),
     wins: Number(leader.wins),
+    runnerUp: getDriverName(second.Driver),
+    runnerUpPoints: Number(second.points),
   };
 }
 
-async function loadConstructorsChampion(year: number): Promise<string | null> {
+async function loadConstructorsChampion(
+  year: number,
+): Promise<ConstructorChampion | null> {
   "use cache";
   cacheFor("past");
   const data = await jolpica<
     StandingsTable<"ConstructorStandings", ConstructorStanding>
-  >(`${year}/constructorStandings/1.json`, "past");
-  return (
-    data.MRData.StandingsTable.StandingsLists[0]?.ConstructorStandings[0]
-      ?.Constructor.constructorId ?? null
-  );
+  >(`${year}/constructorStandings.json`, "past", { limit: 2 });
+  const list = data.MRData.StandingsTable.StandingsLists[0];
+  const [leader, second] = list?.ConstructorStandings ?? [];
+  if (!leader || !second) return null;
+  return {
+    season: list.season,
+    rounds: Number(list.round),
+    teamId: leader.Constructor.constructorId,
+    team: leader.Constructor.name,
+    points: Number(leader.points),
+    wins: Number(leader.wins),
+    runnerUp: second.Constructor.name,
+    runnerUpPoints: Number(second.points),
+  };
 }
 
 // Seasons after `last` that have finished, oldest first. Usually none, or
@@ -882,22 +900,26 @@ export const getTitleSeasons = async (driverId: string) =>
     .filter((c) => c.driverId === driverId)
     .map((c) => c.season);
 
+// Every constructors' champion, oldest first
+export const getConstructorChampionList = async (): Promise<
+  ConstructorChampion[]
+> => {
+  // If the API fails the file alone still shows
+  const added = await orFallback(
+    getFinishedSeasonsAfter(CONSTRUCTOR_CHAMPIONS.at(-1)!.season).then(
+      (years) => Promise.all(years.map(loadConstructorsChampion)),
+    ),
+  );
+  return [...CONSTRUCTOR_CHAMPIONS, ...(added ?? []).filter((c) => c !== null)];
+};
+
 // Constructors' champions by season: season → constructorId
 export const getConstructorChampions = async (): Promise<
   Record<string, string>
-> => {
-  const last = Object.keys(CONSTRUCTOR_CHAMPIONS).at(-1)!;
-  const years = (await orFallback(getFinishedSeasonsAfter(last))) ?? [];
-  const added = await orFallback(
-    Promise.all(years.map(loadConstructorsChampion)),
+> =>
+  Object.fromEntries(
+    (await getConstructorChampionList()).map((c) => [c.season, c.teamId]),
   );
-  const champions = { ...CONSTRUCTOR_CHAMPIONS };
-  years.forEach((year, i) => {
-    const constructorId = added?.[i];
-    if (constructorId) champions[year] = constructorId;
-  });
-  return champions;
-};
 
 // Seasons the team won the constructors' title, oldest first
 export const getConstructorTitles = async (constructorId: string) =>

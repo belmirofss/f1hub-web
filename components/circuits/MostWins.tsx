@@ -28,7 +28,7 @@ export const MostWins = ({ races }: { races: RaceResults[] }) => {
               href={driverHref(driver.driverId)}
               className="group flex min-h-9 items-center gap-2.5"
             >
-              <span className="w-[130px] shrink-0 truncate text-sm font-bold group-hover:underline">
+              <span className="w-[150px] shrink-0 truncate text-sm font-bold group-hover:underline">
                 {getDriverName(driver)}
               </span>
               <span

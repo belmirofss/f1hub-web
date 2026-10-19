@@ -105,7 +105,7 @@ export const SavedPages = () => {
 
   if (pages.length === 0) {
     return (
-      <p className="rounded-lg border border-line bg-surface p-3.5 text-[13px] leading-5 text-muted">
+      <p className="border-t border-dashed border-line-dashed pt-3 text-[13px] leading-5 text-muted">
         Nothing is saved yet. Pages you open while online are kept on this
         device, so they work next time you lose the connection.
       </p>
@@ -113,19 +113,16 @@ export const SavedPages = () => {
   }
 
   return (
-    <ul
-      aria-label="Saved pages"
-      className="overflow-hidden rounded-lg border border-line bg-surface"
-    >
+    <ul aria-label="Saved pages" className="border-t-2 border-text">
       {pages.map(({ href, title, savedAt }) => {
         const Icon = iconFor(href);
         return (
-          <li key={href} className="border-b border-line-soft last:border-b-0">
+          <li key={href} className="border-b border-line">
             {/* A full page load, which the service worker answers from its
                 cache. A client-side navigation would need the network. */}
             <a
               href={href}
-              className="flex min-h-[52px] items-center gap-3 px-3.5 py-2 transition-colors hover:bg-surface-raised"
+              className="flex min-h-[52px] items-center gap-3 px-1 py-2 transition-colors hover:bg-surface"
             >
               <Icon aria-hidden className="size-[18px] shrink-0 text-muted" />
               <span className="line-clamp-2 min-w-0 flex-1 leading-5 font-semibold">

@@ -15,8 +15,10 @@ import {
   OgFrame,
   OgLabel,
   OgRow,
+  OgRows,
   OgTitle,
   ogImage,
+  ogMono,
 } from "@/lib/og";
 import { getRaceWeekend, getWeekendTabs } from "@/lib/raceWeekend";
 
@@ -28,7 +30,7 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 const Podium = ({ results }: { results: Result[] }) => (
-  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+  <OgRows>
     {results.slice(0, 3).map((result, index) => (
       <OgRow
         key={result.Driver.driverId}
@@ -40,7 +42,7 @@ const Podium = ({ results }: { results: Result[] }) => (
         highlight={index === 0}
       />
     ))}
-  </div>
+  </OgRows>
 );
 
 const Sessions = ({ race }: { race: Race }) => {
@@ -56,7 +58,7 @@ const Sessions = ({ race }: { race: Race }) => {
           ? `Sessions · track time (${utcOffsetLabel(zone, sessions[0].start)})`
           : "Sessions"}
       </OgLabel>
-      <div style={{ display: "flex", gap: 12 }}>
+      <div style={{ display: "flex", gap: 20 }}>
         {sessions.map((session) => {
           const isRace = session.key === "race";
           const timeZone = (session.hasTime && zone) || "UTC";
@@ -67,25 +69,21 @@ const Sessions = ({ race }: { race: Race }) => {
                 display: "flex",
                 flexDirection: "column",
                 flex: 1,
-                gap: 4,
-                padding: "16px 20px",
-                borderRadius: 12,
-                border: `1px solid ${isRace ? OG_COLORS.accent : OG_COLORS.line}`,
-                background: OG_COLORS.surface,
+                gap: 6,
+                paddingTop: 12,
+                borderTop: `3px solid ${isRace ? OG_COLORS.accent : OG_COLORS.text}`,
               }}
             >
               <OgLabel
                 size={16}
-                color={isRace ? OG_COLORS.accent : OG_COLORS.muted}
+                color={isRace ? OG_COLORS.accentInk : OG_COLORS.muted}
               >
                 {session.short}
               </OgLabel>
               <div style={{ display: "flex", fontSize: 26, fontWeight: 700 }}>
                 {formatDay(session.start, timeZone)}
               </div>
-              <div
-                style={{ display: "flex", fontFamily: "Mono", fontSize: 30 }}
-              >
+              <div style={{ ...ogMono, display: "flex", fontSize: 40 }}>
                 {session.hasTime && zone
                   ? formatClock(session.start, true, zone)
                   : "TBC"}
@@ -123,9 +121,9 @@ export default async function Image({
         .filter(Boolean)
         .join(" · ")}
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <OgTitle>{race.raceName}</OgTitle>
-        <div style={{ display: "flex", fontSize: 30, color: OG_COLORS.muted }}>
+        <div style={{ display: "flex", fontSize: 30, color: OG_COLORS.soft }}>
           {`${circuitName} · ${Location.locality} · ${formatRaceDay(race)}`}
         </div>
       </div>

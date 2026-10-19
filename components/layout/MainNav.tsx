@@ -58,8 +58,8 @@ const ITEMS: Item[] = [
 
 type Variant = "top" | "bottom";
 
-// The four main sections, as text links in the desktop header or as the
-// phone's bottom tab bar. Without a pathname nothing is highlighted: that's
+// The four main sections, as text links in the header from 768px up or as
+// the phone's bottom tab bar. Without a pathname nothing is highlighted: that's
 // the Suspense fallback while the URL isn't known during prerendering.
 export const NavItems = ({
   variant,
@@ -77,11 +77,12 @@ export const NavItems = ({
           key={href}
           href={href}
           aria-current={active ? "page" : undefined}
+          // The underline sits on the header's ink rule
           className={cn(
-            "rounded-md px-3 py-2 font-semibold transition-colors",
+            "-mb-0.5 flex items-center border-b-2 px-3.5 text-sm font-semibold transition-colors",
             active
-              ? "bg-surface text-text shadow-[inset_0_-2px_0_var(--accent)]"
-              : "text-muted hover:text-text",
+              ? "border-accent text-text"
+              : "border-transparent text-muted hover:text-text",
           )}
         >
           {label}
@@ -97,7 +98,7 @@ export const NavItems = ({
         className={cn(
           "-mt-px flex min-h-[51px] flex-1 flex-col items-center gap-[3px] border-t-2 pt-2 text-[11px] leading-4",
           active
-            ? "border-accent font-bold text-accent"
+            ? "border-accent font-bold text-text"
             : "border-transparent font-semibold text-muted",
         )}
       >

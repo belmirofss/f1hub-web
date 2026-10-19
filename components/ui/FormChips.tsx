@@ -7,9 +7,9 @@ const chipClasses = (position: number | null) => {
   if (position === 1) return "border-accent bg-accent text-on-accent";
   if (position && position <= 3) return "border-text bg-text text-background";
   if (position && position <= 10)
-    return "border-light-off bg-light-off text-soft";
-  if (position === 0) return "border-[#5A2A24] text-loss";
-  return "border-light-off text-faint";
+    return "border-surface-raised bg-surface-raised text-text";
+  if (position === 0) return "border-dashed border-line-dashed text-loss";
+  return "border-line-dashed text-muted";
 };
 
 const chipText = (position: number | null) =>
@@ -24,7 +24,7 @@ export const FormChip = ({
 }) => (
   <span
     className={cn(
-      "flex shrink-0 items-center justify-center rounded-[4px] border font-mono text-[9px] font-bold",
+      "flex shrink-0 items-center justify-center border font-mono text-[9px] font-bold",
       chipClasses(position),
     )}
     style={{ width: size, height: size }}
@@ -33,8 +33,9 @@ export const FormChip = ({
   </span>
 );
 
-// Last results as small squares: win = accent, podium = white,
-// points = grey, outside the points = outlined, retirement = "R".
+// Last results as small squares: win = vermilion, podium = ink,
+// points = raised paper, outside the points = outlined, retirement = a blue
+// dashed "R".
 export const FormChips = ({
   form,
   size = 20,

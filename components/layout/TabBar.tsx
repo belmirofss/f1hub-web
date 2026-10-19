@@ -6,7 +6,7 @@ import { ActiveNavItems, NavItems } from "./MainNav";
 export const TabBar = () => (
   <nav
     aria-label="Main"
-    className="fixed inset-x-0 bottom-0 z-20 flex border-t border-line bg-background pr-[max(4px,env(safe-area-inset-right))] pb-[max(12px,env(safe-area-inset-bottom))] pl-[max(4px,env(safe-area-inset-left))] md:hidden"
+    className="fixed inset-x-0 bottom-0 z-20 flex border-t border-line bg-surface pr-[max(4px,env(safe-area-inset-right))] pb-[max(12px,env(safe-area-inset-bottom))] pl-[max(4px,env(safe-area-inset-left))] md:hidden"
   >
     <Suspense fallback={<NavItems variant="bottom" />}>
       <ActiveNavItems variant="bottom" />

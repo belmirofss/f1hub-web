@@ -59,7 +59,7 @@ export const TeamDrivers = async ({
             >
               <span
                 aria-hidden
-                className="flex size-10 shrink-0 items-center justify-center rounded-full border border-line bg-surface-raised font-mono text-[11px] font-bold"
+                className="flex size-10 shrink-0 items-center justify-center border border-line bg-surface-raised font-mono text-[11px] font-bold"
                 style={{ color }}
               >
                 {getDriverCode(standing.Driver)}

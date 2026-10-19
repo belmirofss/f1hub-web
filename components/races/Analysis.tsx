@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/Label";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { getLapPositions } from "@/lib/api/jolpica";
 import { getRaceSession, getStints } from "@/lib/api/openf1";
-import type { PitStop, Race, Result, Stint } from "@/lib/api/types";
+import type { PitStop, Race, Result } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import {
   getGridPosition,
@@ -22,6 +22,13 @@ import {
 import { driverHref } from "@/lib/domain/routes";
 import { getDriverCode, getDriverName, getTeamColor } from "@/lib/domain/teams";
 import { LapChart, type LapChartDriver } from "./LapChart";
+import {
+  CompoundLegend,
+  finishedStints,
+  getStintsTotal,
+  groupStints,
+  StintBar,
+} from "./TyreStints";
 
 // Lap chart
 
@@ -51,7 +58,7 @@ const LapChartCard = async ({
   const { positions, laps } = await getLapPositions(race.season, race.round);
   if (!laps) {
     return (
-      <Card as="section" aria-label="Lap chart" className="lg:p-5">
+      <Card as="section" aria-label="Lap chart">
         <Label>Lap chart</Label>
         <p className="text-sm text-muted">
           Lap-by-lap positions aren&apos;t out yet.
@@ -81,38 +88,6 @@ const LapChartCard = async ({
 
 // Tyre strategy
 
-type Compound = { name: string; letter: string; className: string };
-
-const COMPOUNDS: Record<string, Compound> = {
-  SOFT: {
-    name: "Soft",
-    letter: "S",
-    className: "bg-[#FF3B3B] text-background",
-  },
-  MEDIUM: {
-    name: "Medium",
-    letter: "M",
-    className: "bg-sprint text-background",
-  },
-  HARD: { name: "Hard", letter: "H", className: "bg-text text-background" },
-  INTERMEDIATE: {
-    name: "Inter",
-    letter: "I",
-    className: "bg-gain text-background",
-  },
-  WET: { name: "Wet", letter: "W", className: "bg-[#4A90FF] text-background" },
-};
-const UNKNOWN_COMPOUND: Compound = {
-  name: "Unknown",
-  letter: "?",
-  className: "bg-line-dashed text-text",
-};
-
-const getCompound = (stint: Stint) =>
-  COMPOUNDS[stint.compound] ?? UNKNOWN_COMPOUND;
-
-const stintLaps = (stint: Stint) => stint.lap_end - stint.lap_start + 1;
-
 const TyreStrategy = async ({
   race,
   results,
@@ -122,25 +97,14 @@ const TyreStrategy = async ({
 }) => {
   const session = await getRaceSession(race.season, race.date);
   if (!session) return null;
-  const stints = (await getStints(session)).filter(
-    (s) => s.lap_end != null && s.lap_end >= s.lap_start,
-  );
+  const stints = finishedStints(await getStints(session));
   if (!stints.length) return null;
 
-  const total = Math.max(
-    Number(results[0]?.laps) || 0,
-    ...stints.map((s) => s.lap_end),
-  );
-  const used = new Set(stints.map((s) => s.compound));
-  // OpenF1 knows drivers by car number, which the results carry too
+  const byCar = groupStints(stints);
+  const total = getStintsTotal(byCar, Number(results[0]?.laps) || 0);
   const rows = results
-    .map((result) => ({
-      result,
-      stints: stints
-        .filter((s) => s.driver_number === Number(result.number))
-        .sort((a, b) => a.stint_number - b.stint_number),
-    }))
-    .filter((row) => row.stints.length);
+    .map((result) => ({ result, stints: byCar.get(Number(result.number)) }))
+    .filter((row) => row.stints?.length);
   if (!rows.length) return null;
 
   return (
@@ -148,94 +112,39 @@ const TyreStrategy = async ({
       as="section"
       id="tyres"
       aria-labelledby="tyres-title"
-      className="scroll-mt-4 lg:p-5"
+      className="scroll-mt-4"
     >
       {/* The Home page's last race card links here */}
       <HashTarget id="tyres" />
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <Label id="tyres-title">Tyre strategy</Label>
-        <ul
-          aria-label="Compounds"
-          className="flex flex-wrap gap-2.5 text-[11px] text-muted"
-        >
-          {Object.entries(COMPOUNDS)
-            .filter(([key]) => used.has(key))
-            .map(([key, compound]) => (
-              <li key={key} className="flex items-center gap-1">
-                <span
-                  aria-hidden
-                  className={cn("size-2 rounded-full", compound.className)}
-                />
-                {compound.name}
-              </li>
-            ))}
-        </ul>
+        <CompoundLegend stints={stints} />
       </div>
 
       <ol className="flex flex-col gap-1.5">
-        {rows.map(({ result, stints: own }) => {
-          const lastLap = own[own.length - 1].lap_end;
-          const plan = own
-            .map((s) => {
-              const laps = stintLaps(s);
-              return `${getCompound(s).name} for ${laps} ${laps === 1 ? "lap" : "laps"}`;
-            })
-            .join(", ");
-
-          return (
-            <li
-              key={result.Driver.driverId}
-              className="flex items-center gap-2"
+        {rows.map(({ result, stints: own }) => (
+          <li key={result.Driver.driverId} className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className="w-[18px] shrink-0 text-right font-mono text-[11px] whitespace-nowrap text-muted"
             >
-              <span
-                aria-hidden
-                className="w-[18px] shrink-0 text-right font-mono text-[11px] whitespace-nowrap text-muted"
-              >
-                {isClassified(result)
-                  ? result.position
-                  : getStatusLabel(result)}
-              </span>
-              <span
-                aria-hidden
-                className="w-8 shrink-0 font-mono text-xs font-bold"
-              >
-                {getDriverCode(result.Driver)}
-              </span>
-              <span className="sr-only">
-                {getDriverName(result.Driver)}: {plan}
-              </span>
-              <span
-                aria-hidden
-                className="flex h-[22px] min-w-0 flex-1 gap-0.5"
-              >
-                {own.map((stint) => {
-                  const compound = getCompound(stint);
-                  const laps = stintLaps(stint);
-                  return (
-                    <span
-                      key={stint.stint_number}
-                      className={cn(
-                        "flex min-w-0 basis-0 items-center overflow-hidden rounded-[4px] pl-[5px] font-mono text-[10px] font-bold whitespace-nowrap",
-                        compound.className,
-                      )}
-                      style={{ flexGrow: laps }}
-                    >
-                      {laps >= 6
-                        ? `${compound.letter} ${laps}`
-                        : compound.letter}
-                    </span>
-                  );
-                })}
-                {lastLap < total && (
-                  <span
-                    className="basis-0"
-                    style={{ flexGrow: total - lastLap }}
-                  />
-                )}
-              </span>
-            </li>
-          );
-        })}
+              {isClassified(result) ? result.position : getStatusLabel(result)}
+            </span>
+            <span
+              aria-hidden
+              className="w-8 shrink-0 font-mono text-xs font-bold"
+            >
+              {getDriverCode(result.Driver)}
+            </span>
+            <span className="sr-only">{getDriverName(result.Driver)}: </span>
+            <StintBar
+              stints={own!}
+              total={total}
+              labels
+              className="h-[22px] flex-1"
+            />
+          </li>
+        ))}
       </ol>
 
       <div
@@ -275,11 +184,7 @@ const PitStops = ({
   const byDriver = new Map(results.map((r) => [r.Driver.driverId, r]));
 
   return (
-    <Card
-      as="section"
-      aria-labelledby="pit-stops-title"
-      className="gap-0 pb-1 lg:px-5 lg:pb-1.5"
-    >
+    <Card as="section" aria-labelledby="pit-stops-title" className="gap-0 pb-1">
       <div className="flex justify-between pb-2">
         <Label id="pit-stops-title">Fastest pit stops</Label>
         <Label>

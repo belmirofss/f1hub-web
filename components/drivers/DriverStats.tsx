@@ -1,7 +1,4 @@
-import { Card } from "@/components/ui/Card";
-import { Label } from "@/components/ui/Label";
-import { CardSkeleton } from "@/components/ui/Skeleton";
-import { StatGrid } from "@/components/ui/StatGrid";
+import { StatRail } from "@/components/ui/StatRail";
 import {
   getDriverSeasonStanding,
   type Career,
@@ -9,9 +6,9 @@ import {
 } from "@/lib/api/jolpica";
 import { formatPoints, ordinal } from "@/lib/domain/drivers";
 
-// The latest season (position, points, wins, podiums) over the whole career
-// (starts, wins, podiums, poles)
-export const StatsCard = async ({
+// The stat rail: the latest season (position, points, wins, podiums), then
+// the whole career (starts, wins, podiums, poles)
+export const DriverStats = async ({
   driverId,
   career,
   latest,
@@ -28,49 +25,43 @@ export const StatsCard = async ({
   const position = Number(standing?.position);
 
   return (
-    <Card as="section" aria-label="Season and career stats">
-      {latest && (
-        <>
-          <h2>
-            <Label>{latest.season} season</Label>
-          </h2>
-          <StatGrid
-            stats={[
+    <StatRail
+      groups={[
+        ...(latest
+          ? [
               {
-                label: "Pos",
-                value: position > 0 ? ordinal(position) : "–",
+                name: latest.season,
+                raised: true,
+                stats: [
+                  {
+                    label: "Pos",
+                    value: position > 0 ? ordinal(position) : "–",
+                  },
+                  {
+                    label: "Pts",
+                    value: formatPoints(
+                      standing ? Number(standing.points) : latest.points,
+                    ),
+                  },
+                  {
+                    label: "Wins",
+                    value: standing ? Number(standing.wins) : latest.wins,
+                  },
+                  { label: "Podiums", value: latest.podiums },
+                ],
               },
-              {
-                label: "Pts",
-                value: formatPoints(
-                  standing ? Number(standing.points) : latest.points,
-                ),
-              },
-              {
-                label: "Wins",
-                value: standing ? Number(standing.wins) : latest.wins,
-              },
-              { label: "Podiums", value: latest.podiums },
-            ]}
-          />
-          <div className="h-px bg-line-soft" />
-        </>
-      )}
-      <h2>
-        <Label>Career</Label>
-      </h2>
-      <StatGrid
-        stats={[
-          { label: "Starts", value: career.starts },
-          { label: "Wins", value: career.wins },
-          { label: "Podiums", value: career.podiums },
-          { label: "Poles", value: career.poles },
-        ]}
-      />
-    </Card>
+            ]
+          : []),
+        {
+          name: "Career",
+          stats: [
+            { label: "Starts", value: career.starts },
+            { label: "Wins", value: career.wins },
+            { label: "Podiums", value: career.podiums },
+            { label: "Poles", value: career.poles },
+          ],
+        },
+      ]}
+    />
   );
 };
-
-export const StatsCardSkeleton = () => (
-  <CardSkeleton lines={3} className="min-h-[190px]" />
-);

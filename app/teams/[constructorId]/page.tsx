@@ -2,12 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Columns } from "@/components/layout/Columns";
-import { DetailPageSkeleton } from "@/components/layout/PageSkeletons";
+import { PosterPageSkeleton } from "@/components/layout/PageSkeletons";
 import { JsonLd } from "@/components/seo/JsonLd";
-import {
-  AllTimeStats,
-  AllTimeStatsSkeleton,
-} from "@/components/teams/AllTimeStats";
 import {
   PointsPerRound,
   PointsPerRoundSkeleton,
@@ -21,9 +17,10 @@ import {
   TeamDriversSkeleton,
 } from "@/components/teams/TeamDrivers";
 import { TeamHero } from "@/components/teams/TeamHero";
+import { TeamStats } from "@/components/teams/TeamStats";
 import { TeammateLink } from "@/components/teams/TeammateLink";
 import { Slot } from "@/components/ui/Slot";
-import { TitlesCard } from "@/components/ui/TitlesCard";
+import { StatRailSkeleton } from "@/components/ui/StatRail";
 import {
   getConstructor,
   getConstructorSeasons,
@@ -33,6 +30,7 @@ import {
 } from "@/lib/api/jolpica";
 import type { Constructor } from "@/lib/api/types";
 import { teamHref } from "@/lib/domain/routes";
+import { getTeamHero } from "@/lib/domain/teams";
 import { orFallback, pageMetadata, plural } from "@/lib/metadata";
 import { breadcrumbLd, teamLd } from "@/lib/structuredData";
 
@@ -108,7 +106,7 @@ export default async function TeamPage({
           ]),
         ]}
       />
-      <Suspense fallback={<DetailPageSkeleton className="min-h-svh" />}>
+      <Suspense fallback={<PosterPageSkeleton />}>
         <TeamContent team={team} />
       </Suspense>
     </>
@@ -126,7 +124,16 @@ const TeamContent = async ({ team }: { team: Constructor }) => {
 
   return (
     <>
-      <TeamHero team={team} seasons={seasons} />
+      <div className="flex flex-col">
+        <TeamHero team={team} seasons={seasons} titles={titles} />
+        <Slot label="Stats" fallback={<StatRailSkeleton />}>
+          <TeamStats
+            constructorId={constructorId}
+            seasons={seasons}
+            titles={titles}
+          />
+        </Slot>
+      </div>
       <Columns
         asideLabel="Championship history and teammates"
         aside={
@@ -136,6 +143,7 @@ const TeamContent = async ({ team }: { team: Constructor }) => {
                 constructorId={constructorId}
                 seasons={seasons}
                 titles={titles}
+                hero={getTeamHero(constructorId)}
               />
             </Slot>
             {latest && (
@@ -146,19 +154,11 @@ const TeamContent = async ({ team }: { team: Constructor }) => {
           </>
         }
       >
-        <TitlesCard titles={titles} champion="Constructors' Champions" />
         {latest && (
           <Slot label="Drivers" fallback={<TeamDriversSkeleton />}>
             <TeamDrivers constructorId={constructorId} season={latest} />
           </Slot>
         )}
-        <Slot label="All time" fallback={<AllTimeStatsSkeleton />}>
-          <AllTimeStats
-            constructorId={constructorId}
-            seasons={seasons}
-            titles={titles}
-          />
-        </Slot>
         {latest && (
           <Slot fallback={<PointsPerRoundSkeleton />}>
             <PointsPerRound constructorId={constructorId} season={latest} />

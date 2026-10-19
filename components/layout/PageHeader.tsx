@@ -15,11 +15,9 @@ type Props = {
   // Under the title: weekend tabs, view switches
   children?: ReactNode;
   className?: string;
+  // A smaller title where the content needs the room: "lg:text-5xl"
+  titleClassName?: string;
 };
-
-// From 1024px titles get the big slanted desktop treatment
-const desktopTitle =
-  "lg:-skew-x-6 lg:text-[40px] lg:leading-[44px] lg:font-black";
 
 // The app's screen header. Tab pages: big title with the meta on its
 // baseline. Detail pages: Back + meta on one row and the title under it.
@@ -33,6 +31,7 @@ export const PageHeader = ({
   actions,
   children,
   className,
+  titleClassName,
 }: Props) => {
   if (!back) {
     return (
@@ -40,12 +39,14 @@ export const PageHeader = ({
         className={cn("flex flex-col gap-3 pt-[18px] lg:pt-6", className)}
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-baseline justify-between gap-3 lg:flex-none lg:flex-col lg:items-start lg:gap-0.5">
-            <h1 className={cn("text-[28px] leading-9 font-bold", desktopTitle)}>
-              {title}
-            </h1>
+          {/* The meta drops under the title where both don't fit: "AFTER
+              R18 · 6 TO GO" beside "STANDINGS" at 360px */}
+          <div className="flex min-w-0 flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-1 lg:flex-none lg:flex-col lg:flex-nowrap lg:items-start lg:gap-0.5">
+            <h1 className="page-title break-words">{title}</h1>
             {meta && (
-              <p className="shrink-0 font-mono text-xs text-muted">{meta}</p>
+              <p className="shrink-0 font-mono text-xs tracking-[0.14em] text-muted">
+                {meta}
+              </p>
             )}
           </div>
           {actions && <div className="flex items-center gap-2">{actions}</div>}
@@ -64,7 +65,7 @@ export const PageHeader = ({
             className="lg:hidden standalone:flex"
           />
           {meta && (
-            <p className="truncate font-mono text-xs tracking-[1px] text-muted">
+            <p className="truncate font-mono text-xs tracking-[0.14em] text-muted">
               {meta}
             </p>
           )}
@@ -76,8 +77,8 @@ export const PageHeader = ({
         )}
         <h1
           className={cn(
-            "text-[26px] leading-[30px] font-bold [grid-area:title]",
-            desktopTitle,
+            "page-title break-words [grid-area:title]",
+            titleClassName,
           )}
         >
           {title}

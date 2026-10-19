@@ -7,23 +7,20 @@ import {
   getDriverSeasonStanding,
   getTitleSeasons,
 } from "@/lib/api/jolpica";
+import { getCountryCode3ByNationality } from "@/lib/domain/countries";
 import { formatPoints, ordinal } from "@/lib/domain/drivers";
-import { getDriverCode, getTeamColor } from "@/lib/domain/teams";
+import { getTeamHero } from "@/lib/domain/teams";
 import { orFallback } from "@/lib/metadata";
 import {
-  OG_COLORS,
   OG_CONTENT_TYPE,
   OG_SIZE,
-  OgFrame,
-  OgLabel,
+  OgPosterFrame,
   OgStats,
-  OgTeamBar,
-  OgTitle,
   ogImage,
 } from "@/lib/og";
 
-// The driver's card: the hero in the team's colour, then the latest season
-// and the whole career, like the Stats card
+// The driver's card: the Livery Poster block in the team's colour, then the
+// latest season and the whole career, like the page's stat rail
 
 export const alt = "Driver card: team, season and career stats";
 export const size = OG_SIZE;
@@ -53,64 +50,27 @@ export default async function Image({
     (await orFallback(getDriverSeasonStanding(latest.season, driverId)));
   const position = Number(standing?.position);
   const titles = titleSeasons.length;
-  const color = getTeamColor(latest?.team.constructorId);
   const racing = !!latest && Number(latest.season) === current;
 
+  const meta = [
+    latest?.team.name,
+    getCountryCode3ByNationality(driver.nationality),
+    titles > 0 && `${titles > 1 ? `${titles}× ` : ""}World champion`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return ogImage(
-    <OgFrame
+    <OgPosterFrame
+      hero={getTeamHero(latest?.team.constructorId)}
       kicker={latest ? `Driver · ${latest.season}` : "Driver"}
-      accent={color}
+      overline={driver.givenName}
+      headline={driver.familyName}
+      meta={meta}
+      number={driver.permanentNumber}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-        <OgTeamBar color={color} height={150} width={12} />
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 132,
-            height: 132,
-            flexShrink: 0,
-            borderRadius: 66,
-            border: `2px solid ${OG_COLORS.line}`,
-            background: OG_COLORS.raised,
-            fontFamily: "Mono",
-            fontSize: 36,
-            color,
-          }}
-        >
-          {getDriverCode(driver)}
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <div
-            style={{
-              display: "flex",
-              fontSize: 34,
-              fontWeight: 600,
-              color: OG_COLORS.muted,
-            }}
-          >
-            {driver.givenName}
-          </div>
-          <OgTitle size={96}>{driver.familyName}</OgTitle>
-          <div style={{ display: "flex", gap: 24, marginTop: 6 }}>
-            <OgLabel>
-              {[driver.nationality, latest?.team.name]
-                .filter(Boolean)
-                .join(" · ")}
-            </OgLabel>
-            {titles > 0 && (
-              <OgLabel color={OG_COLORS.sprint}>
-                {`${titles > 1 ? `${titles}× ` : ""}World champion`}
-              </OgLabel>
-            )}
-          </div>
-        </div>
-      </div>
       {career && (
-        <div
-          style={{ display: "flex", flex: 1, alignItems: "flex-end", gap: 28 }}
-        >
+        <div style={{ display: "flex", flex: 1, gap: 40 }}>
           {latest && (
             <OgStats
               label={`${latest.season} season`}
@@ -141,7 +101,7 @@ export default async function Image({
           />
         </div>
       )}
-    </OgFrame>,
+    </OgPosterFrame>,
     racing ? "current" : "lists",
   );
 }

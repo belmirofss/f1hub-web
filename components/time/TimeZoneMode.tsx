@@ -59,12 +59,18 @@ export const TimeZoneToggle = ({ className }: { className?: string }) => {
   );
 };
 
+// The zone the toggle has picked: the track's, or undefined for the viewer's
+export const useSessionTimeZone = () => {
+  const { mode, trackTimeZone } = useContext(TimeZoneModeContext);
+  return mode === "track" ? trackTimeZone : undefined;
+};
+
 // A session time in the zone the toggle has picked
 export const SessionTime = (props: TimeProps) => {
-  const { mode, trackTimeZone } = useContext(TimeZoneModeContext);
+  const timeZone = useSessionTimeZone();
 
-  return mode === "track" && trackTimeZone ? (
-    <TrackTime {...props} timeZone={trackTimeZone} />
+  return timeZone ? (
+    <TrackTime {...props} timeZone={timeZone} />
   ) : (
     <LocalTime {...props} />
   );

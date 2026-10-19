@@ -1,6 +1,10 @@
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Titillium_Web } from "next/font/google";
+import {
+  Big_Shoulders,
+  Instrument_Sans,
+  JetBrains_Mono,
+} from "next/font/google";
 import { InstallPrompt } from "@/components/install/InstallPrompt";
 import { HistoryTracker } from "@/components/layout/BackButton";
 import { SearchShortcut } from "@/components/layout/SearchShortcut";
@@ -21,12 +25,23 @@ import {
   socialImage,
 } from "@/lib/metadata";
 import { INSTALL_SCRIPT } from "@/lib/install";
-import { ACCENT_SCRIPT } from "@/lib/settings";
 import "./globals.css";
 
-const titillium = Titillium_Web({
-  variable: "--font-titillium",
-  weight: ["400", "600", "700", "900"],
+// Headlines. Google Fonts now ships Big Shoulders Display as the variable
+// Big Shoulders family: its optical size axis gives the display cut at
+// headline sizes. next/font only has fallback metrics for the old "Big
+// Shoulders Display" name, so the size-adjusted fallback is declared by hand
+// in globals.css.
+const shoulders = Big_Shoulders({
+  variable: "--font-shoulders",
+  axes: ["opsz"],
+  subsets: ["latin"],
+  adjustFontFallback: false,
+  fallback: ["Big Shoulders Fallback"],
+});
+
+const instrument = Instrument_Sans({
+  variable: "--font-instrument",
   subsets: ["latin"],
 });
 
@@ -43,12 +58,12 @@ export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  // Home screen app on iOS. The status bar draws over the page, so the top
-  // of the page needs env(safe-area-inset-top).
+  // Home screen app on iOS. "default" keeps dark status bar text on the
+  // paper; "black-translucent" would draw it white.
   appleWebApp: {
     capable: true,
     title: SITE_NAME,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
   openGraph: {
     type: "website",
@@ -72,29 +87,26 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   // The status bar on Android, and the browser bar where it's tinted
-  themeColor: "#0B0B0D",
-  colorScheme: "dark",
+  themeColor: "#F1ECE2",
+  colorScheme: "light",
   // The page draws under the notch and home indicator, and pads itself with
   // env(safe-area-inset-*)
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children, spine }: LayoutProps<"/">) {
   return (
-    // The accent script sets a style on <html> before React hydrates
     <html
       lang="en"
-      className={`${titillium.variable} ${jetbrains.variable} h-full antialiased`}
-      suppressHydrationWarning
+      className={`${shoulders.variable} ${instrument.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: ACCENT_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: INSTALL_SCRIPT }} />
       </head>
       {/* Below 768px the body reserves room for the fixed tab bar */}
       <body className="flex min-h-full flex-col pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] max-md:pb-[calc(52px+max(12px,env(safe-area-inset-bottom)))]">
-        {/* Covers the iOS status bar (translucent in the installed app) so the
-            page never scrolls underneath the clock and notch */}
+        {/* Covers the area under the notch and clock (wherever the page draws
+            under them) so the page never scrolls underneath */}
         <div
           aria-hidden
           className="fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-background"
@@ -102,11 +114,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SettingsProvider>
           <a
             href="#main"
-            className="fixed top-2 left-2 z-30 -translate-y-20 rounded-md bg-text px-4 py-2.5 font-bold text-background focus:translate-y-0"
+            className="fixed top-2 left-2 z-30 -translate-y-20 bg-text px-4 py-2.5 font-bold text-background focus:translate-y-0"
           >
             Skip to content
           </a>
           <SiteHeader />
+          {/* The season spine (app/@spine): the season of a race or season
+              URL, the current one elsewhere, and none on the calendar */}
+          {spine}
           <main
             id="main"
             tabIndex={-1}

@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
 import { useNow } from "@/components/time/useNow";
 import { cn } from "@/lib/cn";
-import { HOUR, formatWeekday, startOfDay } from "@/lib/domain/time";
+import { getWeekendSpan } from "@/lib/domain/sessions";
+import { HOUR, formatWeekday } from "@/lib/domain/time";
 
 export type TimelineSession = {
   key: string;
@@ -13,15 +14,6 @@ export type TimelineSession = {
 };
 
 const DAY = 24 * HOUR;
-
-// The weekend's days in the visitor's time zone, from midnight before the
-// first session to midnight after the last
-const getSpan = (starts: number[]) => {
-  const first = startOfDay(starts[0]);
-  // Past midday of the next day whatever the DST change, then back to midnight
-  const end = startOfDay(startOfDay(starts[starts.length - 1]) + 36 * HOUR);
-  return { first, end, days: Math.round((end - first) / DAY) };
-};
 
 // Fri–Sun bar with a marker per session, placed by its real start time, and
 // a "now" line while the weekend is on. Days depend on the visitor's time
@@ -34,7 +26,7 @@ export const WeekendTimeline = ({
 }) => {
   const now = useNow(60000);
   const starts = sessions.map((session) => Date.parse(session.start));
-  const span = now === null ? undefined : { ...getSpan(starts), now };
+  const span = now === null ? undefined : { ...getWeekendSpan(starts), now };
 
   // A weekend that falls on 1 or 5+ days in this time zone doesn't fit the bar
   if (span && (span.days < 2 || span.days > 4)) return null;
@@ -48,7 +40,7 @@ export const WeekendTimeline = ({
         <Label>Weekend at a glance</Label>
       </h2>
       <div aria-hidden className="relative mt-1 h-[76px]">
-        <span className="absolute inset-x-0 top-[30px] h-1 rounded-[2px] bg-line" />
+        <span className="absolute inset-x-0 top-[30px] h-1 bg-line" />
         {span && (
           <>
             {Array.from({ length: span.days - 1 }, (_, index) => (
@@ -77,7 +69,7 @@ export const WeekendTimeline = ({
                   <span
                     className={cn(
                       "h-3.5 font-mono text-[9px] font-bold",
-                      isRace && "text-accent",
+                      isRace && "text-accent-ink",
                       !up && "invisible",
                     )}
                   >

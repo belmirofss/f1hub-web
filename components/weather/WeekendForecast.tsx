@@ -55,7 +55,7 @@ export const WeekendForecast = ({
         {days.map((day) => (
           <li
             key={day.day}
-            className="flex flex-1 flex-col items-center gap-1 rounded-[10px] bg-surface-raised py-2.5"
+            className="flex flex-1 flex-col items-center gap-1 bg-surface-raised py-2.5"
           >
             <Label>{day.label}</Label>
             <ConditionIcon

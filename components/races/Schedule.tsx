@@ -36,7 +36,10 @@ const SessionRow = ({
     <tr className="h-[54px] border-b border-line-soft">
       <th scope="row" className="text-left font-normal">
         <span
-          className={cn("block text-[15px] font-bold", isRace && "text-accent")}
+          className={cn(
+            "block text-[15px] font-bold",
+            isRace && "text-accent-ink",
+          )}
         >
           {session.name}
         </span>

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AboutCard, AboutCardSkeleton } from "@/components/drivers/AboutCard";
 import { DriverHero } from "@/components/drivers/DriverHero";
-import { StatsCard, StatsCardSkeleton } from "@/components/drivers/DriverStats";
+import { DriverStats } from "@/components/drivers/DriverStats";
 import {
   RecentRaces,
   RecentRacesSkeleton,
@@ -12,12 +12,16 @@ import {
   SeasonBars,
   SeasonBarsSkeleton,
 } from "@/components/drivers/SeasonBars";
-import { TeammateCard } from "@/components/drivers/TeammateCard";
+import {
+  SeasonStrip,
+  SeasonStripSkeleton,
+} from "@/components/drivers/SeasonStrip";
+import { TeammateCards } from "@/components/drivers/TeammateCard";
 import { Columns } from "@/components/layout/Columns";
-import { DetailPageSkeleton } from "@/components/layout/PageSkeletons";
+import { PosterPageSkeleton } from "@/components/layout/PageSkeletons";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Slot } from "@/components/ui/Slot";
-import { TitlesCard } from "@/components/ui/TitlesCard";
+import { StatRailSkeleton } from "@/components/ui/StatRail";
 import {
   getCurrentSeason,
   getDriver,
@@ -26,7 +30,7 @@ import {
 } from "@/lib/api/jolpica";
 import type { Driver } from "@/lib/api/types";
 import { driverHref } from "@/lib/domain/routes";
-import { getDriverName } from "@/lib/domain/teams";
+import { getDriverName, getTeamHero } from "@/lib/domain/teams";
 import { listOf, orFallback, pageMetadata, plural } from "@/lib/metadata";
 import { breadcrumbLd, driverLd } from "@/lib/structuredData";
 
@@ -102,7 +106,7 @@ export default async function DriverPage({
           ]),
         ]}
       />
-      <Suspense fallback={<DetailPageSkeleton className="min-h-svh" />}>
+      <Suspense fallback={<PosterPageSkeleton />}>
         <DriverContent driver={driver} />
       </Suspense>
     </>
@@ -120,16 +124,16 @@ const DriverContent = async ({ driver }: { driver: Driver }) => {
 
   return (
     <>
-      <DriverHero driver={driver} season={latest?.season} team={latest?.team} />
+      <div className="flex flex-col">
+        <DriverHero driver={driver} team={latest?.team} titles={titles} />
+        <Slot label="Stats" fallback={<StatRailSkeleton />}>
+          <DriverStats driverId={driverId} career={career} latest={latest} />
+        </Slot>
+      </div>
       <Columns
-        asideLabel="Teammate and biography"
+        asideLabel="Biography and championship by season"
         aside={
           <>
-            {latest && (
-              <Slot fallback={null}>
-                <TeammateCard driverId={driverId} season={latest.season} />
-              </Slot>
-            )}
             <Slot label="About" fallback={<AboutCardSkeleton />}>
               <AboutCard
                 driver={driver}
@@ -137,21 +141,32 @@ const DriverContent = async ({ driver }: { driver: Driver }) => {
                 titles={titles}
               />
             </Slot>
+            <Slot fallback={<SeasonBarsSkeleton />}>
+              <SeasonBars
+                driverId={driverId}
+                seasons={career.seasons.map((s) => s.season)}
+              />
+            </Slot>
           </>
         }
       >
-        <TitlesCard titles={titles} />
-        <Slot label="Stats" fallback={<StatsCardSkeleton />}>
-          <StatsCard driverId={driverId} career={career} latest={latest} />
-        </Slot>
+        {/* The current season, or the last one they raced */}
+        {latest && (
+          <Slot label="Every race" fallback={<SeasonStripSkeleton />}>
+            <SeasonStrip
+              season={latest.season}
+              races={career.races.filter((r) => r.season === latest.season)}
+              hero={getTeamHero(latest.team.constructorId)}
+            />
+          </Slot>
+        )}
+        {latest && (
+          <Slot fallback={null}>
+            <TeammateCards driverId={driverId} season={latest.season} />
+          </Slot>
+        )}
         <Slot label="Last 5 races" fallback={<RecentRacesSkeleton />}>
           <RecentRaces races={career.races} />
-        </Slot>
-        <Slot fallback={<SeasonBarsSkeleton />}>
-          <SeasonBars
-            driverId={driverId}
-            seasons={career.seasons.map((s) => s.season)}
-          />
         </Slot>
       </Columns>
     </>

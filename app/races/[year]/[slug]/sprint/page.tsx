@@ -3,12 +3,14 @@ import type { Metadata } from "next";
 import { io } from "next/cache";
 import { notFound } from "next/navigation";
 import { ContentSkeleton } from "@/components/layout/PageSkeletons";
+import { KeyLaps, KeyLapsSkeleton } from "@/components/races/KeyLaps";
 import { RaceResults } from "@/components/races/RaceResults";
 import { EmptyState } from "@/components/ui/States";
 import { getSprint } from "@/lib/api/jolpica";
+import { getSprintSession, getStints } from "@/lib/api/openf1";
 import type { Race } from "@/lib/api/types";
 import { isSprintWeekend } from "@/lib/domain/sessions";
-import { pageMetadata } from "@/lib/metadata";
+import { orFallback, pageMetadata } from "@/lib/metadata";
 import {
   describeWin,
   getRaceWeekend,
@@ -40,13 +42,31 @@ export const generateMetadata = async ({
 const SprintResults = async ({ race }: { race: Race }) => {
   // Request time, so the build doesn't fetch every sprint
   await io();
-  const sprint = await getSprint(race.season, race.round);
-  if (!sprint?.SprintResults?.length) {
+  const [sprint, session] = await Promise.all([
+    getSprint(race.season, race.round),
+    // OpenF1 (2023+) is an extra: without it the table has no stints
+    race.Sprint
+      ? orFallback(getSprintSession(race.season, race.Sprint.date))
+      : null,
+  ]);
+  const results = sprint?.SprintResults;
+  if (!results?.length) {
     return <EmptyState>No results yet.</EmptyState>;
   }
+  const stints = session && (await orFallback(getStints(session)));
 
   return (
-    <RaceResults race={race} kind="sprint" results={sprint.SprintResults} />
+    <RaceResults
+      race={race}
+      kind="sprint"
+      results={results}
+      stints={stints ?? undefined}
+      aside={
+        <Suspense fallback={<KeyLapsSkeleton />}>
+          <KeyLaps session={session} results={results} />
+        </Suspense>
+      }
+    />
   );
 };
 

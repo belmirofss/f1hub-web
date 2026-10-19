@@ -8,6 +8,7 @@ import { getDriverStandings, getRecentForm } from "@/lib/api/jolpica";
 import { driverHref } from "@/lib/domain/routes";
 import { getDriverCode, getDriverName, getTeamColor } from "@/lib/domain/teams";
 
+// The championship top 5 with their last five finishes
 export const TopFiveCard = async () => {
   // Request time, so the build doesn't depend on the APIs
   await io();
@@ -21,9 +22,9 @@ export const TopFiveCard = async () => {
     <Card as="section" aria-labelledby="top-five" className="gap-1">
       <div className="mb-1 flex items-center justify-between gap-3">
         <h2 id="top-five">
-          <Label>Top 5 · last 5 races</Label>
+          <Label>Form · last 5 races</Label>
         </h2>
-        <InlineLink href="/standings">All</InlineLink>
+        <InlineLink href="/standings">Standings</InlineLink>
       </div>
       <ol>
         {standings.standings.slice(0, 5).map((standing) => (
@@ -61,12 +62,11 @@ export const TopFiveCard = async () => {
           </li>
         ))}
       </ol>
-      {/* Desktop leaves the legend to the Standings page */}
-      <FormLegend className="border-t border-line-soft pt-2.5 lg:hidden" />
+      <FormLegend className="border-t border-line-soft pt-2.5" />
     </Card>
   );
 };
 
 export const TopFiveCardSkeleton = () => (
-  <CardSkeleton lines={5} className="min-h-[330px] lg:min-h-[280px]" />
+  <CardSkeleton lines={5} className="min-h-[328px] lg:min-h-[305px]" />
 );

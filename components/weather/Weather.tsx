@@ -64,7 +64,7 @@ export const WeatherSummary = ({
         icon={condition.icon}
         className={cn(
           "size-[22px] shrink-0 lg:size-6",
-          rainChance >= 50 ? "text-rain" : "text-sprint",
+          rainChance >= 50 ? "text-rain" : "text-sprint-ink",
         )}
       />
       <div className="min-w-0 flex-1">

@@ -34,7 +34,7 @@ const StepButton = ({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-line bg-surface-raised transition-colors hover:bg-line active:bg-line disabled:cursor-default disabled:opacity-35 disabled:hover:bg-surface-raised"
+      className="flex size-11 shrink-0 cursor-pointer items-center justify-center border border-line bg-surface-raised transition-colors hover:bg-line active:bg-line disabled:cursor-default disabled:opacity-35 disabled:hover:bg-surface-raised"
     >
       <Icon aria-hidden size={18} strokeWidth={2} />
     </button>
@@ -75,7 +75,7 @@ export const WhatIf = ({
         <button
           type="button"
           onClick={() => setPositions(getWhatIfStart(contenders))}
-          className="relative cursor-pointer text-[13px] font-bold text-accent after:absolute after:-inset-x-2 after:-inset-y-3 hover:underline"
+          className="relative cursor-pointer text-[13px] font-bold text-accent-ink after:absolute after:-inset-x-2 after:-inset-y-3 hover:underline"
         >
           Reset
         </button>
@@ -117,7 +117,7 @@ export const WhatIf = ({
               <span
                 className={cn(
                   "flex-1 text-right font-mono text-[15px] font-bold",
-                  contender.code === champion?.code && "text-accent",
+                  contender.code === champion?.code && "text-accent-ink",
                 )}
               >
                 {+contender.total.toFixed(1)}
@@ -134,7 +134,7 @@ export const WhatIf = ({
       <p
         aria-live="polite"
         className={cn(
-          "flex items-center gap-2.5 rounded-[10px] p-3 text-[15px] font-bold",
+          "flex items-center gap-2.5 p-3 text-[15px] font-bold",
           champion
             ? "bg-accent text-on-accent"
             : clash
