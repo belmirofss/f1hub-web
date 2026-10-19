@@ -129,6 +129,24 @@ export const getTeammatePairs = (
     if (gaps.length)
       pair.qualifyingGapMs = gaps.reduce((sum, g) => sum + g, 0) / gaps.length;
 
+    // The API's qualifying starts in 1994 and has gaps; without a session
+    // the starting grid stands in. Grid 0 is a pit-lane start, behind
+    // everyone.
+    const qualified = new Set(
+      qualifying
+        .filter((session) => session.QualifyingResults?.length)
+        .map((session) => session.round),
+    );
+    const grid = (row: { grid: string }) => Number(row.grid) || Infinity;
+    results.forEach((race) => {
+      if (qualified.has(race.round)) return;
+      const ra = race.Results?.find(forTeam(a));
+      const rb = race.Results?.find(forTeam(b));
+      if (!ra || !rb || grid(ra) === grid(rb)) return;
+      if (grid(ra) < grid(rb)) pair.qualifying[0]++;
+      else pair.qualifying[1]++;
+    });
+
     return [pair];
   });
 
