@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { io } from "next/cache";
 import { notFound } from "next/navigation";
 import { CircuitFacts } from "@/components/circuits/CircuitFacts";
 import { LapRecord } from "@/components/circuits/LapRecord";
@@ -18,7 +19,11 @@ import { TrackHeroSkeleton } from "@/components/layout/PageSkeletons";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { InlineLink } from "@/components/ui/Card";
 import { Slot } from "@/components/ui/Slot";
-import { getCircuit, getCircuitHistory } from "@/lib/api/jolpica";
+import {
+  getCircuit,
+  getCircuitHistory,
+  getSeasonSchedule,
+} from "@/lib/api/jolpica";
 import { OPENF1_FIRST_SEASON } from "@/lib/api/openf1";
 import type { Circuit } from "@/lib/api/types";
 import { getCircuitTags, getWinsByDriver } from "@/lib/domain/circuits";
@@ -27,11 +32,16 @@ import { getDriverName } from "@/lib/domain/teams";
 import { orFallback, pageMetadata, plural } from "@/lib/metadata";
 import { breadcrumbLd, circuitLd } from "@/lib/structuredData";
 
-// Circuit ids are lowercase words joined by "_" ("marina_bay")
+// Circuit ids are lowercase words joined by "_" ("marina_bay"). This
+// season's come with its schedule, so prerendering them asks the API for
+// nothing more.
 const findCircuit = async (param: string) => {
   const circuitId = decodeURIComponent(param);
   if (!/^[a-z0-9_-]+$/.test(circuitId)) notFound();
-  const circuit = await getCircuit(circuitId);
+  const races = await getSeasonSchedule("current");
+  const circuit =
+    races.find((race) => race.Circuit.circuitId === circuitId)?.Circuit ??
+    (await getCircuit(circuitId));
   if (!circuit) notFound();
   return circuit;
 };
@@ -42,6 +52,8 @@ export const generateMetadata = async ({
   const { circuitId, circuitName, Location } = await findCircuit(
     (await params).circuitId,
   );
+  // Request time, like the page's content
+  await io();
   const races = (await orFallback(getCircuitHistory(circuitId)))?.races ?? [];
   const where = `${circuitName} in ${Location.locality}, ${Location.country}`;
 
@@ -70,9 +82,20 @@ export const generateMetadata = async ({
   });
 };
 
-// The page waits for this one cached request before it starts streaming, so
-// an unknown circuit gets a real 404 instead of a 200 with a not-found page.
-// That makes it a blocking route rather than an instant App Shell.
+// This season's circuits, prerendered at build time: the home page and the
+// calendar link to them, and their prefetch then brings the page's shell,
+// so they open at once and the content streams in
+export const generateStaticParams = async () => {
+  const races = await getSeasonSchedule("current");
+  return [...new Set(races.map((race) => race.Circuit.circuitId))].map(
+    (circuitId) => ({ circuitId }),
+  );
+};
+
+// Any other circuit waits for this one cached request before it starts
+// streaming, so an unknown circuit gets a real 404 instead of a 200 with a
+// not-found page. That makes it a blocking route rather than an instant App
+// Shell.
 export const instant = false;
 
 export default async function CircuitPage({
@@ -105,6 +128,9 @@ export default async function CircuitPage({
 // the page and the rest sits in a panel beside it, or under it on phones.
 // Circuits OpenF1 never covered get the panel full width and no map box.
 const CircuitContent = async ({ circuit }: { circuit: Circuit }) => {
+  // Request time, so the build doesn't fetch every circuit's history (the
+  // API allows 4 requests a second)
+  await io();
   const { circuitId, circuitName, Location } = circuit;
   const { races, fastestLaps } = await getCircuitHistory(circuitId);
   // The map comes from the latest race OpenF1 covers
