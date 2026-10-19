@@ -84,6 +84,16 @@ export const formatShortDate = (date: Date | number, timeZone?: string) => {
   return `${day} ${month}`.toUpperCase();
 };
 
+// "2026-10-09", the calendar day in a zone, for matching days up
+export const formatIsoDate = (date: Date | number, timeZone?: string) => {
+  const { year, month, day } = getParts(
+    date,
+    { year: "numeric", month: "2-digit", day: "2-digit" },
+    timeZone,
+  );
+  return `${year}-${month}-${day}`;
+};
+
 // "FRI 09 OCT"
 export const formatDayDate = (date: Date | number, timeZone?: string) => {
   const { weekday, day, month } = getParts(
