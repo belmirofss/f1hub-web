@@ -11,7 +11,6 @@ import {
   type TimelineRound,
 } from "@/lib/domain/calendar";
 import { isNightRace } from "@/lib/domain/circuits";
-import { getCountryCode3ByName } from "@/lib/domain/countries";
 import {
   formatRaceDay,
   isSprintWeekend,
@@ -21,6 +20,7 @@ import { getDriverCode, getDriverName, getTeamColor } from "@/lib/domain/teams";
 import { ShallowLink } from "@/components/ui/ShallowLink";
 import { PickRoundLink } from "./PickRoundLink";
 import { SprintBadge } from "./Posters";
+import { CountryCode } from "./SeasonData";
 
 export const DETAILS_ID = "round-details";
 
@@ -144,7 +144,7 @@ const HorizontalStrip = ({
                   R{race.round}
                 </span>
                 <span aria-hidden className="text-xs font-extrabold">
-                  {getCountryCode3ByName(race.Circuit.Location.country)}
+                  <CountryCode country={race.Circuit.Location.country} />
                 </span>
                 <span
                   aria-hidden

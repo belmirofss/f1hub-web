@@ -14,6 +14,7 @@ import {
   type CalendarQuery,
   type CalendarView,
 } from "@/lib/domain/calendar";
+import { getCountryCode3ByName } from "@/lib/domain/countries";
 import { getRoundStates } from "@/lib/domain/sessions";
 import { PLACEHOLDER_OUTLINE } from "@/lib/domain/trackMap";
 import { getRequestTime } from "@/lib/requestTime";
@@ -54,20 +55,29 @@ export const Calendar = async ({ query }: { query: CalendarQuery }) => {
   }
 
   const rows = getRoundStates(races, winners, now);
-  // Not awaited: the board streams each outline in when it's ready
-  const outlines = Object.fromEntries(
-    races.map(({ Circuit: { circuitId } }) => [
-      circuitId,
-      getCircuitOutline(circuitId).catch(() => PLACEHOLDER_OUTLINE),
-    ]),
-  );
+  const circuits = races.map((race) => race.Circuit);
+  const data = {
+    // Not awaited: the board streams each outline in when it's ready
+    outlines: Object.fromEntries(
+      circuits.map(({ circuitId }) => [
+        circuitId,
+        getCircuitOutline(circuitId).catch(() => PLACEHOLDER_OUTLINE),
+      ]),
+    ),
+    countryCodes: Object.fromEntries(
+      circuits.map(({ Location: { country } }) => [
+        country,
+        getCountryCode3ByName(country),
+      ]),
+    ),
+  };
   const selected = getSelectedRound(rows, query)?.race.Circuit.circuitId;
 
   return (
     <CalendarBoard
-      rows={rows}
+      rounds={rows}
       now={now}
-      outlines={outlines}
+      season={data}
       winners={
         selected
           ? { circuitId: selected, list: getLastWinners(selected) }

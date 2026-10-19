@@ -24,7 +24,7 @@ import { getTeamColor } from "@/lib/domain/teams";
 import { plural } from "@/lib/metadata";
 import { ScrollToRound } from "./ScrollToRound";
 import { SessionCountdown } from "./SessionCountdown";
-import { SeasonOutline } from "./SeasonOutline";
+import { SeasonOutline } from "./SeasonData";
 
 export const roundId = (race: Race) => `r${race.round}`;
 

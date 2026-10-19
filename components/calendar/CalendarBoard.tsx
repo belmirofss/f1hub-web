@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowDown } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useNow } from "@/components/time/useNow";
 import { Segmented } from "@/components/ui/Segmented";
 import type { Race } from "@/lib/api/types";
 import {
@@ -17,13 +18,13 @@ import {
   type PosterFilter,
   type TimelineFilter,
 } from "@/lib/domain/calendar";
-import type { RoundState } from "@/lib/domain/sessions";
+import { markRoundStates, type RoundState } from "@/lib/domain/sessions";
 import { JumpLink } from "./JumpLink";
 import { MonthGrid, MonthNav } from "./Month";
 import { PickRoundLink } from "./PickRoundLink";
 import { Posters, roundId } from "./Posters";
 import { RoundDetails } from "./RoundDetails";
-import { SeasonOutlinesContext, type SeasonOutlines } from "./SeasonOutline";
+import { SeasonDataContext, type SeasonData } from "./SeasonData";
 import { DETAILS_ID, Timeline } from "./Timeline";
 
 const ViewSwitch = ({
@@ -168,15 +169,16 @@ const loadPastWinners = (circuitId: string) => {
 // views, filters, months and rounds only changes the URL in place and draws
 // the new state in the browser, without a request.
 export const CalendarBoard = ({
-  rows,
-  now,
-  outlines,
+  rounds,
+  now: requestTime,
+  season,
   winners,
 }: {
-  rows: RoundState[];
-  // The request time on the server, when the rounds' states were worked out
+  // Each round with its winner, if it has one yet
+  rounds: Pick<RoundState, "race" | "winner">[];
+  // The time the server rendered at, until the browser's clock takes over
   now: number;
-  outlines: SeasonOutlines;
+  season: SeasonData;
   // The last winners at the round the server was asked for
   winners?: { circuitId: string; list: Promise<PastWinner[] | null> };
 }) => {
@@ -185,6 +187,9 @@ export const CalendarBoard = ({
     () => parseCalendarQuery(Object.fromEntries(searchParams)),
     [searchParams],
   );
+  // Which round is next moves on while the page stays open
+  const now = useNow(60_000) ?? requestTime;
+  const rows = useMemo(() => markRoundStates(rounds, now), [rounds, now]);
   const races = useMemo(() => rows.map((row) => row.race), [rows]);
   const done = rows.filter((row) => row.isPast).length;
   const next = rows.find((row) => row.isNext);
@@ -197,7 +202,7 @@ export const CalendarBoard = ({
       : loadPastWinners(circuitId);
 
   return (
-    <SeasonOutlinesContext value={outlines}>
+    <SeasonDataContext value={season}>
       <PageHeader
         title="Calendar"
         meta={`${races[0].season} · ${done}/${races.length}`}
@@ -251,6 +256,6 @@ export const CalendarBoard = ({
         </>
       )}
       {next && <NextRaceButton race={next.race} query={query} />}
-    </SeasonOutlinesContext>
+    </SeasonDataContext>
   );
 };

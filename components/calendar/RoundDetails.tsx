@@ -23,7 +23,7 @@ import {
 } from "@/lib/domain/sessions";
 import { getDriverName, getTeamColor } from "@/lib/domain/teams";
 import { ScrollToDetails } from "./ScrollToDetails";
-import { SeasonOutline } from "./SeasonOutline";
+import { SeasonOutline } from "./SeasonData";
 import { DETAILS_ID } from "./Timeline";
 
 const DAY = 24 * 3600000;

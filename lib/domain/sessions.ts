@@ -176,6 +176,19 @@ export type RoundState = {
 
 // A race is done once it has a winner or started over 3 hours ago (results
 // can take a while to reach the API). The first one that isn't is next.
+export const markRoundStates = (
+  rounds: Pick<RoundState, "race" | "winner">[],
+  now: number,
+): RoundState[] => {
+  let nextFound = false;
+  return rounds.map(({ race, winner }) => {
+    const isPast = !!winner || getRaceStart(race).getTime() + 3 * HOUR < now;
+    const isNext = !isPast && !nextFound;
+    if (isNext) nextFound = true;
+    return { race, winner, isNext, isPast };
+  });
+};
+
 export const getRoundStates = (
   races: Race[],
   winners: RaceResults[],
@@ -184,12 +197,8 @@ export const getRoundStates = (
   const winnerByRound = new Map(
     winners.map((race) => [race.round, race.Results?.[0]]),
   );
-  let nextFound = false;
-  return races.map((race) => {
-    const winner = winnerByRound.get(race.round);
-    const isPast = !!winner || getRaceStart(race).getTime() + 3 * HOUR < now;
-    const isNext = !isPast && !nextFound;
-    if (isNext) nextFound = true;
-    return { race, winner, isNext, isPast };
-  });
+  return markRoundStates(
+    races.map((race) => ({ race, winner: winnerByRound.get(race.round) })),
+    now,
+  );
 };

@@ -12,10 +12,10 @@ import {
   type MonthCell,
 } from "@/lib/domain/calendar";
 import { isNightRace } from "@/lib/domain/circuits";
-import { getCountryCode3ByName } from "@/lib/domain/countries";
 import { isSprintWeekend, type RoundState } from "@/lib/domain/sessions";
 import { getDriverCode, getDriverName, getTeamColor } from "@/lib/domain/teams";
 import { plural } from "@/lib/metadata";
+import { CountryCode } from "./SeasonData";
 
 const WEEKDAYS = [
   "Monday",
@@ -172,7 +172,7 @@ const Day = ({
                   R{row.race.round}
                 </span>
                 <span className="truncate text-[11px] font-extrabold md:hidden">
-                  {getCountryCode3ByName(row.race.Circuit.Location.country)}
+                  <CountryCode country={row.race.Circuit.Location.country} />
                 </span>
                 <span className="truncate text-sm leading-tight font-bold max-md:hidden">
                   {getPlaceName(row.race, races)}
