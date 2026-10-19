@@ -4,19 +4,29 @@ import {
   type Career,
   type CareerSeason,
 } from "@/lib/api/jolpica";
-import { formatPoints, ordinal } from "@/lib/domain/drivers";
+import { formatPoints, formerCareerStats, ordinal } from "@/lib/domain/drivers";
 
 // The stat rail: the latest season (position, points, wins, podiums), then
-// the whole career (starts, wins, podiums, poles)
+// the whole career (starts, wins, podiums, poles). A former driver's last
+// season isn't news, so theirs is the whole career, titles first.
 export const DriverStats = async ({
   driverId,
   career,
   latest,
+  titles,
 }: {
   driverId: string;
   career: Career;
   latest?: CareerSeason;
+  titles: number;
 }) => {
+  if (!career.onGrid)
+    return (
+      <StatRail
+        groups={[{ name: "Career", stats: formerCareerStats(career, titles) }]}
+      />
+    );
+
   // Points and wins come from the championship standings: they include
   // sprints, and old seasons only counted a driver's best results
   const standing = latest

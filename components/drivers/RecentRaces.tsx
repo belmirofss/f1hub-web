@@ -21,8 +21,15 @@ const details = (race: CareerRace) =>
     .filter(Boolean)
     .join(" · ");
 
-// The last five starts, newest first, each linking to its race weekend
-export const RecentRaces = async ({ races }: { races: CareerRace[] }) => {
+// The last five starts, newest first, each linking to its race weekend. For
+// a former driver they're the final ones.
+export const RecentRaces = async ({
+  races,
+  final,
+}: {
+  races: CareerRace[];
+  final?: boolean;
+}) => {
   const recent = races.slice(-COUNT).reverse();
   if (!recent.length) return null;
 
@@ -39,7 +46,9 @@ export const RecentRaces = async ({ races }: { races: CareerRace[] }) => {
   return (
     <Card as="section" aria-labelledby="recent-races" className="gap-0 pb-1">
       <h2 id="recent-races" className="pb-2">
-        <Label>Last {recent.length} races</Label>
+        <Label>
+          {final ? "Final" : "Last"} {recent.length} races
+        </Label>
       </h2>
       <ol>
         {recent.map((race) => {
