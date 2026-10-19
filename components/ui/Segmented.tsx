@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import { LinkPending } from "./LinkPending";
 import { onRadioKeyDown } from "./radioKeys";
 
 export type SegmentedOption<T extends string> = {
@@ -88,9 +89,10 @@ export const Segmented = <T extends string>({
               key={option.value}
               href={option.href}
               aria-current={selected ? "page" : undefined}
-              className={classes}
+              className={cn(classes, "relative")}
             >
               {option.label}
+              <LinkPending />
             </Link>
           );
         }

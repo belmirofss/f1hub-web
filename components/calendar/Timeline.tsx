@@ -19,6 +19,8 @@ import {
   type RoundState,
 } from "@/lib/domain/sessions";
 import { getDriverCode, getDriverName, getTeamColor } from "@/lib/domain/teams";
+import { LinkPending } from "@/components/ui/LinkPending";
+import { PickRoundLink } from "./PickRoundLink";
 import { SprintBadge } from "./Posters";
 
 export const DETAILS_ID = "round-details";
@@ -139,6 +141,7 @@ const HorizontalStrip = ({
                   !matchesFilter(race, filter) && "opacity-30",
                 )}
               >
+                <LinkPending />
                 <span className="sr-only">{describeRound(round)}</span>
                 <span aria-hidden className="font-mono text-[10px]">
                   R{race.round}
@@ -204,11 +207,13 @@ const VerticalStrip = ({ rounds, filter, selected }: StripProps) => {
                   {weeks} weeks since the last race
                 </span>
               )}
-              <Link
+              <PickRoundLink
                 href={`${calendarHref({ view: "timeline", only: filter, round: race.round })}#${DETAILS_ID}`}
+                round={race.round}
+                details={DETAILS_ID}
                 aria-current={isSelected ? "true" : undefined}
                 className={cn(
-                  "grid min-h-12 grid-cols-[34px_minmax(0,1fr)_auto] items-center gap-2.5 border border-l-[5px] pr-3 pl-2.5",
+                  "relative grid min-h-12 grid-cols-[34px_minmax(0,1fr)_auto] items-center gap-2.5 border border-l-[5px] pr-3 pl-2.5",
                   tileClasses(round),
                   !isPast && !isNext && "text-soft",
                   isSelected && "outline-2 -outline-offset-2 outline-text",
@@ -250,7 +255,8 @@ const VerticalStrip = ({ rounds, filter, selected }: StripProps) => {
                     {formatRaceDay(race)}
                   </span>
                 </span>
-              </Link>
+                <LinkPending />
+              </PickRoundLink>
             </div>
           </li>
         );

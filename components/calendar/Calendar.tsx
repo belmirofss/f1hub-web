@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { ArrowDown } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/ui/States";
+import { LinkPending } from "@/components/ui/LinkPending";
 import { Segmented } from "@/components/ui/Segmented";
 import { LoadingRegion, Skeleton } from "@/components/ui/Skeleton";
 import {
@@ -23,6 +23,7 @@ import { getRoundStates, type RoundState } from "@/lib/domain/sessions";
 import { getRequestTime } from "@/lib/requestTime";
 import { JumpLink } from "./JumpLink";
 import { MonthGrid, MonthNav } from "./Month";
+import { PickRoundLink } from "./PickRoundLink";
 import { Posters, roundId } from "./Posters";
 import { RoundDetails, RoundDetailsSkeleton } from "./RoundDetails";
 import { DETAILS_ID, Timeline } from "./Timeline";
@@ -117,7 +118,8 @@ const NEXT_BUTTON =
 // Floats above the tab bar on phones and in the corner on bigger screens.
 // Sticky rather than fixed, so it comes to rest at the end of the calendar
 // instead of covering the footer's links. On the posters it glides to the
-// next round; on the timeline and the month grid it picks it.
+// next round; on the timeline and the month grid it picks it, or glides to
+// its details if they already show it.
 const NextRaceButton = ({
   race,
   query,
@@ -140,12 +142,15 @@ const NextRaceButton = ({
     );
   }
   return (
-    <Link
+    <PickRoundLink
       href={`${calendarHref({ ...query, month: undefined, round: race.round })}#${DETAILS_ID}`}
+      round={race.round}
+      details={DETAILS_ID}
       className={NEXT_BUTTON}
     >
       {children}
-    </Link>
+      <LinkPending />
+    </PickRoundLink>
   );
 };
 
