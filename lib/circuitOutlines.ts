@@ -7,6 +7,7 @@ import {
   getTrackOutline,
 } from "@/lib/api/openf1";
 import type { RaceResults } from "@/lib/api/types";
+import { CIRCUIT_OUTLINES } from "@/lib/data/circuitOutlines";
 import { PLACEHOLDER_OUTLINE, type TrackOutline } from "@/lib/domain/trackMap";
 import { orFallback } from "@/lib/metadata";
 
@@ -30,14 +31,16 @@ const getLatestRaces = cache(async () => {
   return latest;
 });
 
-// A thumbnail outline of a circuit, drawn from the winner's fastest lap of
-// the latest race there. Circuits OpenF1 has nothing for (new venues) get
-// the placeholder loop, and so do failed requests (OpenF1 shuts its free
-// API during live sessions), which aren't cached, so the next visit tries
-// again.
+// A thumbnail outline of a circuit. Most ship with the app (lib/data);
+// others are drawn from the winner's fastest lap of the latest race there.
+// Circuits OpenF1 has nothing for (new venues) get the placeholder loop, and
+// so do failed requests (OpenF1 shuts its free API during live sessions),
+// which aren't cached, so the next visit tries again.
 export const getCircuitOutline = async (
   circuitId: string,
 ): Promise<TrackOutline> => {
+  const shipped = CIRCUIT_OUTLINES[circuitId];
+  if (shipped) return shipped;
   const race = (await getLatestRaces()).get(circuitId);
   const winner = race?.Results?.[0];
   if (!race || !winner) return PLACEHOLDER_OUTLINE;

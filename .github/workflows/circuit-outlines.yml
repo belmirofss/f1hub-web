@@ -1,0 +1,37 @@
+# Regenerates lib/data/circuitOutlines.ts every week and opens a pull request
+# when an outline changed: a new venue's first race, or a layout change.
+# Needs "Allow GitHub Actions to create and approve pull requests" in the
+# repository's Settings > Actions > General.
+name: Circuit outlines
+
+on:
+  schedule:
+    # Wednesdays at 06:00 UTC, clear of race weekends (OpenF1 shuts its free
+    # API during live sessions)
+    - cron: "0 6 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  outlines:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run outlines
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/circuit-outlines
+          commit-message: Update circuit outlines
+          title: Update circuit outlines
+          body: |
+            Weekly run of `npm run outlines`: outlines for new circuits or changed layouts.
+          add-paths: lib/data/circuitOutlines.ts
+          delete-branch: true
