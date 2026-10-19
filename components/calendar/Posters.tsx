@@ -33,6 +33,7 @@ const DAY = 24 * 3600000;
 type PosterProps = {
   row: RoundState;
   races: Race[];
+  className?: string;
 };
 
 export const SprintBadge = ({ className }: { className?: string }) => (
@@ -67,7 +68,7 @@ const Numeral = ({
 
 // A finished round on paper with the winner's team band at the foot, or a
 // round still to come in outline with a dashed track
-const Poster = ({ row, races }: PosterProps) => {
+const Poster = ({ row, races, className }: PosterProps) => {
   const { race, winner, isPast } = row;
   const { circuitId, circuitName, Location } = race.Circuit;
   const color = winner && getTeamColor(winner.Constructor.constructorId);
@@ -85,7 +86,7 @@ const Poster = ({ row, races }: PosterProps) => {
           .join(" · ");
 
   return (
-    <li id={roundId(race)} className="scroll-mt-16">
+    <li id={roundId(race)} className={cn("scroll-mt-16", className)}>
       <Link
         href={raceHref(race, races)}
         className={cn(
@@ -246,6 +247,17 @@ const WinsTile = ({ rows }: { rows: RoundState[] }) => {
   );
 };
 
+// The double-size poster can't start in a row's last column. Rather than
+// leave that cell empty, or let a later round fill it out of order, the
+// poster before it widens to the end of the row: 2 columns on phones, 3 on
+// tablets, 6 on desktop.
+const getGapFiller = (before: number) =>
+  cn(
+    before % 2 === 1 && "max-md:col-span-2",
+    before % 3 === 2 && "md:max-lg:col-span-2",
+    before % 6 === 5 && "lg:col-span-2",
+  );
+
 // The season as a wall of race posters: 2 columns on phones, 3 on tablets
 // and 6 on desktop. "Around now" shows every round and opens at the next
 // one; "Done" and "To go" split the season at it.
@@ -264,6 +276,7 @@ export const Posters = ({
     filter === "done" ? row.isPast : filter === "todo" ? !row.isPast : true,
   );
   const next = rows.find((row) => row.isNext);
+  const beforeNext = shown.findIndex((row) => row.isNext);
 
   if (!shown.length) {
     return (
@@ -277,17 +290,15 @@ export const Posters = ({
 
   return (
     <>
-      {/* Dense, so a round after the double-size poster can fill the gap
-          it leaves at the end of a row. The list's box is left out so the
-          summary tile shares its grid; role="list" keeps it a list in
-          Safari. */}
-      <div className="grid grid-flow-row-dense auto-rows-[minmax(172px,auto)] grid-cols-2 gap-2.5 md:auto-rows-[220px] md:grid-cols-3 lg:auto-rows-[248px] lg:grid-cols-6 lg:gap-3">
+      {/* The list's box is left out so the summary tile shares its grid;
+          role="list" keeps it a list in Safari. */}
+      <div className="grid auto-rows-[minmax(172px,auto)] grid-cols-2 gap-2.5 md:auto-rows-[220px] md:grid-cols-3 lg:auto-rows-[248px] lg:grid-cols-6 lg:gap-3">
         <ol
           role="list"
           aria-label={`${races[0].season} races`}
           className="contents"
         >
-          {shown.map((row) =>
+          {shown.map((row, index) =>
             row.isNext ? (
               <NextPoster
                 key={row.race.round}
@@ -296,7 +307,16 @@ export const Posters = ({
                 now={now}
               />
             ) : (
-              <Poster key={row.race.round} row={row} races={races} />
+              <Poster
+                key={row.race.round}
+                row={row}
+                races={races}
+                className={
+                  index === beforeNext - 1
+                    ? getGapFiller(beforeNext)
+                    : undefined
+                }
+              />
             ),
           )}
         </ol>

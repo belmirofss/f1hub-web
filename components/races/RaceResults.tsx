@@ -364,11 +364,8 @@ export const RaceResults = ({
       >
         <StatRows
           stats={stats}
-          className={cn(
-            desktopStats
-              ? "lg:grid lg:grid-cols-3 lg:gap-x-6 lg:divide-y-0 lg:border-b lg:border-line"
-              : "lg:hidden",
-          )}
+          columns
+          className={desktopStats ? undefined : "lg:hidden"}
         />
         <ResultsTable
           results={results}
