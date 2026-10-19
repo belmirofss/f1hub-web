@@ -27,7 +27,9 @@ import {
   getSessionEnd,
   getSessions,
   getWeekendStart,
+  isDayOver,
   isSprintWeekend,
+  untimedLabel,
   type Session,
   type SessionKey,
 } from "@/lib/domain/sessions";
@@ -63,9 +65,11 @@ const CODES: Record<SessionKey, string> = {
 const SessionRow = ({
   session,
   forecast,
+  now,
 }: {
   session: Session;
   forecast?: Forecast;
+  now: number;
 }) => {
   const isRace = session.key === "race";
   const hour = forecast && getHourAt(forecast, session.start.getTime());
@@ -99,7 +103,7 @@ const SessionRow = ({
         {session.hasTime ? (
           <SessionTime value={session.start} format="clock" />
         ) : (
-          "TBC"
+          untimedLabel(isDayOver(session, now))
         )}
       </span>
     </li>
@@ -270,6 +274,7 @@ export const LightsOut = async () => {
                   key={session.key}
                   session={session}
                   forecast={forecast}
+                  now={now}
                 />
               ))}
             </ul>

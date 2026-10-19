@@ -72,6 +72,16 @@ export const getSessions = (race: Race): Session[] =>
 
 export const getRaceStart = (race: Race) => toDate(race.date, race.time);
 
+const DAY = 24 * HOUR;
+
+// The clock for a session with only a date: TBC while it may still be ahead,
+// a dash once it's over (old seasons only have dates, and always will)
+export const untimedLabel = (over: boolean) => (over ? "—" : "TBC");
+
+// Without a time, a session is surely over once its whole day is
+export const isDayOver = (session: Pick<Session, "start">, now: number) =>
+  session.start.getTime() + DAY <= now;
+
 // Scheduled length of each session, for the weekend timeline and to tell
 // when one is live. Red flags can run them over; this is the plan.
 const SESSION_MINUTES: Record<SessionKey, number> = {
@@ -118,8 +128,6 @@ export const getWeekendState = (
     next: next === -1 ? undefined : next,
   };
 };
-
-const DAY = 24 * HOUR;
 
 // The weekend's days in a time zone (the viewer's when left out), from
 // midnight before the first session to midnight after the last

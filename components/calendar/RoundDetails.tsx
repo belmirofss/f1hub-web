@@ -14,6 +14,7 @@ import {
   getSessions,
   getWeekendStart,
   isSprintWeekend,
+  untimedLabel,
   type RoundState,
 } from "@/lib/domain/sessions";
 import { getDriverName, getTeamColor } from "@/lib/domain/teams";
@@ -133,7 +134,7 @@ export const RoundDetails = async ({
                   {session.hasTime ? (
                     <LocalTime value={session.start} />
                   ) : (
-                    "TBC"
+                    untimedLabel(isPast)
                   )}
                 </span>
               </li>

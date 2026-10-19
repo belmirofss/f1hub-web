@@ -9,8 +9,15 @@ import type { Race } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { getCircuitLayout, getCircuitTimezone } from "@/lib/domain/circuits";
 import { circuitHref } from "@/lib/domain/routes";
-import { getRaceStart, getSessions, type Session } from "@/lib/domain/sessions";
+import {
+  getRaceStart,
+  getSessions,
+  untimedLabel,
+  type Session,
+} from "@/lib/domain/sessions";
 import { EXTERNAL_LINK } from "@/lib/links";
+import { orFallback } from "@/lib/metadata";
+import { getWeekendTabs } from "@/lib/raceWeekend";
 import { WeekendTimeline } from "./WeekendTimeline";
 
 // The weather is extra: if Open-Meteo is down the schedule still shows
@@ -26,9 +33,11 @@ const loadForecast = async (race: Race) => {
 const SessionRow = ({
   session,
   trackZone,
+  over,
 }: {
   session: Session;
   trackZone?: string;
+  over: boolean;
 }) => {
   const isRace = session.key === "race";
 
@@ -53,7 +62,11 @@ const SessionRow = ({
         </span>
       </th>
       <td className="pl-2 text-right font-mono text-base font-bold">
-        {session.hasTime ? <LocalTime value={session.start} /> : "TBC"}
+        {session.hasTime ? (
+          <LocalTime value={session.start} />
+        ) : (
+          untimedLabel(over)
+        )}
       </td>
       {trackZone && (
         <td className="pl-2 text-right font-mono text-[13px] text-muted">
@@ -68,8 +81,9 @@ const SessionRow = ({
   );
 };
 
-// Every session in the visitor's time and at the track
-const SessionsTable = ({ race }: { race: Race }) => {
+// Every session in the visitor's time and at the track. `over` once the
+// weekend has results.
+const SessionsTable = ({ race, over }: { race: Race; over: boolean }) => {
   const trackZone = getCircuitTimezone(race.Circuit.circuitId);
 
   return (
@@ -101,6 +115,7 @@ const SessionsTable = ({ race }: { race: Race }) => {
               key={session.key}
               session={session}
               trackZone={trackZone}
+              over={over}
             />
           ))}
         </tbody>
@@ -143,7 +158,11 @@ const CircuitInfo = ({ race }: { race: Race }) => {
 // The Schedule tab: weekend timeline, forecast, session times and circuit
 export const Schedule = async ({ race }: { race: Race }) => {
   const sessions = getSessions(race);
-  const forecast = await loadForecast(race);
+  // Results mean the weekend is over, without reading the clock per request
+  const [forecast, tabs] = await Promise.all([
+    loadForecast(race),
+    orFallback(getWeekendTabs(race)),
+  ]);
   const { circuitId, circuitName } = race.Circuit;
   const layout = getCircuitLayout(circuitId);
 
@@ -183,7 +202,7 @@ export const Schedule = async ({ race }: { race: Race }) => {
         />
       )}
       {forecast && <WeekendForecast race={race} forecast={forecast} />}
-      <SessionsTable race={race} />
+      <SessionsTable race={race} over={!!tabs?.results} />
     </Columns>
   );
 };

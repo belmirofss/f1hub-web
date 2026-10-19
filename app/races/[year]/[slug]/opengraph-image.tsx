@@ -1,10 +1,16 @@
 import { connection } from "next/server";
 import { getCurrentSeason, getRaceResults } from "@/lib/api/jolpica";
 import type { Race, Result } from "@/lib/api/types";
+import { clockNow } from "@/lib/clock";
 import { getCircuitTimezone } from "@/lib/domain/circuits";
 import { getCountryCode3ByName } from "@/lib/domain/countries";
 import { getStatusLabel } from "@/lib/domain/results";
-import { formatRaceDay, getSessions } from "@/lib/domain/sessions";
+import {
+  formatRaceDay,
+  getSessions,
+  isDayOver,
+  untimedLabel,
+} from "@/lib/domain/sessions";
 import { getDriverName, getTeamColor } from "@/lib/domain/teams";
 import { formatClock, formatDay, utcOffsetLabel } from "@/lib/domain/time";
 import { orFallback } from "@/lib/metadata";
@@ -45,7 +51,7 @@ const Podium = ({ results }: { results: Result[] }) => (
   </OgRows>
 );
 
-const Sessions = ({ race }: { race: Race }) => {
+const Sessions = ({ race, now }: { race: Race; now: number }) => {
   // Times at the track; without a start time only the UTC date is known
   const zone = getCircuitTimezone(race.Circuit.circuitId);
   const sessions = getSessions(race);
@@ -86,7 +92,7 @@ const Sessions = ({ race }: { race: Race }) => {
               <div style={{ ...ogMono, display: "flex", fontSize: 40 }}>
                 {session.hasTime && zone
                   ? formatClock(session.start, true, zone)
-                  : "TBC"}
+                  : untimedLabel(isDayOver(session, now))}
               </div>
             </div>
           );
@@ -138,7 +144,7 @@ export default async function Image({
         {results?.length ? (
           <Podium results={results} />
         ) : (
-          <Sessions race={race} />
+          <Sessions race={race} now={clockNow()} />
         )}
       </div>
     </OgFrame>,
