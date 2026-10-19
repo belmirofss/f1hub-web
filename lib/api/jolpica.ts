@@ -482,6 +482,8 @@ export type Career = {
   podiums: number;
   poles: number;
   seasons: CareerSeason[]; // oldest first
+  // The team they started the most races for; on a tie, the later one
+  mainTeam?: Constructor;
   // On the current grid (or last season's, before the first race)
   onGrid: boolean;
 };
@@ -555,6 +557,9 @@ const summarizeCareer = (
   onGrid: boolean,
 ): Career => {
   const seasons = new Map<string, CareerSeason>();
+  const teamStarts = new Map<string, number>();
+  let mainTeam: Constructor | undefined;
+  let mainStarts = 0;
   races.forEach((race) => {
     const season = seasons.get(race.season) ?? {
       season: race.season,
@@ -568,6 +573,14 @@ const summarizeCareer = (
     season.podiums += isPodium(race.position) ? 1 : 0;
     season.team = race.Constructor;
     seasons.set(race.season, season);
+
+    const { constructorId } = race.Constructor;
+    const starts = (teamStarts.get(constructorId) ?? 0) + 1;
+    teamStarts.set(constructorId, starts);
+    if (starts >= mainStarts) {
+      mainTeam = race.Constructor;
+      mainStarts = starts;
+    }
   });
 
   return {
@@ -577,6 +590,7 @@ const summarizeCareer = (
     podiums: races.filter((r) => isPodium(r.position)).length,
     poles: poles.length,
     seasons: [...seasons.values()],
+    mainTeam,
     onGrid,
   };
 };

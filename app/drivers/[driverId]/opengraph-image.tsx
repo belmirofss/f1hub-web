@@ -26,7 +26,8 @@ import {
 
 // The driver's card: the Livery Poster block in the team's colour, then the
 // latest season and the whole career, like the page's stat rail. A former
-// driver's card has the whole career only.
+// driver's card is in the colour of the team they raced for most, with the
+// whole career only.
 
 export const alt = "Driver card: team, season and career stats";
 export const size = OG_SIZE;
@@ -59,6 +60,7 @@ export default async function Image({
   const position = Number(standing?.position);
   const titles = titleSeasons.length;
   const racing = !!latest && Number(latest.season) === current;
+  const team = former ? career.mainTeam : latest?.team;
 
   const meta = [
     !former && latest?.team.name,
@@ -70,7 +72,7 @@ export default async function Image({
 
   return ogImage(
     <OgPosterFrame
-      hero={getTeamHero(latest?.team.constructorId)}
+      hero={getTeamHero(team?.constructorId)}
       kicker={
         former
           ? `Driver · ${seasonSpan(career.seasons)}`

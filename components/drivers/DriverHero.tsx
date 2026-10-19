@@ -7,10 +7,10 @@ import { seasonSpan } from "@/lib/domain/drivers";
 import { teamHref } from "@/lib/domain/routes";
 import { getTeamHero } from "@/lib/domain/teams";
 
-// The page header in the colour of the driver's current (or last) team:
-// "DRIVER · RED BULL RACING · NLD", or "DRIVER · 1991–2012 · DEU" for a
-// former driver, then the car number behind the given name and surname, and
-// the title years
+// The page header: "DRIVER · RED BULL RACING · NLD" in the current team's
+// colour, or "DRIVER · 1991–2012 · DEU" in the colour of the team a former
+// driver raced for most, then the car number behind the given name and
+// surname, and the title years
 export const DriverHero = ({
   driver,
   career,
@@ -20,11 +20,10 @@ export const DriverHero = ({
   career: Career;
   titles: string[];
 }) => {
-  const latest = career.seasons.at(-1)?.team;
-  const team = career.onGrid ? latest : undefined;
+  const team = career.onGrid ? career.seasons.at(-1)?.team : undefined;
   return (
     <PosterHero
-      hero={getTeamHero(latest?.constructorId)}
+      hero={getTeamHero((team ?? career.mainTeam)?.constructorId)}
       meta={
         <>
           DRIVER
