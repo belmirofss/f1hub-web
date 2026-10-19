@@ -26,7 +26,33 @@ const ROW =
   "grid grid-cols-[30px_repeat(10,minmax(0,1fr))] gap-[3px] md:grid-cols-[52px_repeat(10,minmax(0,1fr))] md:gap-[5px]";
 
 const CELL =
-  "relative flex h-[34px] items-center justify-center overflow-hidden font-mono text-[9px] font-bold transition-opacity md:h-[78px] md:flex-col md:items-stretch md:justify-between md:p-[7px] md:text-[10px] focus-visible:z-10";
+  "@container relative flex h-[34px] items-center justify-center overflow-hidden font-mono text-[9px] font-bold transition-opacity md:h-[78px] md:flex-col md:items-stretch md:justify-between md:p-[7px] md:text-[10px] focus-visible:z-10";
+
+// Advance widths of the bold sans, in em, rounded up. Accents count as
+// nothing once split off their letter.
+const CHAR_WIDTHS: [RegExp, number][] = [
+  [/[\u0300-\u036f]/, 0],
+  [/ /, 0.19],
+  [/[ijlI.']/, 0.28],
+  [/[frtJ]/, 0.42],
+  [/[acesz]/, 0.57],
+  [/[mw]/, 0.95],
+  [/[MW]/, 1.1],
+  [/[BEFLSZ]/, 0.66],
+  [/[A-Z]/, 0.8],
+];
+const charWidth = (char: string) =>
+  CHAR_WIDTHS.find(([pattern]) => pattern.test(char))?.[1] ?? 0.63;
+
+// The name's size: 12px, or smaller for a long name in a narrow cell
+// ("Schumacher" at 1440px), down to 10px before it's cut short
+const nameSize = (name: string) => {
+  const width = [...name.normalize("NFD")].reduce(
+    (sum, char) => sum + charWidth(char),
+    0,
+  );
+  return `clamp(10px, ${(100 / width).toFixed(1)}cqw, 12px)`;
+};
 
 const matches = (cell: GridCell, term: string) =>
   cell.kind !== "future" && cell.search.includes(term);
@@ -74,7 +100,10 @@ const Cell = ({
       <span className="md:hidden">{shortYear(cell.season)}</span>
       <span className="max-md:hidden">{cell.season}</span>
       {cell.short && (
-        <span className="truncate font-sans text-xs leading-[1.05] font-extrabold max-md:hidden">
+        <span
+          className="truncate font-sans leading-[1.05] font-extrabold max-md:hidden"
+          style={{ fontSize: nameSize(cell.short) }}
+        >
           {cell.short}
         </span>
       )}
