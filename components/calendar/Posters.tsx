@@ -22,7 +22,6 @@ import {
 } from "@/lib/domain/sessions";
 import { getTeamColor } from "@/lib/domain/teams";
 import { plural } from "@/lib/metadata";
-import { ScrollToRound } from "./ScrollToRound";
 import { SessionCountdown } from "./SessionCountdown";
 import { SeasonOutline } from "./SeasonData";
 
@@ -275,7 +274,6 @@ export const Posters = ({
   const shown = rows.filter((row) =>
     filter === "done" ? row.isPast : filter === "todo" ? !row.isPast : true,
   );
-  const next = rows.find((row) => row.isNext);
   const beforeNext = shown.findIndex((row) => row.isNext);
 
   if (!shown.length) {
@@ -322,9 +320,6 @@ export const Posters = ({
         </ol>
         {filter !== "todo" && <WinsTile rows={rows} />}
       </div>
-      {filter === "around" && next && (
-        <ScrollToRound target={roundId(next.race)} />
-      )}
     </>
   );
 };

@@ -302,10 +302,6 @@ export const Search = () => {
             <p className="text-[13px] leading-[19px] text-muted">
               Search by name, code (VER), year (2021) or a place and a year
               (monaco 2024).
-              <span className="hidden lg:inline">
-                {" "}
-                Press <Kbd>/</Kbd> anywhere to search.
-              </span>
             </p>
           </>
         ) : (
@@ -357,9 +353,3 @@ export const Search = () => {
     </div>
   );
 };
-
-const Kbd = ({ children }: { children: string }) => (
-  <kbd className="border border-line px-1.5 font-mono text-[11px] text-soft">
-    {children}
-  </kbd>
-);

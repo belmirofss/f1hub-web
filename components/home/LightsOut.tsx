@@ -8,6 +8,7 @@ import {
 } from "@/components/time/TimeZoneMode";
 import { TeamBar } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
+import { LinkPending } from "@/components/ui/LinkPending";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { WeatherSummary, rainClass } from "@/components/weather/Weather";
 import { getConstructorStandings, getDriverStandings } from "@/lib/api/jolpica";
@@ -49,7 +50,7 @@ import {
 } from "./WeekendClock";
 
 const button =
-  "flex min-h-11 items-center gap-2 rounded-md bg-surface-raised px-3 text-sm font-semibold transition-colors hover:bg-line lg:px-3.5";
+  "relative flex min-h-11 items-center gap-2 rounded-md bg-surface-raised px-3 text-sm font-semibold transition-colors hover:bg-line lg:px-3.5";
 
 // Under each start-light pod and above each timeline block
 const CODES: Record<SessionKey, string> = {
@@ -294,6 +295,7 @@ export const LightsOut = async () => {
               >
                 Weekend details
                 <ChevronRight aria-hidden size={16} strokeWidth={2} />
+                <LinkPending />
               </Link>
               <Link
                 href={circuitHref(race.Circuit.circuitId)}
@@ -307,6 +309,7 @@ export const LightsOut = async () => {
                 />
                 <span className="lg:hidden">Circuit</span>
                 <span className="max-lg:hidden">{locality} circuit guide</span>
+                <LinkPending />
               </Link>
             </div>
           </div>

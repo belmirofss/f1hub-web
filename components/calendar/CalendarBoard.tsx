@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowDown } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -24,6 +24,7 @@ import { MonthGrid, MonthNav } from "./Month";
 import { PickRoundLink } from "./PickRoundLink";
 import { Posters, roundId } from "./Posters";
 import { RoundDetails } from "./RoundDetails";
+import { ScrollToRound } from "./ScrollToRound";
 import { SeasonDataContext, type SeasonData } from "./SeasonData";
 import { DETAILS_ID, Timeline } from "./Timeline";
 
@@ -187,6 +188,9 @@ export const CalendarBoard = ({
     () => parseCalendarQuery(Object.fromEntries(searchParams)),
     [searchParams],
   );
+  // The query the calendar was opened at. Only that lands on the next
+  // poster: picking "Around now" later keeps the page where it is.
+  const [opened] = useState(query);
   // Which round is next moves on while the page stays open
   const now = useNow(60_000) ?? requestTime;
   const rows = useMemo(() => markRoundStates(rounds, now), [rounds, now]);
@@ -256,6 +260,9 @@ export const CalendarBoard = ({
         </>
       )}
       {next && <NextRaceButton race={next.race} query={query} />}
+      {opened.view === "posters" && opened.show === "around" && next && (
+        <ScrollToRound target={roundId(next.race)} />
+      )}
     </SeasonDataContext>
   );
 };
