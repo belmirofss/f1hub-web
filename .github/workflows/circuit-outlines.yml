@@ -12,6 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -19,6 +20,12 @@ jobs:
   outlines:
     runs-on: ubuntu-latest
     steps:
+      # GitHub turns off schedules in public repositories after 60 days with
+      # no commits, which the off-season easily reaches. Enabling the
+      # workflow again on each run restarts that count.
+      - run: gh api -X PUT "repos/$GITHUB_REPOSITORY/actions/workflows/circuit-outlines.yml/enable"
+        env:
+          GH_TOKEN: ${{ github.token }}
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:

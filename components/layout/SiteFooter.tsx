@@ -29,7 +29,9 @@ export const SiteFooter = () => (
               </a>
             </span>
           ))}
-          . F1HUB is independent and has no relationship with Formula 1.
+          . F1HUB is an unofficial fan project and has no relationship with
+          Formula 1. F1 and Formula 1 are trademarks of Formula One Licensing
+          B.V.
         </p>
       </div>
       <a
