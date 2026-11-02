@@ -61,3 +61,9 @@ Then open http://localhost:3000. No API keys are needed: every data source is pu
 ## Stack and deployment
 
 Next.js (App Router) · TypeScript · Tailwind CSS. Hosted on Vercel, which deploys every push to `main`. The build plan is in [docs/PLAN.md](docs/PLAN.md), and the work was tracked as numbered GitHub issues.
+
+## License and trademarks
+
+The code is under the [MIT License](LICENSE). The fonts in `assets/fonts` keep their own SIL Open Font License.
+
+F1HUB is an unofficial fan project and has no relationship with Formula 1. F1, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX and related marks are trademarks of Formula One Licensing B.V. Team, driver and circuit names belong to their owners and are used only to identify them.
